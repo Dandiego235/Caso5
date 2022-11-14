@@ -30,6 +30,13 @@ class Grafo {
             }
         }
 
+        void resetProcessed(vector<Arco*> pComponente) { // se itera por la lista
+            for (Arco* arco : pCompononente) {
+                NodoGrafo* actual = arco->getDestino();
+                actual->setProcesado(false); // reestablece los valores
+            }
+        }
+
         // esta función busca el primer nodo que no ha sido visitado por el recorrido
         NodoGrafo* findNotVisited() {
             NodoGrafo* result = nullptr;
@@ -130,7 +137,7 @@ class Grafo {
 
                     for (Arco* arco : *adyacentes) {
                         // recorremos los arcos para encontrar los nodos adyacentes
-                        NodoGrafo* adyacente = (NodoGrafo*)arco->getDestino(); // obtiene el nodo adyacente en sí
+                        NodoGrafo* adyacente = arco->getDestino(); // obtiene el nodo adyacente en sí
 
                         if (!adyacente->getProcesado()) { // si no está procesado
                             componente.push_back(arco);
@@ -140,7 +147,7 @@ class Grafo {
                     }
                 }
                 if (!cantidadComponentes){
-                    componentesConexas.pushback(componente);
+                    componentesConexas.push_back(componente);
                     contador++;
                 }
                 
@@ -174,6 +181,7 @@ class Grafo {
             int contador = 0;
 
             do {
+                vector<Arco*> componente;
                 componente.push_back(new Arco(NULL, puntoPartida, 0));
                 while (!nodosProcesados.empty()) {
                     NodoGrafo* actual = nodosProcesados.front(); // obtiene el primero de la cola
@@ -187,7 +195,7 @@ class Grafo {
 
                     for (Arco* arco : *adyacentes) {
                         // recorremos los arcos para encontrar los nodos adyacentes
-                        NodoGrafo* adyacente = (NodoGrafo*)arco->getDestino();
+                        NodoGrafo* adyacente = arco->getDestino();
 
                         if (!adyacente->getProcesado()) {
                             componente.push_back(arco);
@@ -197,7 +205,7 @@ class Grafo {
                     }
                 }
                 if (!cantidadComponentes){
-                    componentesConexas.pushback(componente);
+                    componentesConexas.push_back(componente);
                     contador++;
                 }
 
@@ -210,7 +218,7 @@ class Grafo {
 
             } while (visitados < this->getSize()); 
 
-            contadorComponentes = contador;
+            cantidadComponentes = contador;
             return result;
         }
 
@@ -223,6 +231,10 @@ class Grafo {
             return result;
         }
         */
+
+        vector<vector<Arco*>>* getComponentesConexas(){
+            return &componentesConexas;
+        }
 
         // Este método imprime los nodos y la cantidad de arcos que tienen 
         void printCounters() {
