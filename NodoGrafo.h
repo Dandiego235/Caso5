@@ -1,10 +1,12 @@
-#ifndef _NODOGRAFO_
-#define _NODOGRAFO_ 1
-#include "Arco.h"
+#ifndef NODOGRAFO
+#define NODOGRAFO 1
+
 #include <vector>
 #include "INodo.h"
 
 using namespace std;
+
+class Arco;
 
 class NodoGrafo {
     private:

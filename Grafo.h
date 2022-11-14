@@ -31,7 +31,7 @@ class Grafo {
         }
 
         void resetProcessed(vector<Arco*> pComponente) { // se itera por la lista
-            for (Arco* arco : pCompononente) {
+            for (Arco* arco : pComponente) {
                 NodoGrafo* actual = arco->getDestino();
                 actual->setProcesado(false); // reestablece los valores
             }
