@@ -6,13 +6,16 @@
 #include <string>
 #include "IData.h"
 
+class Registered
 class StringData : public IData{
     private:
         string palabra;
+        Registered * usuario;
 
     public:
-        StringData(string pPalabra){
+        StringData(string pPalabra, Registered * pUsuario){
             palabra = pPalabra;
+            usuario = pUsuario;
         }
 
         string getPalabra(){
@@ -38,6 +41,10 @@ class StringData : public IData{
 
         string toString(){ // método para obtener la información del IData para imprimirla.
             return getKey();
+        }
+
+        Registered * getUsuario(){
+            return usuario;
         }
 };
 
