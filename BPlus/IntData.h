@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <string>
+#include "IData.h"
 
 class IntData : public IData{
     private:
