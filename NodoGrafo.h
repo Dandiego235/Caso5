@@ -3,10 +3,13 @@
 
 #include <vector>
 #include "INodo.h"
+#include <unordered_map>
+#include "DijkstraNode.h"
 
 using namespace std;
 
 class Arco;
+class Grafo;
 
 class NodoGrafo {
     private:
@@ -14,16 +17,24 @@ class NodoGrafo {
         vector<Arco*>* listaArcos;
         bool visitado;
         bool procesado;
+        unordered_map<NodoGrafo*, DijkstraNode*> * caminos;
+        vector<NodoGrafo*> * NodosEntrada; 
+        vector<vector<NodoGrafo*>> * ciclos; 
 
     public:
 
         NodoGrafo(INodo* pDato) {
             this->dato = pDato;
             this->listaArcos = new vector<Arco*>();
+            this->caminos = new unordered_map<NodoGrafo*, DijkstraNode*>();
+            this->NodosEntrada = new vector<NodoGrafo*>();
+            this->ciclos = new vector<vector<NodoGrafo*>>();
         }
 
         NodoGrafo() {
-            this->listaArcos = new vector<Arco*>();            
+            this->listaArcos = new vector<Arco*>();     
+            this->caminos = new unordered_map<NodoGrafo*, DijkstraNode*>();  
+            this->NodosEntrada = new vector<NodoGrafo*>();   
         }
 
         void setVisitado(bool pVisitado){
@@ -32,6 +43,12 @@ class NodoGrafo {
 
         bool getVisitado(){
             return visitado;
+        }
+
+        void setDijkstraNodes(vector<NodoGrafo*> nodos){
+            for (NodoGrafo * nodo : nodos){
+                caminos->insert_or_assign(nodo, new DijkstraNode(nodo));
+            }
         }
 
         void setProcesado(bool pProcesado){
@@ -57,6 +74,26 @@ class NodoGrafo {
 
         vector<Arco*>* getArcs() {
             return this->listaArcos;
+        }
+
+        unordered_map<NodoGrafo*, DijkstraNode*> * getCaminos() {
+            return this->caminos;
+        }
+
+        void addEntrada(NodoGrafo * pEntrada){
+            this->NodosEntrada->push_back(pEntrada);
+        }
+
+        vector<NodoGrafo*> * getEntradas(){
+            return NodosEntrada;
+        }
+
+        void addCiclo(vector<NodoGrafo*> pCiclo){
+            this->ciclos->push_back(pCiclo);
+        }
+
+        vector<vector<NodoGrafo*>> * getCiclos() {
+            return this->ciclos;
         }
 };
 
