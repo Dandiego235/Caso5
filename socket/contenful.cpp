@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <curl/curl.h>
 #include "json.hpp"
+#include "../Registered.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -37,38 +38,6 @@ typedef struct {
     size_t len;
     size_t buflen;
 } get_request;
-
-class Registered {
-    private:
-        string nickname;
-        string offer;
-        string demand;
-        string postdate;
-
-    public:
-        Registered(string pNickname, string pOffer, string pDemand, string pPostdate) {
-            this->nickname = pNickname;
-            this->offer = pOffer;
-            this->demand = pDemand;
-            this->postdate = pPostdate;
-        }
-
-        string getNickname() {
-            return this->nickname;
-        }
-
-        string getOffer() {
-            return this->offer;
-        }
-
-        string getDemand() {
-            return this->demand;
-        }
-
-        string getPostdate() {
-            return this->postdate;
-        }
-};
 
 // static method to act as callback for curl
 size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
@@ -263,8 +232,10 @@ int main(void)
 {
     Contenful regs;
 
-    //regs.registerUser("badbunny_in_concert", "conciertos a estadio lleno de gente escuchando pum pum con el mismo acorde por 2 horas", "transporte y seguridad en todos los paises que visita y mucha fiesta tambien", "conejo123", 02, 11, 2022);
+    //regs.registerUser("Wakanda_Med", "Vendemos máquinas con fines médicos de alta tecnología y calidad, hechas de metales exóticos, para tratamientos de enfermedades o heridas fatales.", "Necesitamos muchos programadores con mucha experiencia para desarrollar el software de nuestros dispositivos médicos", "WakandaForever2022", 16, 11, 2022);
     vector<Registered*> allrecords = regs.getRecords();
-    cout << allrecords.at(0)->getNickname() << endl;
+    for (int index = 0; index < allrecords.size(); index++){
+        cout << "NickName: " << allrecords.at(index)->getNickname() << "\nOffer: " << allrecords.at(index)->getOffer() << "\nDemand: " << allrecords.at(index)->getDemand() << "\nPostDate: " << allrecords.at(index)->getPostdate()  << endl;
+    }
     return 0;  
 }

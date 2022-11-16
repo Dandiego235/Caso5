@@ -1,85 +1,106 @@
-#include "Grafo.h"
-#include "Animal.h"
-#include "INodo.h"
+#include "Grafo/Grafo.h"
+#include "Grafo/Animal.h"
+#include "Grafo/INodo.h"
 #include <vector>
 #include <iostream>
 #include <string>
+#include "Registered.h"
 
 #define NUM_ANIMALES 14
 
 using namespace std;
 
+Grafo* crearGrafo(vector){
+
+}
+
 int main(){
-    Grafo zoologico(true); // grafo dirigido
 
-    string animales [NUM_ANIMALES] = {"Perro", "Gato", "Vaca", "Oso", "León", "Loro", "Mono", "Búho", "Pato", "Rata", "Naga", "Zorro", "Jaguar", "Toro"};
+    vector<Registered*> allrecords;
+    allrecords.push_back(new Registered("Wakanda_Med","Vendemos máquinas con fines médicos de alta tecnología y calidad, hechas de metales exóticos, para tratamientos de enfermedades o heridas fatales.",
+    "Necesitamos muchos programadores con mucha experiencia para desarrollar el software de nuestros dispositivos médicos","11/16/2022"));
+    allrecords.push_back(new Registered("vendePollos38","Se vende pollo asado, frito o al ajillo","carne de pollo de la más alta calidad y aceite","11/03/2022"));
+    allrecords.push_back(new Registered("elvendeTacos29","venta de tacos al estilo mexicano tradicional","Verduras frescas de la más alta calidad y carne de res o cerdo","11/02/2022"));
+    allrecords.push_back(new Registered("badbunny_in_concert","conciertos a estadio lleno de gente escuchando pum pum con el mismo acorde por 2 horas","transporte y seguridad en todos los paises que visita y mucha fiesta tambien","11/02/2022"));
+    allrecords.push_back(new Registered("rock_odin_gold","soy programador python con experiencia","","01/23/2019"));
+    allrecords.push_back(new Registered("metal_year_2000","","requiero de 5 ingenieros en computación con 8 años de experiencia, conocimientos en python.","10/28/2022"));
+    allrecords.push_back(new Registered("josearnoldowood","esta es la oferta","esta es la demanda","10/10/2022"));
 
-    for (int index = 1; index <= NUM_ANIMALES; index++){
-        zoologico.addNode(new Animal(index, animales[index - 1]));
-    }
 
+
+
+    // allrecords.push_back(new Registered("","","",""));
+    // allrecords.push_back(new Registered("","","",""));
+    // allrecords.push_back(new Registered("","","",""));
+
+    // Grafo zoologico(true); // grafo dirigido
+
+    // string animales [NUM_ANIMALES] = {"Perro", "Gato", "Vaca", "Oso", "León", "Loro", "Mono", "Búho", "Pato", "Rata", "Naga", "Zorro", "Jaguar", "Toro"};
+
+    // for (int index = 1; index <= NUM_ANIMALES; index++){
+    //     zoologico.addNode(new Animal(index, animales[index - 1]));
+    // }
+
+    // zoologico.addArc(1, 2, 8);
+    // zoologico.addArc(1, 3, 3);
+    // zoologico.addArc(1, 6, 13);
+    // zoologico.addArc(2, 3, 2);
+    // zoologico.addArc(2, 4, 1);
+    // zoologico.addArc(3, 2, 3);
+    // zoologico.addArc(3, 4, 9);
+    // zoologico.addArc(3, 5, 2);
+    // zoologico.addArc(4, 5, 4);
+    // zoologico.addArc(4, 8, 2);
+    // zoologico.addArc(4, 7, 6);
+    // zoologico.addArc(5, 1, 5);
+    // zoologico.addArc(5, 6, 5);
+    // zoologico.addArc(5, 4, 6);
+    // zoologico.addArc(5, 9, 4);
+    // zoologico.addArc(6, 9, 7);
+    // zoologico.addArc(6, 7, 1);
+    // zoologico.addArc(7, 5, 3);
+    // zoologico.addArc(7, 8, 4);
+    // zoologico.addArc(8, 9, 3);
+    // zoologico.addArc(9, 7, 5);
+    // zoologico.addArc(10, 6, 0);
+    // zoologico.addArc(11, 12, 0);
+    // zoologico.addArc(11, 13, 0);
+    // zoologico.addArc(12, 13, 0);
+    // zoologico.addArc(13, 12, 0);
+    // zoologico.addArc(13, 14, 0);
+    // zoologico.addArc(14, 11, 0);
+
+    // NodoGrafo * dijkstra = zoologico.getNodo(4);
+    // zoologico.Dijkstra(dijkstra);
+
+    // zoologico.findCiclo(dijkstra);
+
+    // vector<INodo*> profundidad = zoologico.deepPath(zoologico.getNodo(1)->getInfo());
     
-    zoologico.addArc(1, 2, 8);
-    zoologico.addArc(1, 3, 3);
-    zoologico.addArc(1, 6, 13);
-    zoologico.addArc(2, 3, 2);
-    zoologico.addArc(2, 4, 1);
-    zoologico.addArc(3, 2, 3);
-    zoologico.addArc(3, 4, 9);
-    zoologico.addArc(3, 5, 2);
-    zoologico.addArc(4, 5, 4);
-    zoologico.addArc(4, 8, 2);
-    zoologico.addArc(4, 7, 6);
-    zoologico.addArc(5, 1, 5);
-    zoologico.addArc(5, 6, 5);
-    zoologico.addArc(5, 4, 6);
-    zoologico.addArc(5, 9, 4);
-    zoologico.addArc(6, 9, 7);
-    zoologico.addArc(6, 7, 1);
-    zoologico.addArc(7, 5, 3);
-    zoologico.addArc(7, 8, 4);
-    zoologico.addArc(8, 9, 3);
-    zoologico.addArc(9, 7, 5);
-    zoologico.addArc(10, 6, 0);
-    zoologico.addArc(11, 12, 0);
-    zoologico.addArc(11, 13, 0);
-    zoologico.addArc(12, 13, 0);
-    zoologico.addArc(13, 12, 0);
-    zoologico.addArc(13, 14, 0);
-    zoologico.addArc(14, 11, 0);
+    // cout << "Recorrido en profundidad" << endl;
+    // for (INodo* nodo : profundidad){
+    //     Animal* animal = (Animal*)(void*)nodo;
+    //     cout << "     " << animal->getNombre() << endl;
+    // }
 
-    NodoGrafo * dijkstra = zoologico.getNodo(4);
-    zoologico.Dijkstra(dijkstra);
+    // vector<INodo*> anchura = zoologico.broadPath(zoologico.getNodo(1)->getInfo());
 
-    zoologico.findCiclo(dijkstra);
+    // cout << "Recorrido en anchura" << endl;
+    // for (INodo* nodo : anchura){
+    //     Animal* animal = (Animal*)(void*)(nodo);
+    //     cout << "     " << animal->getNombre() << endl;
+    // }
 
-    vector<INodo*> profundidad = zoologico.deepPath(zoologico.getNodo(1)->getInfo());
-    
-    cout << "Recorrido en profundidad" << endl;
-    for (INodo* nodo : profundidad){
-        Animal* animal = (Animal*)(void*)nodo;
-        cout << "     " << animal->getNombre() << endl;
-    }
+    // cout << "Componentes conexas" << endl;
+    // vector<vector<Arco*>> componentes = *zoologico.getComponentesConexas();
 
-    vector<INodo*> anchura = zoologico.broadPath(zoologico.getNodo(1)->getInfo());
-
-    cout << "Recorrido en anchura" << endl;
-    for (INodo* nodo : anchura){
-        Animal* animal = (Animal*)(void*)(nodo);
-        cout << "     " << animal->getNombre() << endl;
-    }
-
-    cout << "Componentes conexas" << endl;
-    vector<vector<Arco*>> componentes = *zoologico.getComponentesConexas();
-
-    for(vector<Arco*> componente : componentes){
-        cout << "  Componente" << endl;
-        for (Arco* arco : componente){
-            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
-            Animal* animCon = (Animal*)(void*)(nodo->getInfo());
-            cout << "    " << animCon->getNombre() << endl;
-        }
-    }
-
+    // for(vector<Arco*> componente : componentes){
+    //     cout << "  Componente" << endl;
+    //     for (Arco* arco : componente){
+    //         NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
+    //         Animal* animCon = (Animal*)(void*)(nodo->getInfo());
+    //         cout << "    " << animCon->getNombre() << endl;
+    //     }
+    // }
     
 }
