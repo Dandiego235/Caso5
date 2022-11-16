@@ -91,7 +91,7 @@ class Registered : public INodo, public IData{
             for (char c : lista){
                 if (c == ' ' || c == '.' || c == ','){
                     if (word != ""){
-                        StringData * palabra = new StringData(word);
+                        StringData * palabra = new StringData(word, this);
                         pSet->insert(palabra);
                         word = "";
                     }
@@ -100,7 +100,7 @@ class Registered : public INodo, public IData{
                 }
             }
             if (word != ""){
-                StringData * palabra = new StringData(word);
+                StringData * palabra = new StringData(word, this);
                 pSet->insert(palabra);
             }
             
