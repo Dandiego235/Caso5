@@ -24,8 +24,8 @@ class Registered : public INodo{
         set<StringData*> *wordsDemand;
 
         static int contadorId;
-        static vector<Registered*> comparedores;
-        static vector<Registered*> vendedores;
+        static vector<Registered*> *compradores;
+        static vector<Registered*> *vendedores;
 
         void replace_all(string& s, string const& toReplace, string const& replaceWith) {
             string buf;
@@ -55,9 +55,9 @@ class Registered : public INodo{
             this->offer = pOffer;
             this->demand = pDemand;
             this->postdate = pPostdate;
-            id = contador++;
-            FillSet(&wordsOffer, offer);
-            FillSet(&wordsDemand, demand);
+            id = contadorId++;
+            FillSet(wordsOffer, offer);
+            FillSet(wordsDemand, demand);
         }
 
         string getNickname() {
@@ -84,11 +84,11 @@ class Registered : public INodo{
             return wordsDemand;
         }
 
-        static vector<Registered*> getCompradores(){
+        static vector<Registered*>* getCompradores(){
             return compradores;
         }
 
-        static vector<Registered*> getVendedores(){
+        static vector<Registered*>* getVendedores(){
             return vendedores;
         }
 
@@ -134,8 +134,8 @@ class Registered : public INodo{
         }
 };
 
-Registered::contador = 1;
-Registered::compradores = new vector<Registered>();
-Registered::vendedores = new vector<Registered>();
+int Registered::contadorId = 1;
+vector<Registered*>* Registered::compradores = new vector<Registered*>();
+vector<Registered*>* Registered::vendedores = new vector<Registered*>();
 
 #endif

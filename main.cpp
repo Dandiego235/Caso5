@@ -7,6 +7,7 @@
 #include "Grafo/INodo.h"
 #include "Registered.h"
 #include "Match.h"
+#include "BPlus/StringData.h"
 #include "BPlus/BPlusTree.h"
 
 #define NUM_ANIMALES 14
@@ -37,24 +38,25 @@ void crearMatches(Grafo* grafo){
 
         BPlusTree *arbol = new BPlusTree(ORDEN, SIZE);
         for (int contador = 0; contador < cantidad; contador++, index++){
-            for (StringData* palabra : compradores->at(index)->getWordsOffer()){
+            for (StringData* palabra : *compradores->at(index)->getWordsOffer()){
                 arbol->insert(palabra);
             }
         }
-        arbol.print();
+        arbol->print();
 
         vector<Match> ranking;
-        for (Registered* vendedor : vendedores){
+        for (Registered* vendedor : *vendedores){
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
-            for (StringData* palabra : vendedor->getWordsDemand()){
+            for (StringData* palabra : *vendedor->getWordsDemand()){
                 int index = 0;
-                LeafNode* leaf = arbol.find(palabra, index);
+                LeafNode* leaf = arbol->find(palabra, index);
                 while (!palabra->compareTo(leaf->getSecuencia()->at(index))){
-                    Registered* comprador = leaf->getSecuencia()->at(index)->getRegistered();
+                    StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(index));
+                    Registered* comprador = strData->getRegistered();
                     if (matches->find(comprador->getNickname()) == matches->end()){
-                        matches.insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
+                        matches->insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
                     }
-                    Match *match = matches.at(comprador->getNickname());
+                    Match *match = matches->at(comprador->getNickname());
                     match->incrementPeso();
                     index++;
                     if (index == leaf->getSecuencia()->size()){ // si llegó al final 
@@ -64,18 +66,18 @@ void crearMatches(Grafo* grafo){
                         }
                     }
                     
-                    for(auto iterador = matches.begin(); iterador != matches.end(); iterador++){
+                    for(auto iterador = matches->begin(); iterador != matches->end(); iterador++){
                         ranking.push_back(*(iterador->second));
                     }
                 }
             }
 
         }
-        sort(ranking);
+        std::sort(ranking);
         auto riterator = ranking.rbegin();
         for (int contador = 0; contador < ranking.size() / 2; contador++){
-            Marca marca = *riterator;
-            grafo->addArc(marca.getVendedor(), marca.getComprador(), marca.getRating())
+            Match match = *riterator;
+            grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
             riterator++;
         }
 

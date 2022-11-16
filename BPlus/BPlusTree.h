@@ -208,7 +208,7 @@ class BPlusTree{
         }
 
         int getOrden(){
-            return orden;
+            return order;
         }
 };
 

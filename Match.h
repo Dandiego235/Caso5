@@ -30,7 +30,7 @@ class Match{
             rating += ++peso;
         }
 
-        int getRating(){
+        int getRating() const{
             return rating;
         }
 
