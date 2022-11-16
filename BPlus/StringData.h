@@ -1,12 +1,13 @@
-#ifndef INTSTRING
+#ifndef STRINGDATA
 
-#define INTSTRING 1
+#define STRINGDATA 1
 
 #include <sstream>
 #include <string>
 #include "IData.h"
 
-class Registered
+class Registered;
+
 class StringData : public IData{
     private:
         string palabra;
@@ -30,9 +31,11 @@ class StringData : public IData{
         int compareTo(IData *pToCompare){
             StringData * compare = dynamic_cast<StringData*>(pToCompare);
             if (palabra == compare->getPalabra()){
+                return 0;
+            } else if (palabra > compare->getPalabra()){
                 return 1;
             }
-            return 0;
+            return -1;
         }
 
         string getKey(){

@@ -23,6 +23,9 @@ class Registered : public INodo{
         set<StringData*> *wordsOffer;
         set<StringData*> *wordsDemand;
 
+        bool comprador;
+        bool vendedor;
+
         static int contadorId;
         static vector<Registered*> *compradores;
         static vector<Registered*> *vendedores;
@@ -56,8 +59,24 @@ class Registered : public INodo{
             this->demand = pDemand;
             this->postdate = pPostdate;
             id = contadorId++;
+            wordsOffer = new set<StringData*>();
+            wordsDemand = new set<StringData*>();
             FillSet(wordsOffer, offer);
             FillSet(wordsDemand, demand);
+
+            if (!pOffer.size() == 0){
+                vendedor = true;
+                vendedores->push_back(this);
+            } else {
+                vendedor = false;
+            }
+
+            if (!pDemand.size() == 0){
+                comprador = true;
+                compradores->push_back(this);
+            } else {
+                comprador = false;
+            }
         }
 
         string getNickname() {
