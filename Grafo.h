@@ -8,6 +8,9 @@
 #include <stack>
 #include "Arco.h"
 #include <iostream>
+#include <climits>
+#include <fstream>
+#include <stack>
 
 using namespace std;
 
@@ -50,7 +53,27 @@ class Grafo {
             return result; // si todos han sido visitados, retorna nulo
         }
 
+        NodoGrafo * minimo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * s){
+            int mx = INT_MAX;
+            NodoGrafo * v;
+            for (auto nodo : (*VmenosF)){
+                if (!v){
+                    v = nodo.first;
+                }
+                if (s->getCaminos()->at(nodo.first)->getDistancia()<= mx){
+                    mx = s->getCaminos()->at(nodo.first)->getDistancia();
+                    v = nodo.first;
+                } 
+            }
+            return v;
+        }
+
     public:
+
+        void SaveToFile(){
+            return;
+        }
+
         Grafo(bool pDirigido) { // constructor del grafo
             this->esDirigido =  pDirigido;
             int cantidadComponentes = 0;
@@ -60,6 +83,9 @@ class Grafo {
             return this->listaNodos.size();
         }
 
+        vector<NodoGrafo*> getNodos(){
+            return listaNodos;
+        }
         void addNode(INodo* pNodo) { // agrega un nodo al grafo
             NodoGrafo* nuevoNodo = new NodoGrafo(pNodo); // crea un puntero al nodo y le establece que sus datos son el parámetro de INodo
             this->listaNodos.push_back(nuevoNodo); // añade el nodo a la lista
@@ -76,6 +102,7 @@ class Grafo {
             Arco* newArc = new Arco(pOrigen, pDestino, pPeso); // crea el nuevo arco
 
             pOrigen->addArc(newArc); // crea establece el arco desde el origen al destino
+            pDestino->addEntrada(pOrigen);
             if (!this->esDirigido) { // si no es dirigido, crea un arco en dirección contraria.
                 Arco* reverseArc =  new Arco(pDestino, pOrigen , pPeso);
                 pDestino->addArc(reverseArc);
@@ -236,15 +263,92 @@ class Grafo {
             return &componentesConexas;
         }
 
+
+        void Dijkstra(NodoGrafo * starting){
+            unordered_map<NodoGrafo*, NodoGrafo*> F;
+            
+            //vector<NodoGrafo*> VmenosF = listaNodos; // arreglar este para copiar la lista
+            F.insert_or_assign(starting,starting);
+            unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
+            for (NodoGrafo * nodo : listaNodos){
+                VmenosF.insert_or_assign(nodo, nodo);
+            }
+            //VmenosF.erase(starting);
+            starting->setDijkstraNodes(listaNodos);
+            unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
+            for (auto nodo : *(distancias)){
+                nodo.second->setDistancia(INT_MAX);
+            }
+            //distancias->at(starting)->setDistancia(0);
+            for (std::vector<Arco*>::iterator current = starting->getArcs()->begin() ; current != starting->getArcs()->end(); ++current){
+                distancias->at((*current)->getDestino())->setDistancia((*current)->getPeso());
+            }
+
+            while (!VmenosF.empty()){
+                NodoGrafo * menor = minimo(&VmenosF, starting);
+                resetNodes();
+                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){
+                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
+                        distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso());
+                        distancias->at((*current)->getDestino())->addArc((*current));
+                    }
+                    /*
+                    if ((*current)->getDestino() == starting) {
+
+                    }
+                    */
+                }
+                F.insert_or_assign(menor,menor);
+                VmenosF.erase(menor);
+            }
+            for (auto nodo : *(distancias)){
+                cout << "Distancia más corta desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< endl;               
+            }
+        }
+
+        void findCicloAux(vector<NodoGrafo*> pCiclo, NodoGrafo * currentNode, NodoGrafo * starting){
+            for (NodoGrafo * entrada : *(currentNode->getEntradas())){
+                if (entrada == starting){
+                    starting->addCiclo(pCiclo);
+                } else if (starting->getCaminos()->at(currentNode)->getDistancia() != INT_MAX && !entrada->getVisitado()){
+                    pCiclo.push_back(entrada);
+                    entrada->setVisitado(true);
+                    findCicloAux(pCiclo, entrada, starting);
+                    pCiclo.pop_back();
+                } 
+            }
+        }
+
+        void findCiclo(NodoGrafo * starting){
+
+            if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
+                
+                for (NodoGrafo * entrada : *(starting->getEntradas())){
+                    if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
+                        vector<NodoGrafo*> ciclo;
+                
+                        ciclo.push_back(entrada);
+                        findCicloAux(ciclo, entrada, starting);
+                    }
+                }
+
+                for (vector<NodoGrafo*> ciclo : *(starting->getCiclos())){
+                    cout << "Ciclo " << endl;
+                    cout << "Nodo : " << starting->getInfo()->getId() << endl;
+                    for (NodoGrafo * nodo : ciclo){
+                        cout <<"Nodo: " << nodo->getInfo()->getId() << endl;
+                    }
+                    cout << "Nodo : " << starting->getInfo()->getId() << endl;
+                }
+            }
+        }
+        
         // Este método imprime los nodos y la cantidad de arcos que tienen 
         void printCounters() {
             for (std::vector<NodoGrafo*>::iterator current = listaNodos.begin() ; current != listaNodos.end(); ++current) {
                 NodoGrafo* actual = (*current);
                 cout << actual->getInfo()->getId() << " tiene " << actual->getArcs()->size() << endl;
-            }
-            for (std::vector<NodoGrafo*>::iterator current = listaNodos.begin() ; current != listaNodos.end(); ++current) {
-                NodoGrafo* actual = (*current);
-                cout << actual->getInfo()->getId() << " tiene " << actual->getArcs()->size() << endl;
+                
             }
         }
 };

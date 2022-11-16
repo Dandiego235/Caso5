@@ -48,6 +48,11 @@ int main(){
     zoologico.addArc(13, 14, 0);
     zoologico.addArc(14, 11, 0);
 
+    NodoGrafo * dijkstra = zoologico.getNodo(4);
+    zoologico.Dijkstra(dijkstra);
+
+    zoologico.findCiclo(dijkstra);
+
     vector<INodo*> profundidad = zoologico.deepPath(zoologico.getNodo(1)->getInfo());
     
     cout << "Recorrido en profundidad" << endl;
@@ -75,4 +80,6 @@ int main(){
             cout << "    " << animCon->getNombre() << endl;
         }
     }
+
+    
 }
