@@ -2,8 +2,9 @@
 
 #define REGISTERED
 
-#include <cstring>
+#include <vector>
 #include <set>
+#include <string>
 #include "BPlus/IData.h"
 #include "Grafo/INodo.h"
 #include "BPlus/StringData.h"
@@ -12,15 +13,19 @@
 
 using namespace std;
 
-class Registered : public INodo, public IData{
+class Registered : public INodo{
     private:
         string nickname;
         string offer;
         string demand;
         string postdate;
 
-        set<StringData*> wordsOffer;
-        set<StringData*> wordsDemand;
+        set<StringData*> *wordsOffer;
+        set<StringData*> *wordsDemand;
+
+        static int contadorId;
+        static vector<Registered*> comparedores;
+        static vector<Registered*> vendedores;
 
         void replace_all(string& s, string const& toReplace, string const& replaceWith) {
             string buf;
@@ -50,6 +55,7 @@ class Registered : public INodo, public IData{
             this->offer = pOffer;
             this->demand = pDemand;
             this->postdate = pPostdate;
+            id = contador++;
             FillSet(&wordsOffer, offer);
             FillSet(&wordsDemand, demand);
         }
@@ -70,12 +76,20 @@ class Registered : public INodo, public IData{
             return this->postdate;
         }
 
-        set<StringData*> getWordsOffer(){
+        set<StringData*>* getWordsOffer(){
             return wordsOffer;
         }
 
-        set<StringData*> getWordsDemand(){
+        set<StringData*>* getWordsDemand(){
             return wordsDemand;
+        }
+
+        static vector<Registered*> getCompradores(){
+            return compradores;
+        }
+
+        static vector<Registered*> getVendedores(){
+            return vendedores;
         }
 
         
@@ -119,5 +133,9 @@ class Registered : public INodo, public IData{
             }
         }
 };
+
+Registered::contador = 1;
+Registered::compradores = new vector<Registered>();
+Registered::vendedores = new vector<Registered>();
 
 #endif
