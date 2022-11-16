@@ -95,6 +95,63 @@ class BPlusTree{
             return element;
         }
 
+        // funcion para buscar un elemento en el árbol y retornar el nodo y el índice donde se ubica
+        // Retorna el nodo hoja de donde se ubica la primera aparcición en el árbol.
+        LeafNode* find(IData* data, int &pIndex){
+            searchPointer = root; // search pointer empieza en la raiz
+            index = 0; // indice del padre del nodo
+
+            while (!searchPointer->getType()){ // mientras no sea hoja
+
+                //obtenemos las llaves y los hijos
+                vector<IData*> *searchKeys = searchPointer->getKeys();
+                vector<BNode*> *searchChildren = searchPointer->getChildren();
+
+                // iteramos sobre las llaves para encontrar la posición donde debemos bajar
+                for (index = 0; index < searchKeys->size(); index++){
+                    if (data->compareTo(searchKeys->at(index)) <= 0){ // si es menor o igual, bajamos por el hijo izquierdo de la llave
+                        break;
+                    }
+                }
+                // si no encontró una llave menor o mayor, baja por el último hijo, la rama del extremo derecho.
+
+                searchPointer = searchChildren->at(index);
+                // el searchpointer apunta al hijo en la posicion.
+            }
+
+            leaf = (LeafNode*)(void*)(searchPointer); // cuando llega a la hoja, convierte el BNode a LeafNode.
+            //LeafNode* testLeaf = leaf; // puntero para encontrar la hoja donde se hará la inserción.
+
+            vector<IData*> *secuencia = leaf->getSecuencia();
+
+            vector<IData*>::iterator element = secuencia->begin(); // iterador para recorrer la secuencia de 
+
+            pIndex = 0;
+
+            if (element != secuencia->end()){ // si el bloque no está vacío
+
+                // recorre la lista hasta encontrar la primera aparición del elemento.
+                while (data->compareTo(*element) > 0){
+                    if (element + 1 == secuencia->end()){
+                        // si llegó al final de este bloque
+                        leaf = leaf->getBrother();
+                        secuencia = leaf->getSecuencia();
+                        element = secuencia->begin();
+                        pIndex = 0;
+                    } else {
+                        // si no, pasa el siguiente elemento.
+                        element++;
+                        pIndex++;
+                    }
+                }
+                if (data->compareTo(*element) == -1){
+                    return nullptr; // el elemento buscado no está en el árbol.
+                }
+                return leaf;
+            }
+            return nullptr;
+        }
+
         // función para imprimir el árbol. Solamente imprime los niveles y bloques, no representa las ramas.
         // Las ramas se interpretan de acuerdo con la cantidad de elementos que hay en cada nivel y en el nivel siguiente.
         void print(){
@@ -143,6 +200,7 @@ class BPlusTree{
                     break;
                 }
             }
+            cout << endl;
         }
 
 };

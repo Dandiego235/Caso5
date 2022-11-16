@@ -30,5 +30,13 @@ int main(){
     tree.insert(new IntData(26));
     tree.insert(new IntData(35));
     tree.insert(new IntData(8));
+
+    IntData* data = new IntData(75);
+    tree.insert(data);
     tree.print();
+
+    int index = 0;
+    LeafNode *leaf = tree.find(data, index);
+    cout << leaf->getSecuencia()->at(index)->toString() << endl;
+
 }
