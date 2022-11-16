@@ -123,11 +123,12 @@ class Registered : public INodo{
             string word = "";
             for (char c : lista){
                 if (c == ' ' || c == '.' || c == ','){
-                    if (word != ""){
+                    if (word != "" && word.size() >= 4){
                         StringData * palabra = new StringData(word, this);
                         pSet->insert(palabra);
-                        word = "";
+                        
                     }
+                    word = "";
                 } else {
                     word += c;
                 }
@@ -139,16 +140,14 @@ class Registered : public INodo{
             
             for (std::set<StringData*>::iterator current = (*pSet).begin() ; current != (*pSet).end(); ++current){
                 word = (*current)->getPalabra();
-                if (word.size() < 4){
-                    current = pSet->erase(current);
-                } else if (word.size() >= 4) {
-                    int percent = (60 * word.size() + 100 - 1) / 100;
-                    if (percent < 4){
-                        percent = 4;
-                    }
-                    word.resize(percent);
-                    (*current)->setPalabra(word);
+                int percent = (60 * word.size() + 100 - 1) / 100;
+                cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
+                if (percent < 4){
+                    percent = 4;
                 }
+                word.resize(percent);
+                (*current)->setPalabra(word);
+                cout << (*current)->getPalabra() << endl; 
             }
         }
 };

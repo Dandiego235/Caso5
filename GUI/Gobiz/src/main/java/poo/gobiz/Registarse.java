@@ -4,6 +4,8 @@
  */
 package poo.gobiz;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.swing.JOptionPane;
 
 /**
@@ -216,7 +218,9 @@ public class Registarse extends javax.swing.JFrame {
                     "Error", JOptionPane.ERROR_MESSAGE);
                   return;
             }
-            
+             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");  
+             LocalDateTime now = LocalDateTime.now();  
+            System.out.println(dtf.format(now)); 
             JOptionPane.showMessageDialog(this, "Se registró el usuario. Se buscarán los matches de acuerdo con lo ingresado."); 
       }//GEN-LAST:event_jButton1ActionPerformed
 
