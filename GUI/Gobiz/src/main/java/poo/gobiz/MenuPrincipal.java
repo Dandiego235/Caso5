@@ -51,6 +51,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
             jButton2.setFont(new java.awt.Font("Yu Gothic UI", 0, 18)); // NOI18N
             jButton2.setText("Matches");
+            jButton2.addActionListener(new java.awt.event.ActionListener() {
+                  public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jButton2ActionPerformed(evt);
+                  }
+            });
             getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 110, 150, 70));
 
             jButton3.setFont(new java.awt.Font("Yu Gothic UI", 0, 18)); // NOI18N
@@ -64,7 +69,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
                         jButton4ActionPerformed(evt);
                   }
             });
-            getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 260, -1, -1));
+            getContentPane().add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 250, 120, 50));
 
             pack();
       }// </editor-fold>//GEN-END:initComponents
@@ -72,6 +77,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
       private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
             // TODO add your handling code here:
             dispose();
+            
       }//GEN-LAST:event_jButton4ActionPerformed
 
       private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -80,6 +86,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
             Registarse window = new Registarse();
             window.setVisible(true);
       }//GEN-LAST:event_jButton1ActionPerformed
+
+      private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+            // TODO add your handling code here:
+      }//GEN-LAST:event_jButton2ActionPerformed
 
       /**
        * @param args the command line arguments
