@@ -10,12 +10,15 @@ class Match{
         int rating;
         Registered* comprador;
         Registered* vendedor;
+        vector<StringData*> *words;
+
     public:
         Match(Registered* pComprador, Registered* pVendedor){
             comprador = pComprador;
             vendedor = pVendedor;
             peso = 0;
             rating = 0;
+            words = new vector<StringData*>();
         }
 
         Registered* getComprador(){
@@ -24,6 +27,14 @@ class Match{
 
         Registered* getVendedor(){
             return vendedor;
+        }
+
+        void addWord(StringData *data){
+            words->push_back(data);
+        }
+
+        vector<StringData*>* getWords(){
+            return words;
         }
         
         void incrementPeso(){

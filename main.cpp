@@ -40,7 +40,7 @@ void crearMatches(Grafo* grafo){
 
         BPlusTree *arbol = new BPlusTree(ORDEN, SIZE);
         for (int contador = 0; contador < cantidad; contador++, index++){
-            for (StringData* palabra : *compradores->at(index)->getWordsOffer()){
+            for (StringData* palabra : *compradores->at(index)->getWordsDemand()){
                 arbol->insert(palabra);
             }
         }
@@ -48,13 +48,14 @@ void crearMatches(Grafo* grafo){
 
         for (Registered* vendedor : *vendedores){
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
-            for (StringData* palabra : *vendedor->getWordsDemand()){
+            for (StringData* palabra : *vendedor->getWordsOffer()){
+                cout << 0 << endl;
                 int index = 0;
                 LeafNode* leaf = arbol->find(palabra, index);
                 if (leaf){
                     cout << 1 << endl;
                     while (!palabra->compareTo(leaf->getSecuencia()->at(index))){
-                        //cout << 2 << endl;
+                        cout << 2 << endl;
                         StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(index));
                         Registered* comprador = strData->getUsuario();
                         if (matches->find(comprador->getNickname()) == matches->end()){
@@ -76,12 +77,17 @@ void crearMatches(Grafo* grafo){
 
                         match->incrementPeso();
                         index++;
+                        match->addWord(palabra);
+
                         if (index == leaf->getSecuencia()->size()){ // si llegó al final 
                             if (leaf->getSecuencia()->size() == arbol->getSize()){
                                 leaf = leaf->getBrother();
                                 index = 0;
+                            } else {
+                                break;
                             }
                         }
+                        cout << 5 << endl;
                     }
                 }
             }
@@ -92,9 +98,13 @@ void crearMatches(Grafo* grafo){
     }
     std::sort(ranking.begin(), ranking.end());
     auto riterator = ranking.rbegin();
-    for (int contador = 0; contador < ranking.size() / 2; contador++){
+    for (int contador = 0; contador < ranking.size(); contador++){
         Match match = *riterator;
-        cout << match.getVendedor()->getNickname() << " apunta a " << match.getComprador()->getNickname() << " con rating " << match.getRating() << endl;
+        cout << match.getVendedor()->getNickname() << " apunta a " << match.getComprador()->getNickname() << " con rating " << match.getRating() << " con " << endl;
+        for (StringData* str : *match.getWords()){
+            cout << str->toString() << " ";
+        }
+        cout << endl;
         grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
         riterator++;
     }
