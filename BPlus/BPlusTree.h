@@ -134,10 +134,14 @@ class BPlusTree{
                 while (data->compareTo(*element) > 0){
                     if (element + 1 == secuencia->end()){
                         // si llegó al final de este bloque
-                        leaf = leaf->getBrother();
-                        secuencia = leaf->getSecuencia();
-                        element = secuencia->begin();
-                        pIndex = 0;
+                        if (leaf->getBrother()){
+                            leaf = leaf->getBrother();
+                            secuencia = leaf->getSecuencia();
+                            element = secuencia->begin();
+                            pIndex = 0;
+                            continue;
+                        }
+                        return nullptr;
                     } else {
                         // si no, pasa el siguiente elemento.
                         element++;

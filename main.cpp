@@ -31,6 +31,7 @@ void crearMatches(Grafo* grafo){
     vector<Registered*> *vendedores = Registered::getVendedores();
 
     int index = 0;
+    vector<Match> ranking;
     while (index < compradores->size()){
         int cantidad = compradores->size() - index;
         if (cantidad > COMPRADORES_POR_ARBOL){
@@ -45,21 +46,34 @@ void crearMatches(Grafo* grafo){
         }
         arbol->print();
 
-        vector<Match> ranking;
-
         for (Registered* vendedor : *vendedores){
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
             for (StringData* palabra : *vendedor->getWordsDemand()){
                 int index = 0;
                 LeafNode* leaf = arbol->find(palabra, index);
                 if (leaf){
+                    cout << 1 << endl;
                     while (!palabra->compareTo(leaf->getSecuencia()->at(index))){
+                        //cout << 2 << endl;
                         StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(index));
                         Registered* comprador = strData->getUsuario();
                         if (matches->find(comprador->getNickname()) == matches->end()){
                             matches->insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
                         }
-                        Match *match = matches->at(comprador->getNickname());
+                        cout << 3 << endl;
+                        Match *match;
+                        try{
+                            match = matches->at(comprador->getNickname());
+                        } 
+                        catch (...) {
+                            cout << comprador->getNickname() << " not found" << endl;
+                            for (auto it = matches->begin(); it != matches->end(); it++){
+                                cout << it->first << ' ' << it->second << endl;
+                            }
+                            return;
+                        }
+                        cout << 4 << endl;
+
                         match->incrementPeso();
                         index++;
                         if (index == leaf->getSecuencia()->size()){ // si llegó al final 
@@ -75,14 +89,14 @@ void crearMatches(Grafo* grafo){
                 ranking.push_back(*(iterador->second));
             }
         }
-        std::sort(ranking.begin(), ranking.end());
-        auto riterator = ranking.rbegin();
-        for (int contador = 0; contador < ranking.size() / 2; contador++){
-            Match match = *riterator;
-            grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
-            riterator++;
-        }
-
+    }
+    std::sort(ranking.begin(), ranking.end());
+    auto riterator = ranking.rbegin();
+    for (int contador = 0; contador < ranking.size() / 2; contador++){
+        Match match = *riterator;
+        cout << match.getVendedor()->getNickname() << " apunta a " << match.getComprador()->getNickname() << " con rating " << match.getRating() << endl;
+        grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
+        riterator++;
     }
 }
 
