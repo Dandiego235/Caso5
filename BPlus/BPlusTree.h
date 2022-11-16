@@ -203,6 +203,13 @@ class BPlusTree{
             cout << endl;
         }
 
+        int getSize(){
+            return size;
+        }
+
+        int getOrden(){
+            return orden;
+        }
 };
 
 #endif

@@ -4,20 +4,26 @@
 
 #include <string>
 #include <vector>
+#include <set>
+
 #include "BPlus/IData.h"
 #include "Grafo/INodo.h"
 
 using namespace std;
 
-class Registered : public INodo, public IData{
+class Registered : public INodo{
     private:
         string nickname;
         string offer;
         string demand;
         string postdate;
 
-        vector<string> wordsOffer;
-        vector<string> wordsDemand;
+        set<StringData*> *wordsOffer;
+        set<StringData*> *wordsDemand;
+
+        static int contadorId;
+        static vector<Registered*> comparedores;
+        static vector<Registered*> vendedores;
 
     public:
         Registered(string pNickname, string pOffer, string pDemand, string pPostdate) {
@@ -25,6 +31,7 @@ class Registered : public INodo, public IData{
             this->offer = pOffer;
             this->demand = pDemand;
             this->postdate = pPostdate;
+            id = contador++;
         }
 
         string getNickname() {
@@ -43,13 +50,25 @@ class Registered : public INodo, public IData{
             return this->postdate;
         }
 
-        string getWordsOffer(){
+        set<StringData*>* getWordsOffer(){
             return wordsOffer;
         }
 
-        string getWordsDemand(){
+        set<StringData*>* getWordsDemand(){
             return wordsDemand;
         }
+
+        static vector<Registered*> getCompradores(){
+            return compradores;
+        }
+
+        static vector<Registered*> getVendedores(){
+            return vendedores;
+        }
 };
+
+Registered::contador = 1;
+Registered::compradores = new vector<Registered>();
+Registered::vendedores = new vector<Registered>();
 
 #endif

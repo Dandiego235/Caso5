@@ -1,17 +1,85 @@
-#include "Grafo/Grafo.h"
-#include "Grafo/Animal.h"
-#include "Grafo/INodo.h"
 #include <vector>
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include "Grafo/Grafo.h"
+#include "Grafo/Animal.h"
+#include "Grafo/INodo.h"
 #include "Registered.h"
+#include "Match.h"
+#include "BPlus/BPlusTree.h"
 
 #define NUM_ANIMALES 14
 
+#define COMPRADORES_POR_ARBOL 6
+#define ORDEN 5
+#define SIZE 6
 using namespace std;
 
-Grafo* crearGrafo(vector){
+Grafo* crearGrafo(vector<Registered*> records){
+    Grafo *grafo = new Grafo(true);
+    for (Registered* record : records){
+        grafo->addNode(record);
+    }
+    return grafo;
+}
 
+void crearMatches(Grafo* grafo){
+    vector<Registered*> *compradores = Registered::getCompradores();
+    vector<Registered*> *vendedores = Registered::getVendedores();
+
+    int index = 0;
+    while (index < compradores->size()){
+        int cantidad = compradores->size() - index;
+        if (cantidad > COMPRADORES_POR_ARBOL){
+            cantidad = COMPRADORES_POR_ARBOL;
+        }
+
+        BPlusTree *arbol = new BPlusTree(ORDEN, SIZE);
+        for (int contador = 0; contador < cantidad; contador++, index++){
+            for (StringData* palabra : compradores->at(index)->getWordsOffer()){
+                arbol->insert(palabra);
+            }
+        }
+        arbol.print();
+
+        vector<Match> ranking;
+        for (Registered* vendedor : vendedores){
+            unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
+            for (StringData* palabra : vendedor->getWordsDemand()){
+                int index = 0;
+                LeafNode* leaf = arbol.find(palabra, index);
+                while (!palabra->compareTo(leaf->getSecuencia()->at(index))){
+                    Registered* comprador = leaf->getSecuencia()->at(index)->getRegistered();
+                    if (matches->find(comprador->getNickname()) == matches->end()){
+                        matches.insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
+                    }
+                    Match *match = matches.at(comprador->getNickname());
+                    match->incrementPeso();
+                    index++;
+                    if (index == leaf->getSecuencia()->size()){ // si llegó al final 
+                        if (leaf->getSecuencia()->size() == arbol->getSize()){
+                            leaf = leaf->getBrother();
+                            index = 0;
+                        }
+                    }
+                    
+                    for(auto iterador = matches.begin(); iterador != matches.end(); iterador++){
+                        ranking.push_back(*(iterador->second));
+                    }
+                }
+            }
+
+        }
+        sort(ranking);
+        auto riterator = ranking.rbegin();
+        for (int contador = 0; contador < ranking.size() / 2; contador++){
+            Marca marca = *riterator;
+            grafo->addArc(marca.getVendedor(), marca.getComprador(), marca.getRating())
+            riterator++;
+        }
+
+    }
 }
 
 int main(){
