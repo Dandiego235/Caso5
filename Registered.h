@@ -130,9 +130,14 @@ class Registered : public INodo{
             for (char c : lista){
                 if (c == ' ' || c == '.' || c == ','){
                     if (word != "" && word.size() >= 4){
+                        int percent = (60 * word.size() + 100 - 1) / 100;
+                        cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
+                        if (percent < 4){
+                            percent = 4;
+                        }
+                        word.resize(percent);
                         StringData * palabra = new StringData(word, this);
                         pSet->insert(palabra);
-                        
                     }
                     word = "";
                 } else {
@@ -142,18 +147,6 @@ class Registered : public INodo{
             if (word != ""){
                 StringData * palabra = new StringData(word, this);
                 pSet->insert(palabra);
-            }
-            
-            for (std::set<StringData*>::iterator current = (*pSet).begin() ; current != (*pSet).end(); ++current){
-                word = (*current)->getPalabra();
-                int percent = (60 * word.size() + 100 - 1) / 100;
-                cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
-                if (percent < 4){
-                    percent = 4;
-                }
-                word.resize(percent);
-                (*current)->setPalabra(word);
-                cout << (*current)->getPalabra() << endl; 
             }
         }
 };

@@ -70,7 +70,9 @@ class Grafo {
 
     public:
 
-        void SaveToFile(){
+        void saveToFile(){
+            ofstream GraphData("graphdata.csv");
+            
             return;
         }
 

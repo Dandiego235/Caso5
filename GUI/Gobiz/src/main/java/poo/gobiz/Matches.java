@@ -15,6 +15,7 @@ public class Matches extends javax.swing.JFrame {
        */
       public Matches() {
             initComponents();
+            this.setLocationRelativeTo(null);
       }
 
       /**
@@ -30,12 +31,13 @@ public class Matches extends javax.swing.JFrame {
             jLabel2 = new javax.swing.JLabel();
             jComboBox1 = new javax.swing.JComboBox<>();
             jLabel3 = new javax.swing.JLabel();
-            jComboBox2 = new javax.swing.JComboBox<>();
             jButton1 = new javax.swing.JButton();
             jButton2 = new javax.swing.JButton();
             jLabel4 = new javax.swing.JLabel();
             jLabel5 = new javax.swing.JLabel();
             jLabel6 = new javax.swing.JLabel();
+            jScrollPane1 = new javax.swing.JScrollPane();
+            MatchesList = new javax.swing.JList<>();
 
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -48,8 +50,6 @@ public class Matches extends javax.swing.JFrame {
 
             jLabel3.setText("Matches");
 
-            jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
             jButton1.setText("jButton1");
 
             jButton2.setText("jButton2");
@@ -60,6 +60,13 @@ public class Matches extends javax.swing.JFrame {
 
             jLabel6.setText("Tipo");
 
+            MatchesList.setModel(new javax.swing.AbstractListModel<String>() {
+                  String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+                  public int getSize() { return strings.length; }
+                  public String getElementAt(int i) { return strings[i]; }
+            });
+            jScrollPane1.setViewportView(MatchesList);
+
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
             layout.setHorizontalGroup(
@@ -67,27 +74,30 @@ public class Matches extends javax.swing.JFrame {
                   .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                               .addGroup(layout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addComponent(jLabel3))
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                          .addGroup(layout.createSequentialGroup()
+                                                .addContainerGap()
+                                                .addComponent(jLabel3))
+                                          .addGroup(layout.createSequentialGroup()
+                                                .addGap(160, 160, 160)
+                                                .addComponent(jLabel1))
+                                          .addGroup(layout.createSequentialGroup()
+                                                .addContainerGap()
+                                                .addComponent(jLabel2)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                          .addGroup(layout.createSequentialGroup()
+                                                .addContainerGap()
+                                                .addComponent(jLabel4)
+                                                .addGap(47, 47, 47)
+                                                .addComponent(jLabel5)
+                                                .addGap(65, 65, 65)
+                                                .addComponent(jLabel6)))
+                                    .addGap(0, 47, Short.MAX_VALUE))
                               .addGroup(layout.createSequentialGroup()
-                                    .addGap(160, 160, 160)
-                                    .addComponent(jLabel1))
-                              .addGroup(layout.createSequentialGroup()
                                     .addContainerGap()
-                                    .addComponent(jLabel2)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE))
-                              .addGroup(layout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 316, javax.swing.GroupLayout.PREFERRED_SIZE))
-                              .addGroup(layout.createSequentialGroup()
-                                    .addContainerGap()
-                                    .addComponent(jLabel4)
-                                    .addGap(47, 47, 47)
-                                    .addComponent(jLabel5)
-                                    .addGap(65, 65, 65)
-                                    .addComponent(jLabel6)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                                    .addComponent(jScrollPane1)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                               .addComponent(jButton2)
                               .addComponent(jButton1))
@@ -108,19 +118,16 @@ public class Matches extends javax.swing.JFrame {
                               .addGroup(layout.createSequentialGroup()
                                     .addGap(39, 39, 39)
                                     .addComponent(jButton1)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                              .addComponent(jLabel4)
+                              .addComponent(jLabel5)
+                              .addComponent(jLabel6))
+                        .addGap(11, 11, 11)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                              .addGroup(layout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                          .addComponent(jLabel4)
-                                          .addComponent(jLabel5)
-                                          .addComponent(jLabel6))
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                              .addGroup(layout.createSequentialGroup()
-                                    .addGap(31, 31, 31)
-                                    .addComponent(jButton2)))
-                        .addGap(0, 119, Short.MAX_VALUE))
+                              .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                              .addComponent(jButton2))
+                        .addGap(0, 28, Short.MAX_VALUE))
             );
 
             pack();
@@ -162,15 +169,16 @@ public class Matches extends javax.swing.JFrame {
       }
 
       // Variables declaration - do not modify//GEN-BEGIN:variables
+      private javax.swing.JList<String> MatchesList;
       private javax.swing.JButton jButton1;
       private javax.swing.JButton jButton2;
       private javax.swing.JComboBox<String> jComboBox1;
-      private javax.swing.JComboBox<String> jComboBox2;
       private javax.swing.JLabel jLabel1;
       private javax.swing.JLabel jLabel2;
       private javax.swing.JLabel jLabel3;
       private javax.swing.JLabel jLabel4;
       private javax.swing.JLabel jLabel5;
       private javax.swing.JLabel jLabel6;
+      private javax.swing.JScrollPane jScrollPane1;
       // End of variables declaration//GEN-END:variables
 }

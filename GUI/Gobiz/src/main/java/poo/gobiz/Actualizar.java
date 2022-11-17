@@ -15,6 +15,7 @@ public class Actualizar extends javax.swing.JFrame {
        */
       public Actualizar() {
             initComponents();
+            this.setLocationRelativeTo(null);
       }
 
       /**
@@ -26,21 +27,117 @@ public class Actualizar extends javax.swing.JFrame {
       // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
       private void initComponents() {
 
+            jLabel1 = new javax.swing.JLabel();
+            MatchActualBtn = new javax.swing.JButton();
+            ComercioCircularBtn = new javax.swing.JButton();
+            MayorConcurrenciaBtn = new javax.swing.JButton();
+            MenorConcurrenciaBtn = new javax.swing.JButton();
+            Top10Btn = new javax.swing.JButton();
+            AreasConexasBtn = new javax.swing.JButton();
+            jButton7 = new javax.swing.JButton();
+
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+            jLabel1.setFont(new java.awt.Font("Yu Gothic UI", 0, 18)); // NOI18N
+            jLabel1.setText("Actualizar");
+
+            MatchActualBtn.setText("Matches actuales");
+            MatchActualBtn.addActionListener(new java.awt.event.ActionListener() {
+                  public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        MatchActualBtnActionPerformed(evt);
+                  }
+            });
+
+            ComercioCircularBtn.setText("Comercios circulares");
+            ComercioCircularBtn.addActionListener(new java.awt.event.ActionListener() {
+                  public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        ComercioCircularBtnActionPerformed(evt);
+                  }
+            });
+
+            MayorConcurrenciaBtn.setText("Mayor Concurrencia");
+
+            MenorConcurrenciaBtn.setText("Menor Concurrencia");
+
+            Top10Btn.setText("Top 10");
+
+            AreasConexasBtn.setText("Áreas de mercado conexas");
+
+            jButton7.setText("Salir");
+            jButton7.addActionListener(new java.awt.event.ActionListener() {
+                  public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jButton7ActionPerformed(evt);
+                  }
+            });
 
             javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
             getContentPane().setLayout(layout);
             layout.setHorizontalGroup(
                   layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                  .addGap(0, 400, Short.MAX_VALUE)
+                  .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton7)
+                        .addGap(167, 167, 167))
+                  .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                              .addGroup(layout.createSequentialGroup()
+                                    .addGap(158, 158, 158)
+                                    .addComponent(jLabel1))
+                              .addGroup(layout.createSequentialGroup()
+                                    .addGap(48, 48, 48)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                          .addComponent(MatchActualBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                          .addComponent(MayorConcurrenciaBtn))
+                                    .addGap(32, 32, 32)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                          .addComponent(MenorConcurrenciaBtn)
+                                          .addComponent(ComercioCircularBtn))))
+                        .addContainerGap(47, Short.MAX_VALUE))
+                  .addGroup(layout.createSequentialGroup()
+                        .addGap(73, 73, 73)
+                        .addComponent(Top10Btn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(AreasConexasBtn)
+                        .addGap(29, 29, 29))
             );
             layout.setVerticalGroup(
                   layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                  .addGap(0, 300, Short.MAX_VALUE)
+                  .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(30, 30, 30)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                              .addComponent(MatchActualBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                              .addComponent(ComercioCircularBtn))
+                        .addGap(48, 48, 48)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                              .addComponent(MayorConcurrenciaBtn)
+                              .addComponent(MenorConcurrenciaBtn))
+                        .addGap(36, 36, 36)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                              .addComponent(Top10Btn)
+                              .addComponent(AreasConexasBtn))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                        .addComponent(jButton7)
+                        .addGap(20, 20, 20))
             );
 
             pack();
       }// </editor-fold>//GEN-END:initComponents
+
+      private void MatchActualBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MatchActualBtnActionPerformed
+            // TODO add your handling code here:
+      }//GEN-LAST:event_MatchActualBtnActionPerformed
+
+      private void ComercioCircularBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComercioCircularBtnActionPerformed
+            // TODO add your handling code here:
+      }//GEN-LAST:event_ComercioCircularBtnActionPerformed
+
+      private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+            // TODO add your handling code here:
+            dispose();
+            MenuPrincipal window = new MenuPrincipal();
+            window.setVisible(true);
+      }//GEN-LAST:event_jButton7ActionPerformed
 
       /**
        * @param args the command line arguments
@@ -78,5 +175,13 @@ public class Actualizar extends javax.swing.JFrame {
       }
 
       // Variables declaration - do not modify//GEN-BEGIN:variables
+      private javax.swing.JButton AreasConexasBtn;
+      private javax.swing.JButton ComercioCircularBtn;
+      private javax.swing.JButton MatchActualBtn;
+      private javax.swing.JButton MayorConcurrenciaBtn;
+      private javax.swing.JButton MenorConcurrenciaBtn;
+      private javax.swing.JButton Top10Btn;
+      private javax.swing.JButton jButton7;
+      private javax.swing.JLabel jLabel1;
       // End of variables declaration//GEN-END:variables
 }
