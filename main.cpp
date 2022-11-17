@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <algorithm>
+#include <set>
 #include "Grafo/Grafo.h"
 #include "Grafo/Animal.h"
 #include "Grafo/INodo.h"
@@ -10,12 +11,16 @@
 #include "Match.h"
 #include "BPlus/StringData.h"
 #include "BPlus/BPlusTree.h"
+#include "OrdenGrado.h"
+#include "OrdenWords.h"
 
 #define NUM_ANIMALES 14
 
 #define COMPRADORES_POR_ARBOL 6
 #define ORDEN 5
 #define SIZE 6
+#define WORDS_TOP 3
+
 using namespace std;
 
 Grafo* crearGrafo(vector<Registered*> records){
@@ -45,6 +50,7 @@ void crearMatches(Grafo* grafo){
             }
         }
         arbol->print();
+        cout << endl;
 
         for (Registered* vendedor : *vendedores){
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
@@ -92,16 +98,59 @@ void crearMatches(Grafo* grafo){
     }
     std::sort(ranking.begin(), ranking.end());
     auto riterator = ranking.rbegin();
-    for (int contador = 0; contador < ranking.size(); contador++){
-        Match match = *riterator;
-        cout << match.getVendedor()->getNickname() << " apunta a " << match.getComprador()->getNickname() << " con rating " << match.getRating() << " con " << endl;
-        for (StringData* str : *match.getWords()){
-            cout << str->toString() << " ";
+    Match match = *riterator;
+    while(match.getRating() > 1){
+        if (match.getComprador() != match.getVendedor()){
+            cout << match.getVendedor()->getNickname() << " apunta a " << match.getComprador()->getNickname() << " con rating " << match.getRating() << " con " << endl;
+            for (StringData* str : *match.getWords()){
+                cout << str->toString() << " ";
+            }
+            cout << endl;
+            grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
+            match.getVendedor()->addMatchSalida(&match);
+            match.getComprador()->addMatchEntrada(&match);
         }
-        cout << endl;
-        grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
         riterator++;
+        match = *riterator;
     }
+}
+
+vector<string>* top10(Grafo* grafo){
+    auto nodos = grafo->getNodos();
+    set<NodoGrafo*, OrdenGrado> ordenGrado;
+    for (NodoGrafo* nodo : nodos){
+        ordenGrado.insert(nodo);        
+    }
+
+    vector<string> *topRanking = new vector<string>();
+
+    int contadorRanking = 0;
+    auto riterator = ordenGrado.rbegin();
+    while (contadorRanking < 10 && riterator != ordenGrado.rend()){
+        Registered* registro = (Registered*)(void*)((*riterator)->getInfo());
+        unordered_map<StringData*, int> palabras;
+        for (Match* match : *registro->getMatchesSalida()){
+            for (StringData* word : *match->getWords()){
+                try{
+                    palabras.at(word) = ++palabras.at(word);
+                } catch (...){
+                    palabras.insert(pair<StringData*, int>(word, 1));
+                }
+            }
+        }
+        set<pair<StringData*, int>, OrdenWords> rankingPalabras(palabras.begin(), palabras.end());
+        int contadorPalabras = 0;
+        auto ritSet = rankingPalabras.rbegin();
+        string entry = "";
+        while (contadorPalabras < WORDS_TOP && ritSet != rankingPalabras.rend()){
+            string fragment = (*ritSet).first->getPalabra();
+            entry += registro->getFullWordsOffer()->at(fragment);
+            entry += " ";
+        }
+        riterator++;
+        contadorRanking++;
+    }
+    return topRanking;
 }
 
 int main(){
@@ -122,6 +171,22 @@ int main(){
     Grafo *grafo = crearGrafo(allrecords);
 
     crearMatches(grafo);
+    
+
+    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
+    // grafo->Dijkstra(dijkstra);
+
+    // grafo->findCiclo(dijkstra);
+
+    // auto ciclos = dijkstra->getCiclos();
+
+    // for (vector<NodoGrafo*> ciclo: *ciclos){
+    //     cout << "Ciclo" << endl;
+    //     for (auto rit = ciclo.rbegin(); rit != ciclo.rend(); rit++){
+    //         Registered* record = (Registered*)(void*)((*rit)->getInfo());
+    //         cout << "     " << record->getNickname() << endl;
+    //     }
+    // }
 
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));

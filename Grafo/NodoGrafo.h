@@ -72,7 +72,7 @@ class NodoGrafo {
             this->listaArcos->push_back(pArco);
         }
 
-        vector<Arco*>* getArcs() {
+        vector<Arco*>* getArcs() const{
             return this->listaArcos;
         }
 

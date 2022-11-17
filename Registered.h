@@ -5,14 +5,17 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <iostream>
+#include <bits/stdc++.h>
+#include <unordered_map>
 #include "BPlus/IData.h"
 #include "Grafo/INodo.h"
 #include "BPlus/StringData.h"
-#include <iostream>
-#include<bits/stdc++.h>
 #include "StrCompare.h"
 
 using namespace std;
+
+class Match;
 
 class Registered : public INodo{
     private:
@@ -24,12 +27,20 @@ class Registered : public INodo{
         set<StringData*, StrCompare> *wordsOffer;
         set<StringData*, StrCompare> *wordsDemand;
 
+        vector<Match*> *matchesEntrada;
+        vector<Match*> *matchesSalida;
+
         bool comprador;
         bool vendedor;
 
         static int contadorId;
         static vector<Registered*> *compradores;
         static vector<Registered*> *vendedores;
+
+        static unordered_map<string, int> *hashIDs;
+
+        unordered_map<string, string> *fullWordsOffer;
+        unordered_map<string, string> *fullWordsDemand;
 
         void replace_all(string& s, string const& toReplace, string const& replaceWith) {
             string buf;
@@ -62,8 +73,12 @@ class Registered : public INodo{
             id = contadorId++;
             wordsOffer = new set<StringData*, StrCompare>();
             wordsDemand = new set<StringData*, StrCompare>();
-            fillSet(wordsOffer, offer);
-            fillSet(wordsDemand, demand);
+            fullWordsOffer = new unordered_map<string, string>();
+            fullWordsDemand = new unordered_map<string, string>();
+            fillSet(wordsOffer, offer, fullWordsOffer);
+            fillSet(wordsDemand, demand, fullWordsDemand);
+            matchesEntrada = new vector<Match*>();
+            matchesSalida = new vector<Match*>();
 
             if (!pOffer.size() == 0){
                 vendedor = true;
@@ -79,10 +94,11 @@ class Registered : public INodo{
                 comprador = false;
             }
             
-            cout << nickname << endl;
-            for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
-                cout << (*it)->toString() << endl;
-            }
+            // cout << nickname << endl;
+            // for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
+            //     cout << (*it)->toString() << endl;
+            // }
+            hashIDs->insert(pair<string,int>(nickname, id));
         }
 
         string getNickname() {
@@ -117,9 +133,24 @@ class Registered : public INodo{
             return vendedores;
         }
 
+        unordered_map<string, string>* getFullWordsOffer(){
+            return fullWordsOffer;
+        }
+
+        unordered_map<string, string>* getFullWordsDemand(){
+            return fullWordsDemand;
+        }
+
+        int getId(){
+            return id;
+        }
+
+        static int findId(string pNickname){
+            return hashIDs->at(pNickname);
+        }
         
 
-        void fillSet(set<StringData*, StrCompare> * pSet, string lista){
+        void fillSet(set<StringData*, StrCompare> * pSet, string lista, unordered_map<string, string>* fullWords){
             transform(lista.begin(), lista.end(), lista.begin(), ::tolower);
             replace_all(lista, "á", "a");
             replace_all(lista, "é", "e");
@@ -131,13 +162,15 @@ class Registered : public INodo{
                 if (c == ' ' || c == '.' || c == ','){
                     if (word != "" && word.size() >= 4){
                         int percent = (60 * word.size() + 100 - 1) / 100;
-                        cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
+                        // cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
                         if (percent < 4){
                             percent = 4;
                         }
+                        string full = word;
                         word.resize(percent);
                         StringData * palabra = new StringData(word, this);
                         pSet->insert(palabra);
+                        fullWords->insert(pair<string, string>(word, full));
                     }
                     word = "";
                 } else {
@@ -149,10 +182,27 @@ class Registered : public INodo{
                 pSet->insert(palabra);
             }
         }
+
+        void addMatchEntrada(Match* pMatch){
+            matchesEntrada->push_back(pMatch);
+        }
+
+        vector<Match*>* getMatchesEntrada(){
+            return matchesEntrada;
+        }
+
+        void addMatchSalida(Match* pMatch){
+            matchesSalida->push_back(pMatch);
+        }
+
+        vector<Match*>* getMatchesSalida(){
+            return matchesSalida;
+        }
 };
 
 int Registered::contadorId = 1;
 vector<Registered*>* Registered::compradores = new vector<Registered*>();
 vector<Registered*>* Registered::vendedores = new vector<Registered*>();
+unordered_map<string, int>* Registered::hashIDs = new unordered_map<string, int>();
 
 #endif

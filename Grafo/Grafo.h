@@ -88,6 +88,7 @@ class Grafo {
         vector<NodoGrafo*> getNodos(){
             return listaNodos;
         }
+        
         void addNode(INodo* pNodo) { // agrega un nodo al grafo
             NodoGrafo* nuevoNodo = new NodoGrafo(pNodo); // crea un puntero al nodo y le establece que sus datos son el parámetro de INodo
             this->listaNodos.push_back(nuevoNodo); // añade el nodo a la lista
@@ -311,6 +312,7 @@ class Grafo {
         void findCicloAux(vector<NodoGrafo*> pCiclo, NodoGrafo * currentNode, NodoGrafo * starting){
             for (NodoGrafo * entrada : *(currentNode->getEntradas())){
                 if (entrada == starting){
+                    pCiclo.push_back(starting);
                     starting->addCiclo(pCiclo);
                 } else if (starting->getCaminos()->at(currentNode)->getDistancia() != INT_MAX && !entrada->getVisitado()){
                     pCiclo.push_back(entrada);
@@ -328,12 +330,12 @@ class Grafo {
                 for (NodoGrafo * entrada : *(starting->getEntradas())){
                     if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
                         vector<NodoGrafo*> ciclo;
-                
+                        ciclo.push_back(starting);
                         ciclo.push_back(entrada);
                         findCicloAux(ciclo, entrada, starting);
                     }
                 }
-
+                
                 for (vector<NodoGrafo*> ciclo : *(starting->getCiclos())){
                     cout << "Ciclo " << endl;
                     cout << "Nodo : " << starting->getInfo()->getId() << endl;
@@ -342,6 +344,7 @@ class Grafo {
                     }
                     cout << "Nodo : " << starting->getInfo()->getId() << endl;
                 }
+                
             }
         }
         
