@@ -49,19 +49,15 @@ void crearMatches(Grafo* grafo){
         for (Registered* vendedor : *vendedores){
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
             for (StringData* palabra : *vendedor->getWordsOffer()){
-                cout << 0 << endl;
                 int index = 0;
                 LeafNode* leaf = arbol->find(palabra, index);
                 if (leaf){
-                    cout << 1 << endl;
                     while (!palabra->compareTo(leaf->getSecuencia()->at(index))){
-                        cout << 2 << endl;
                         StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(index));
                         Registered* comprador = strData->getUsuario();
                         if (matches->find(comprador->getNickname()) == matches->end()){
                             matches->insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
                         }
-                        cout << 3 << endl;
                         Match *match;
                         try{
                             match = matches->at(comprador->getNickname());
@@ -73,7 +69,6 @@ void crearMatches(Grafo* grafo){
                             }
                             return;
                         }
-                        cout << 4 << endl;
 
                         match->incrementPeso();
                         index++;
@@ -87,7 +82,6 @@ void crearMatches(Grafo* grafo){
                                 break;
                             }
                         }
-                        cout << 5 << endl;
                     }
                 }
             }
@@ -120,12 +114,14 @@ int main(){
     allrecords.push_back(new Registered("rock_odin_gold","soy programador python con experiencia","","01/23/2019"));
     allrecords.push_back(new Registered("metal_year_2000","","requiero de 5 ingenieros en computación con 8 años de experiencia, conocimientos en python.","10/28/2022"));
     allrecords.push_back(new Registered("josearnoldowood","esta es la oferta","esta es la demanda","10/10/2022"));
+    allrecords.push_back(new Registered("Hospital_Tec","Somos una institución que brinda un servicio de alta calidad en el área de la salud. Nos especializamos en tratar lesiones provocadas por accidentes en el área de trabajo.","Necesitamos dispositivos médicos de alta calidad y tecnología, hechos de metales resistentes, para sacar radiografías de fracturas, resonancias magnéticas, y quirófanos.","11/16/2022"));
+    allrecords.push_back(new Registered("EstructurasMina","Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.","Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.","11/16/2022"));
+    allrecords.push_back(new Registered("RealSolutions","Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.","Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.","11/16/2022"));
+    //allrecords.push_back(new Registered("","","",""));
 
     Grafo *grafo = crearGrafo(allrecords);
 
     crearMatches(grafo);
-
-    
 
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));
@@ -202,3 +198,26 @@ int main(){
     // }
     
 }
+
+/*
+Hospital_Tec
+Somos una institución que brinda un servicio de alta calidad en el área de la salud. Nos especializamos en tratar lesiones provocadas por accidentes en el área de trabajo.
+Necesitamos dispositivos médicos de alta calidad y tecnología, hechos de metales resistentes, para sacar radiografías de fracturas, resonancias magnéticas, y quirófanos.
+salud1234
+11 16 2022
+
+EstructurasMina
+Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.
+Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.
+SteveCEO067
+11 16 2022
+
+RealSolutions
+Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.
+Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.
+RealHackers007
+11 16 2022
+
+
+
+*/

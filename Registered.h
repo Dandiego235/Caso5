@@ -10,6 +10,7 @@
 #include "BPlus/StringData.h"
 #include <iostream>
 #include<bits/stdc++.h>
+#include "StrCompare.h"
 
 using namespace std;
 
@@ -20,8 +21,8 @@ class Registered : public INodo{
         string demand;
         string postdate;
 
-        set<StringData*> *wordsOffer;
-        set<StringData*> *wordsDemand;
+        set<StringData*, StrCompare> *wordsOffer;
+        set<StringData*, StrCompare> *wordsDemand;
 
         bool comprador;
         bool vendedor;
@@ -59,10 +60,10 @@ class Registered : public INodo{
             this->demand = pDemand;
             this->postdate = pPostdate;
             id = contadorId++;
-            wordsOffer = new set<StringData*>();
-            wordsDemand = new set<StringData*>();
-            FillSet(wordsOffer, offer);
-            FillSet(wordsDemand, demand);
+            wordsOffer = new set<StringData*, StrCompare>();
+            wordsDemand = new set<StringData*, StrCompare>();
+            fillSet(wordsOffer, offer);
+            fillSet(wordsDemand, demand);
 
             if (!pOffer.size() == 0){
                 vendedor = true;
@@ -76,6 +77,11 @@ class Registered : public INodo{
                 compradores->push_back(this);
             } else {
                 comprador = false;
+            }
+            
+            cout << nickname << endl;
+            for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
+                cout << (*it)->toString() << endl;
             }
         }
 
@@ -95,11 +101,11 @@ class Registered : public INodo{
             return this->postdate;
         }
 
-        set<StringData*>* getWordsOffer(){
+        set<StringData*, StrCompare>* getWordsOffer(){
             return wordsOffer;
         }
 
-        set<StringData*>* getWordsDemand(){
+        set<StringData*, StrCompare>* getWordsDemand(){
             return wordsDemand;
         }
 
@@ -113,7 +119,7 @@ class Registered : public INodo{
 
         
 
-        void FillSet(set<StringData*> * pSet, string lista){
+        void fillSet(set<StringData*, StrCompare> * pSet, string lista){
             transform(lista.begin(), lista.end(), lista.begin(), ::tolower);
             replace_all(lista, "á", "a");
             replace_all(lista, "é", "e");
