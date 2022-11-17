@@ -98,20 +98,20 @@ void crearMatches(Grafo* grafo){
     }
     std::sort(ranking.begin(), ranking.end());
     auto riterator = ranking.rbegin();
-    Match match = *riterator;
-    while(match.getRating() > 1){
-        if (match.getComprador() != match.getVendedor()){
-            cout << match.getVendedor()->getNickname() << " apunta a " << match.getComprador()->getNickname() << " con rating " << match.getRating() << " con " << endl;
-            for (StringData* str : *match.getWords()){
+    Match *match = &(*riterator);
+    while(match->getRating() > 1){
+        if (match->getComprador() != match->getVendedor()){
+            cout << match->getVendedor()->getNickname() << " apunta a " << match->getComprador()->getNickname() << " con rating " << match->getRating() << " con " << endl;
+            for (StringData* str : *match->getWords()){
                 cout << str->toString() << " ";
             }
             cout << endl;
-            grafo->addArc(match.getVendedor(), match.getComprador(), match.getRating());
-            match.getVendedor()->addMatchSalida(&match);
-            match.getComprador()->addMatchEntrada(&match);
+            grafo->addArc(match->getVendedor(), match->getComprador(), match->getRating());
+            match->getVendedor()->addMatchSalida(*match);
+            match->getComprador()->addMatchEntrada(*match);
         }
         riterator++;
-        match = *riterator;
+        match = &(*riterator);
     }
 }
 
@@ -129,9 +129,12 @@ vector<string>* top10(Grafo* grafo){
     while (contadorRanking < 10 && riterator != ordenGrado.rend()){
         Registered* registro = (Registered*)(void*)((*riterator)->getInfo());
         unordered_map<StringData*, int> palabras;
-        for (Match* match : *registro->getMatchesSalida()){
-            for (StringData* word : *match->getWords()){
+        for (Match match : *registro->getMatchesSalida()){
+            //cout << match.getWords()->size() << endl;
+            for (StringData* word : *match.getWords()){
+                //cout << word->getPalabra() << endl;
                 try{
+                    //cout << palabras.at(word) << endl;
                     palabras.at(word) = ++palabras.at(word);
                 } catch (...){
                     palabras.insert(pair<StringData*, int>(word, 1));
@@ -146,6 +149,11 @@ vector<string>* top10(Grafo* grafo){
             string fragment = (*ritSet).first->getPalabra();
             entry += registro->getFullWordsOffer()->at(fragment);
             entry += " ";
+            contadorPalabras++;
+            ritSet++;
+        }
+        if (entry != ""){
+            topRanking->push_back(entry);
         }
         riterator++;
         contadorRanking++;
@@ -166,13 +174,18 @@ int main(){
     allrecords.push_back(new Registered("Hospital_Tec","Somos una institución que brinda un servicio de alta calidad en el área de la salud. Nos especializamos en tratar lesiones provocadas por accidentes en el área de trabajo.","Necesitamos dispositivos médicos de alta calidad y tecnología, hechos de metales resistentes, para sacar radiografías de fracturas, resonancias magnéticas, y quirófanos.","11/16/2022"));
     allrecords.push_back(new Registered("EstructurasMina","Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.","Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.","11/16/2022"));
     allrecords.push_back(new Registered("RealSolutions","Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.","Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.","11/16/2022"));
+    allrecords.push_back(new Registered("construSoluciones2001","Ofrecemos mano de obra y materiales para la construccion de su casa, edificio o proyect","Materiales de construccion de las mas alta claidad e ingenieros con experiencia","11/71/2022"));
     //allrecords.push_back(new Registered("","","",""));
 
     Grafo *grafo = crearGrafo(allrecords);
 
     crearMatches(grafo);
     
+    vector<string> *topRanking = top10(grafo);
 
+    for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+        cout << *it << endl;
+    }
     // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
     // grafo->Dijkstra(dijkstra);
 

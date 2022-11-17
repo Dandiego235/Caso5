@@ -27,8 +27,8 @@ class Registered : public INodo{
         set<StringData*, StrCompare> *wordsOffer;
         set<StringData*, StrCompare> *wordsDemand;
 
-        vector<Match*> *matchesEntrada;
-        vector<Match*> *matchesSalida;
+        vector<Match> *matchesEntrada;
+        vector<Match> *matchesSalida;
 
         bool comprador;
         bool vendedor;
@@ -77,8 +77,8 @@ class Registered : public INodo{
             fullWordsDemand = new unordered_map<string, string>();
             fillSet(wordsOffer, offer, fullWordsOffer);
             fillSet(wordsDemand, demand, fullWordsDemand);
-            matchesEntrada = new vector<Match*>();
-            matchesSalida = new vector<Match*>();
+            matchesEntrada = new vector<Match>();
+            matchesSalida = new vector<Match>();
 
             if (!pOffer.size() == 0){
                 vendedor = true;
@@ -183,19 +183,19 @@ class Registered : public INodo{
             }
         }
 
-        void addMatchEntrada(Match* pMatch){
+        void addMatchEntrada(Match &pMatch){
             matchesEntrada->push_back(pMatch);
         }
 
-        vector<Match*>* getMatchesEntrada(){
+        vector<Match>* getMatchesEntrada(){
             return matchesEntrada;
         }
 
-        void addMatchSalida(Match* pMatch){
+        void addMatchSalida(Match &pMatch){
             matchesSalida->push_back(pMatch);
         }
 
-        vector<Match*>* getMatchesSalida(){
+        vector<Match>* getMatchesSalida(){
             return matchesSalida;
         }
 };
