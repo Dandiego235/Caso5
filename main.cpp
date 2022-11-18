@@ -207,6 +207,8 @@ int main(){
     //     }
     // }
 
+    grafo->saveToFile();
+
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));

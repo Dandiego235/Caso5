@@ -42,28 +42,6 @@ class Registered : public INodo{
         unordered_map<string, string> *fullWordsOffer;
         unordered_map<string, string> *fullWordsDemand;
 
-        void replace_all(string& s, string const& toReplace, string const& replaceWith) {
-            string buf;
-            size_t pos = 0;
-            size_t prevPos;
-
-            // Reserves rough estimate of final size of string.
-            buf.reserve(s.size());
-
-            while (true) {
-                prevPos = pos;
-                pos = s.find(toReplace, pos);
-                if (pos == std::string::npos)
-                    break;
-                buf.append(s, prevPos, pos - prevPos);
-                buf += replaceWith;
-                pos += toReplace.size();
-            }
-
-            buf.append(s, prevPos, s.size() - prevPos);
-            s.swap(buf);
-        }
-
     public:
         Registered(string pNickname, string pOffer, string pDemand, string pPostdate) {
             this->nickname = pNickname;
@@ -149,6 +127,27 @@ class Registered : public INodo{
             return hashIDs->at(pNickname);
         }
         
+        void replace_all(string& s, string const& toReplace, string const& replaceWith) {
+            string buf;
+            size_t pos = 0;
+            size_t prevPos;
+
+            // Reserves rough estimate of final size of string.
+            buf.reserve(s.size());
+
+            while (true) {
+                prevPos = pos;
+                pos = s.find(toReplace, pos);
+                if (pos == std::string::npos)
+                    break;
+                buf.append(s, prevPos, pos - prevPos);
+                buf += replaceWith;
+                pos += toReplace.size();
+            }
+
+            buf.append(s, prevPos, s.size() - prevPos);
+            s.swap(buf);
+        }
 
         void fillSet(set<StringData*, StrCompare> * pSet, string lista, unordered_map<string, string>* fullWords){
             transform(lista.begin(), lista.end(), lista.begin(), ::tolower);
