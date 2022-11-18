@@ -73,8 +73,13 @@ class Registered : public INodo{
             }
             
             cout << nickname << endl;
+            cout << "  Oferta" << endl;
             for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
-                cout << (*it)->toString() << endl;
+                cout << "    " << (*it)->toString() << endl;
+            }
+            cout << "  Demanda" << endl;
+            for (auto it = wordsDemand->begin(); it != wordsDemand->end(); it++){
+                cout << "    " << (*it)->toString() << endl;
             }
             hashIDs->insert(pair<string,int>(nickname, id));
         }

@@ -55,11 +55,11 @@ void crearMatches(Grafo* grafo){
         for (Registered* vendedor : *vendedores){
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
             for (StringData* palabra : *vendedor->getWordsOffer()){
-                int index = 0;
-                LeafNode* leaf = arbol->find(palabra, index);
+                int leafIndex = 0;
+                LeafNode* leaf = arbol->find(palabra, leafIndex);
                 if (leaf){
-                    while (!palabra->compareTo(leaf->getSecuencia()->at(index))){
-                        StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(index));
+                    while (!palabra->compareTo(leaf->getSecuencia()->at(leafIndex))){
+                        StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(leafIndex));
                         Registered* comprador = strData->getUsuario();
                         if (matches->find(comprador->getNickname()) == matches->end()){
                             matches->insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
@@ -77,13 +77,13 @@ void crearMatches(Grafo* grafo){
                         }
 
                         match->incrementPeso();
-                        index++;
+                        leafIndex++;
                         match->addWord(palabra);
 
-                        if (index == leaf->getSecuencia()->size()){ // si llegó al final 
+                        if (leafIndex == leaf->getSecuencia()->size()){ // si llegó al final 
                             if (leaf->getSecuencia()->size() == arbol->getSize()){
                                 leaf = leaf->getBrother();
-                                index = 0;
+                                leafIndex = 0;
                             } else {
                                 break;
                             }
@@ -192,7 +192,7 @@ int main(){
     for (auto it = topRanking->begin(); it != topRanking->end(); it++){
         cout << *it << endl;
     }
-    
+
     // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
     // grafo->Dijkstra(dijkstra);
 

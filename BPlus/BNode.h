@@ -91,6 +91,7 @@ class BNode{
                     newChildren->insert(newChildren->begin(), *children->rbegin());
                     children->pop_back();
                     keys->pop_back();
+                    (*newChildren->begin())->setParent1(brother);
                 }
                 newChildren->insert(newChildren->begin(), *children->rbegin()); // agregamos el hijo que van a compartir
                 (*children->rbegin())->setParent2(brother); // establecemos el segundo padre del último hijo del nodo actual.

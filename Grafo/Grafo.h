@@ -83,10 +83,10 @@ class Grafo {
                 Registered* registro = (Registered*)(void*)(nodo->getInfo());
                 string offer = registro->getOffer();
                 registro->replace_all(offer, ",", ";");
-                cout << offer << endl;
+                // cout << offer << endl;
                 string demand = registro->getDemand();
                 registro->replace_all(demand, ",", ";");
-                cout << demand << endl;
+                // cout << demand << endl;
                 int tipo;
                 if (offer == "" && demand != ""){
                     tipo = 1;
@@ -117,7 +117,7 @@ class Grafo {
         vector<NodoGrafo*> getNodos(){
             return listaNodos;
         }
-        
+
         void addNode(INodo* pNodo) { // agrega un nodo al grafo
             NodoGrafo* nuevoNodo = new NodoGrafo(pNodo); // crea un puntero al nodo y le establece que sus datos son el parámetro de INodo
             this->listaNodos.push_back(nuevoNodo); // añade el nodo a la lista
