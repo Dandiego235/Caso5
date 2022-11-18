@@ -11,6 +11,7 @@
 #include <climits>
 #include <fstream>
 #include <stack>
+#include "../Registered.h"
 
 using namespace std;
 
@@ -71,9 +72,37 @@ class Grafo {
     public:
 
         void saveToFile(){
-            ofstream GraphData("graphdata.csv");
+            ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
+           // Gobiz.open("gobiz.csv");
+            Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
+
+            ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
+            Links << "Source,Target,Type\n";
             
-            return;
+            for (NodoGrafo * nodo : listaNodos){
+                Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                string offer = registro->getOffer();
+                registro->replace_all(offer, ",", ";");
+                cout << offer << endl;
+                string demand = registro->getDemand();
+                registro->replace_all(demand, ",", ";");
+                cout << demand << endl;
+                int tipo;
+                if (offer == "" && demand != ""){
+                    tipo = 1;
+                } else if (offer != "" && demand == ""){
+                    tipo = 0;
+                } else {
+                    tipo = 2;
+                }
+                Gobiz << nodo->getInfo()->getId() << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
+            
+                for (Arco * arco : (*nodo->getArcs())){
+                    Links << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
+                }
+            }
+            Gobiz.close();
+            Links.close();
         }
 
         Grafo(bool pDirigido) { // constructor del grafo
