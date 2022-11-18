@@ -187,11 +187,12 @@ int main(){
 
     crearMatches(grafo);
     
-    // vector<string> *topRanking = top10(grafo);
+    vector<string> *topRanking = top10(grafo);
 
-    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-    //     cout << *it << endl;
-    // }
+    for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+        cout << *it << endl;
+    }
+    
     // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
     // grafo->Dijkstra(dijkstra);
 
@@ -311,7 +312,7 @@ Asthma_No8261
 Mesa_School
 Somos una institución educativa para niños y adolescentes talentosos que busca explotar su potencial intelectual desarrollando sus habilidades STEM para llegar a ser los futuros ingenieros en computación.
 Necesitamos medicamentos para los estudiantes de la escuela, especialmente para los niños de primaria ya que las enfermedades respiratorias tienen una alta incidencia en la población estudiantil.
-GiftedChildren100
+GiftInspire100
 11 17 2022
 
 CompuYankeeDev129

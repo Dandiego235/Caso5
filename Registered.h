@@ -12,10 +12,10 @@
 #include "Grafo/INodo.h"
 #include "BPlus/StringData.h"
 #include "StrCompare.h"
+#include "Match.h"
+#include "Diccionario.h"
 
 using namespace std;
-
-class Match;
 
 class Registered : public INodo{
     private:
@@ -169,8 +169,10 @@ class Registered : public INodo{
                         string full = word;
                         word.resize(percent);
                         StringData * palabra = new StringData(word, this);
-                        pSet->insert(palabra);
-                        fullWords->insert(pair<string, string>(word, full));
+                        if (!Diccionario::getInstance()->find(palabra)){
+                            pSet->insert(palabra);
+                            fullWords->insert(pair<string, string>(word, full));
+                        }
                     }
                     word = "";
                 } else {
@@ -186,6 +188,10 @@ class Registered : public INodo{
                 string full = word;
                 word.resize(percent);
                 StringData * palabra = new StringData(word, this);
+                if (!Diccionario::getInstance()->find(palabra)){
+                    pSet->insert(palabra);
+                    fullWords->insert(pair<string, string>(word, full));
+                }
                 pSet->insert(palabra);
                 fullWords->insert(pair<string, string>(word, full));
             }

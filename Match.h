@@ -2,7 +2,9 @@
 
 #define MATCH 1
 
-#include "Registered.h"
+//#include "Registered.h"
+
+class Registered;
 
 class Match{
     private:
