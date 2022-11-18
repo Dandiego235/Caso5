@@ -94,10 +94,10 @@ class Registered : public INodo{
                 comprador = false;
             }
             
-            // cout << nickname << endl;
-            // for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
-            //     cout << (*it)->toString() << endl;
-            // }
+            cout << nickname << endl;
+            for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
+                cout << (*it)->toString() << endl;
+            }
             hashIDs->insert(pair<string,int>(nickname, id));
         }
 
@@ -162,7 +162,7 @@ class Registered : public INodo{
                 if (c == ' ' || c == '.' || c == ','){
                     if (word != "" && word.size() >= 4){
                         int percent = (60 * word.size() + 100 - 1) / 100;
-                        // cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
+                        //cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
                         if (percent < 4){
                             percent = 4;
                         }
@@ -178,8 +178,16 @@ class Registered : public INodo{
                 }
             }
             if (word != ""){
+                int percent = (60 * word.size() + 100 - 1) / 100;
+                //cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
+                if (percent < 4){
+                    percent = 4;
+                }
+                string full = word;
+                word.resize(percent);
                 StringData * palabra = new StringData(word, this);
                 pSet->insert(palabra);
+                fullWords->insert(pair<string, string>(word, full));
             }
         }
 

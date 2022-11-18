@@ -147,6 +147,7 @@ vector<string>* top10(Grafo* grafo){
         string entry = "";
         while (contadorPalabras < WORDS_TOP && ritSet != rankingPalabras.rend()){
             string fragment = (*ritSet).first->getPalabra();
+            //cout << fragment << " " << (*ritSet).first->getUsuario()->getNickname() << endl;
             entry += registro->getFullWordsOffer()->at(fragment);
             entry += " ";
             contadorPalabras++;
@@ -175,17 +176,22 @@ int main(){
     allrecords.push_back(new Registered("EstructurasMina","Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.","Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.","11/16/2022"));
     allrecords.push_back(new Registered("RealSolutions","Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.","Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.","11/16/2022"));
     allrecords.push_back(new Registered("construSoluciones2001","Ofrecemos mano de obra y materiales para la construccion de su casa, edificio o proyect","Materiales de construccion de las mas alta claidad e ingenieros con experiencia","11/71/2022"));
+    allrecords.push_back(new Registered("AstraMedical222","Somos una empresa farmacéutica que desarrolla medicamentos para combatir enfermedades respiratorias para niños de escuela con factores de riesgo","Dispositivos médicos de alta tecnología y calidad para ayudarnos en nuestro trabajo de investigación de medicamentos para tratar enfermedades respiratorias infantiles.","11/17/2022"));
+    allrecords.push_back(new Registered("Mesa_School","Somos una institución educativa para niños y adolescentes talentosos que busca explotar su potencial intelectual desarrollando sus habilidades STEM para llegar a ser los futuros ingenieros en computación.","Necesitamos medicamentos para los estudiantes de la escuela, especialmente para los niños de primaria ya que las enfermedades respiratorias tienen una alta incidencia en la población estudiantil.","11/17/2022"));
+    allrecords.push_back(new Registered("CompuYankeeDev129","Soy un ingeniero en computación con cuatro años de experiencia. He trabajado como programador en Python y Java en empresas desarrolladoras de software como RealSolutions.","Busco entretenimiento. Me gustaría asistir a un concierto de 2 horas con el estadio lleno de gente y no me preocupa la falta de complejidad armónica en los acordes ya que me gusta el reguetón.","11/17/2022"));
+    allrecords.push_back(new Registered("OlcoManGold","Me desempeño como programador y desarrollador de software. Tengo mucha experiencia tras trabajar once años en la industria. Soy experto en lenguajes como Python y me especializo en el desarrollo del firmware para dispositivos","Soy aficionado a la gastronomía mexicana, por lo que necesito poder almorzar tacos de pollo, ya sea asado, frito o al ajillo, todos los días y desde un punto de venta accesible.","11/17/2022"));
+    allrecords.push_back(new Registered("BobTheBuilder250","Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.","Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.","11/17/2022"));
     //allrecords.push_back(new Registered("","","",""));
 
     Grafo *grafo = crearGrafo(allrecords);
 
     crearMatches(grafo);
     
-    vector<string> *topRanking = top10(grafo);
+    // vector<string> *topRanking = top10(grafo);
 
-    for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-        cout << *it << endl;
-    }
+    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+    //     cout << *it << endl;
+    // }
     // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
     // grafo->Dijkstra(dijkstra);
 
@@ -296,6 +302,34 @@ Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta 
 RealHackers007
 11 16 2022
 
+AstraMedical222
+Somos una empresa farmacéutica que desarrolla medicamentos para combatir enfermedades respiratorias para niños de escuela con factores de riesgo.
+Dispositivos médicos de alta tecnología y calidad para ayudarnos en nuestro trabajo de investigación de medicamentos para tratar enfermedades respiratorias infantiles.
+Asthma_No8261
+11 17 2022
 
+Mesa_School
+Somos una institución educativa para niños y adolescentes talentosos que busca explotar su potencial intelectual desarrollando sus habilidades STEM para llegar a ser los futuros ingenieros en computación.
+Necesitamos medicamentos para los estudiantes de la escuela, especialmente para los niños de primaria ya que las enfermedades respiratorias tienen una alta incidencia en la población estudiantil.
+GiftedChildren100
+11 17 2022
+
+CompuYankeeDev129
+Soy un ingeniero en computación con cuatro años de experiencia. He trabajado como programador en Python y Java en empresas desarrolladoras de software como RealSolutions.
+Busco entretenimiento. Me gustaría asistir a un concierto de 2 horas con el estadio lleno de gente y no me preocupa la falta de complejidad armónica en los acordes ya que me gusta el reguetón.
+DaddyYankeeFan8807
+11 17 2022
+
+OlcoManGold
+Me desempeño como programador y desarrollador de software. Tengo mucha experiencia tras trabajar once años en la industria. Soy experto en lenguajes como Python y me especializo en el desarrollo del firmware para dispositivos.
+Soy aficionado a la gastronomía mexicana, por lo que necesito poder almorzar tacos de pollo, ya sea asado, frito o al ajillo, todos los días y desde un punto de venta accesible.
+SuperGold$$
+11 17 2022
+
+BobTheBuilder250
+Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.
+Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.
+DizzyScoop999
+11 17 2022
 
 */
