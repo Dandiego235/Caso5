@@ -18,6 +18,7 @@ class NodoGrafo {
         bool visitado;
         bool procesado;
         unordered_map<NodoGrafo*, DijkstraNode*> * caminos;
+        unordered_map<NodoGrafo*, DijkstraNode*> * caminosMayores;
         vector<NodoGrafo*> * NodosEntrada; 
         vector<vector<NodoGrafo*>> * ciclos; 
 
@@ -27,6 +28,7 @@ class NodoGrafo {
             this->dato = pDato;
             this->listaArcos = new vector<Arco*>();
             this->caminos = new unordered_map<NodoGrafo*, DijkstraNode*>();
+            this->caminosMayores = new unordered_map<NodoGrafo*, DijkstraNode*>();
             this->NodosEntrada = new vector<NodoGrafo*>();
             this->ciclos = new vector<vector<NodoGrafo*>>();
         }
@@ -47,7 +49,7 @@ class NodoGrafo {
 
         void setDijkstraNodes(vector<NodoGrafo*> nodos){
             for (NodoGrafo * nodo : nodos){
-                caminos->insert_or_assign(nodo, new DijkstraNode(nodo));
+                caminos->insert_or_assign(nodo, new DijkstraNode(nodo, this));
             }
         }
 
@@ -80,6 +82,10 @@ class NodoGrafo {
             return this->caminos;
         }
 
+        unordered_map<NodoGrafo*, DijkstraNode*> * getCaminosMayores() {
+            return this->caminosMayores;
+        }
+
         void addEntrada(NodoGrafo * pEntrada){
             this->NodosEntrada->push_back(pEntrada);
         }
@@ -94,6 +100,10 @@ class NodoGrafo {
 
         vector<vector<NodoGrafo*>> * getCiclos() {
             return this->ciclos;
+        }
+
+        vector<NodoGrafo*>* getNodosEntrada(){
+            return NodosEntrada;
         }
 };
 
