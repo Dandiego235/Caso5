@@ -36,7 +36,7 @@ class NodoGrafo {
         NodoGrafo() {
             this->listaArcos = new vector<Arco*>();     
             this->caminos = new unordered_map<NodoGrafo*, DijkstraNode*>();  
-            this->NodosEntrada = new vector<NodoGrafo*>();   
+            this->NodosEntrada = new vector<Arco*>();   
         }
 
         void setVisitado(bool pVisitado){
@@ -90,7 +90,7 @@ class NodoGrafo {
             this->NodosEntrada->push_back(pEntrada);
         }
 
-        vector<NodoGrafo*> * getEntradas(){
+        vector<Arco*> * getEntradas(){
             return NodosEntrada;
         }
 

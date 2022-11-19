@@ -318,15 +318,81 @@ int main(){
                 cout << "Opción: ";
                 cin >> opcion2;
                 if (opcion == 1){
+                    int contador = 1;
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                        cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                        cout << contador << ". " << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                        contador++;
                     }
+                    cout << contador << ". Todos" << endl;
                     string opcion3;
                     cout << "Opción: ";
                     cin >> opcion3;
                     int idMatch = std::stoi(opcion3);
-                    NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
+                    if (idMatch == contador){
+                        // imprime todo el grafo
+                        int contador = 1;
+                        for (NodoGrafo * nodo : grafo->getNodos()) {
+                            Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                            cout << contador << ". " << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                            contador++;
+                            cout << "Matches" << endl;
+                            contador = 1;
+                            cout << "Oferta:" << endl;
+                            for (Arco * arco : *nodo->getArcs()){
+                                Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
+                                cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                                contador++;
+                            }
+                            cout << "Demanda:" << endl;
+                            contador = 1;
+                            for (Arco * arco : *nodo->getEntradas()){
+                                Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+                                cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                                contador++;
+                            }
+                        }
+                        grafo->saveToFile();
+                    } else {
+                        NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
+                        cout << "Matches" << endl;
+                        contador = 1;
+                        cout << "Oferta:" << endl;
+                        Grafo newGrafo = new Grafo(true);
+                        newGrafo.addNode(nodeMatch->getInfo());
+                        for (Arco * arco : *nodeMatch->getArcs()){
+                            Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
+                            cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                            contador++;
+                            newGrafo.addNode(arco->getDestino()->getInfo());
+                            newGrafo.addArc(nodeMatch, arco->getDestino(), arco->getPeso());
+                        }
+                        cout << "Demanda:" << endl;
+                        contador = 1;
+                        for (Arco * arco : *nodeMatch->getEntradas()){
+                            Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+                            cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                            contador++;
+                            std::vector<NodoGrafo*>::iterator current;
+                            for (current = newGrafo.getNodos().begin() ; current != newGrafo.getNodos().end(); ++current){
+                                if (arco->getOrigen() == *current){
+                                    break;
+                                }
+                            }
+                            if (current == newGrafo.getNodos().end()){
+                                newGrafo.addNode(arco->getOrigen()->getInfo());
+                            }
+                            newGrafo.addArc(arco->getOrigen(), nodeMatch, arco->getPeso());
+                        }
+                        newGrafo.saveToFile();
+                        /*
+                        string opcion4;
+                        cout << "Opción: ";
+                        cin >> opcion4;
+                        */
+                    }
+                    
+                    
                 } else if (opcion == 2) {
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
