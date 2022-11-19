@@ -72,11 +72,11 @@ class Grafo {
     public:
 
         void saveToFile(){
-            ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
-           // Gobiz.open("gobiz.csv");
+            //ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
+            ofstream Gobiz("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\gobiz.csv", ios::out);
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
-            ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
+            ofstream Links("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\links.csv", ios::out);
             Links << "Source,Target,Type\n";
             
             for (NodoGrafo * nodo : listaNodos){
@@ -99,6 +99,7 @@ class Grafo {
             
                 for (Arco * arco : (*nodo->getArcs())){
                     Links << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
+                    cout << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
                 }
             }
             Gobiz.close();
@@ -362,12 +363,11 @@ class Grafo {
             //VmenosF.erase(starting);
             starting->setDijkstraNodes(listaNodos);
             unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
-            for (auto nodo : *(distancias)){
-                nodo.second->setDistancia(999999);
-            }
+            
             //distancias->at(starting)->setDistancia(0);
             for (std::vector<Arco*>::iterator current = starting->getArcs()->begin() ; current != starting->getArcs()->end(); ++current){
                 distancias->at((*current)->getDestino())->setDistancia((*current)->getPeso());
+                distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos());
             }
             
             while (!VmenosF.empty()){
@@ -375,14 +375,14 @@ class Grafo {
                 for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){                    
                     if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
                         distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso());
-                        distancias->at((*current)->getDestino())->addArc((*current));
+                        distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos());
                     }
                 }
                 F.insert_or_assign(menor,menor);
                 VmenosF.erase(menor);
             }
             for (auto nodo : *(distancias)){
-                cout << "Distancia más corta desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< endl;               
+                cout << "Distancia más corta desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< " con nodos " <<  distancias->at(nodo.first)->getCantidadNodos() << endl;               
             }
         }
 
@@ -425,6 +425,25 @@ class Grafo {
             }
         }
         
+
+
+        Grafo* crearGrafoGrados(){
+            Grafo* result = new Grafo(true);
+            for (NodoGrafo* nodo : listaNodos){
+                result->addNode(nodo->getInfo());
+            }
+            for (NodoGrafo* nodo : listaNodos){
+                int concurrencia = nodo->getArcs()->size() + nodo->getNodosEntrada()->size();
+                cout << nodo->getArcs()->size() << " + " << nodo->getNodosEntrada()->size() << " = " << concurrencia << endl;
+                for (Arco* arco : *nodo->getArcs()){
+                    // cout << nodo->getInfo()->getId() << endl;
+                    // cout << arco->getDestino()->getInfo()->getId() << endl;
+                    result->addArc(result->getNodo(nodo->getInfo()->getId()),result->getNodo(arco->getDestino()->getInfo()->getId()), concurrencia);
+                }
+            }
+            return result;
+        }
+
         // Este método imprime los nodos y la cantidad de arcos que tienen 
         void printCounters() {
             for (std::vector<NodoGrafo*>::iterator current = listaNodos.begin() ; current != listaNodos.end(); ++current) {

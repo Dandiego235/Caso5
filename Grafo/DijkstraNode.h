@@ -12,36 +12,64 @@ class DijkstraNode {
     private:
         NodoGrafo* destino;
         int distancia;
-        vector<Arco*> camino;
+        Arco* camino;
+        int distanciaMay;
+        vector<Arco*> caminoMay;
+        NodoGrafo * starting;
+        int cantidadNodos;
 
     public:
         // constructor
-        DijkstraNode(NodoGrafo * pDestino) {
+        DijkstraNode(NodoGrafo * pDestino, NodoGrafo * pStarting) {
             this->destino = pDestino;
-            this->distancia = INT_MAX;
+            this->distancia = 999999;
+            this->distanciaMay = 999999;
+            this->starting = pStarting;
+            cantidadNodos = 1;
         }
 
         // getters del nodo dijkstra
-        NodoGrafo* getDestino() {
+        NodoGrafo* getDestino() const{
             return this->destino;
         }
 
-        int getDistancia() {
+        int getDistancia() const{
             return this->distancia;
         }
 
-        void addArc(Arco* pArco) {
-            this->camino.clear();
-            this->camino.push_back(pArco);
-            
+        void addArc(Arco* pArco, int pCantidadNodos) {
+            camino = pArco;
+            cantidadNodos = pCantidadNodos + 1;
         }
 
         void setDistancia(int pDistancia){
             distancia = pDistancia;
         }
 
-        vector<Arco*> getCamino(){
+        Arco* getCamino(){
             return camino;
+        }
+
+        int getCantidadNodos() const{
+            return cantidadNodos;
+        }
+
+        NodoGrafo * getStarting(){
+            return starting;
+        }
+
+        void setDistanciaMay(int pDistanciaMay){
+            distanciaMay = pDistanciaMay;
+        }
+
+        int getDistanciaMay(){
+            return distanciaMay;
+        }
+
+        void addArcMay(Arco* pArco) {
+            this->caminoMay.clear();
+            this->caminoMay.push_back(pArco);
+            
         }
 };
 

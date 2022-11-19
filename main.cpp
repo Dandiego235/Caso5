@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <set>
+#include <ctime>
 #include "Grafo/Grafo.h"
 #include "Grafo/Animal.h"
 #include "Grafo/INodo.h"
@@ -11,9 +12,9 @@
 #include "Match.h"
 #include "BPlus/StringData.h"
 #include "BPlus/BPlusTree.h"
+#include "OrdenCadenasMin.h"
 #include "OrdenGrado.h"
 #include "OrdenWords.h"
-#include <ctime>
 
 #define NUM_ANIMALES 14
 
@@ -163,6 +164,45 @@ vector<string>* top10(Grafo* grafo){
     return topRanking;
 }
 
+vector<NodoGrafo*>* menorCadena(Grafo* grafo){
+    set<DijkstraNode*, OrdenCadenasMin> cadenas;
+    for (NodoGrafo* nodo : grafo->getNodos()){
+        grafo->Dijkstra(nodo);
+        auto caminos = nodo->getCaminos();
+        for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
+            cadenas.insert(iterador->second);
+        }
+    }
+
+    for (auto rit = cadenas.rbegin(); rit != cadenas.rend(); rit++){
+        int concurrencia = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
+        cout << (*rit)->getStarting()->getInfo()->getId() << " a " << (*rit)->getDestino()->getInfo()->getId() << " " << (*rit)->getDistancia() + concurrencia << " " << (*rit)->getCantidadNodos() << endl;
+    }
+
+    DijkstraNode* menor = *cadenas.rbegin();
+    for (auto rit = ++cadenas.rbegin(); rit != cadenas.rend(); rit++){
+        if ((*rit)->getCantidadNodos() == menor->getCantidadNodos()){
+            int concurrenciaMenor = menor->getDestino()->getArcs()->size() + menor->getDestino()->getNodosEntrada()->size();
+            int concurrenciaRit = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
+            if ((*rit)->getDistancia() + concurrenciaRit < menor->getDistancia() + concurrenciaMenor){
+                menor = *rit;
+            }
+        } else {
+            break;
+        }
+    }
+    cout << menor->getDestino()->getInfo()->getId() << ' ' << menor->getStarting()->getInfo()->getId() << endl;
+    vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
+    NodoGrafo * starting = menor->getStarting();
+    result->push_back(menor->getDestino());
+    while (menor->getCamino()->getOrigen() != starting){
+        result->push_back(menor->getCamino()->getOrigen());
+        menor = starting->getCaminos()->at(menor->getCamino()->getOrigen());
+    }
+    result->push_back(starting);
+    return result;
+}
+
 int main(){
 
     vector<Registered*> allrecords;
@@ -188,17 +228,26 @@ int main(){
 
     crearMatches(grafo);
     
-    vector<string> *topRanking = top10(grafo);
+    // Cadena de valor menor
+    // Grafo* grados = grafo->crearGrafoGrados();
 
-    for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-        cout << *it << endl;
-    }
+    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+    //     cout << *it << endl;
+    // }
     
-    NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
-    grafo->Dijkstra(dijkstra);
+    // cout << "\nCadena" << endl;
+    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
+    // grafo->Dijkstra(dijkstra);
 
-    grafo->findCiclo(dijkstra);
+    // grafo->findCiclo(dijkstra);
 
+    // vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
+
+    // for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
+    //     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
+
+    //     cout << nickname->getNickname() << endl;
+    // }
     
     //grafo->saveCycles(dijkstra);
 
@@ -212,9 +261,9 @@ int main(){
     //     }
     // }
 
-    grafo->saveToFile();
+    //grados->saveToFile();
 
-    while (true) {
+    /*while (true) {
         int opcion;
         cout << "Gobiz" << endl;
         cout << "1. Registarse" << endl;
@@ -409,7 +458,8 @@ int main(){
         } else {
             cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
         }
-    }
+    }*/
+
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));
