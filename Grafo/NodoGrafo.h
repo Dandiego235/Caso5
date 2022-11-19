@@ -18,7 +18,7 @@ class NodoGrafo {
         bool visitado;
         bool procesado;
         unordered_map<NodoGrafo*, DijkstraNode*> * caminos;
-        vector<NodoGrafo*> * NodosEntrada; 
+        vector<Arco*> * NodosEntrada; 
         vector<vector<NodoGrafo*>> * ciclos; 
 
     public:
@@ -27,14 +27,14 @@ class NodoGrafo {
             this->dato = pDato;
             this->listaArcos = new vector<Arco*>();
             this->caminos = new unordered_map<NodoGrafo*, DijkstraNode*>();
-            this->NodosEntrada = new vector<NodoGrafo*>();
+            this->NodosEntrada = new vector<Arco*>();
             this->ciclos = new vector<vector<NodoGrafo*>>();
         }
 
         NodoGrafo() {
             this->listaArcos = new vector<Arco*>();     
             this->caminos = new unordered_map<NodoGrafo*, DijkstraNode*>();  
-            this->NodosEntrada = new vector<NodoGrafo*>();   
+            this->NodosEntrada = new vector<Arco*>();   
         }
 
         void setVisitado(bool pVisitado){
@@ -80,11 +80,11 @@ class NodoGrafo {
             return this->caminos;
         }
 
-        void addEntrada(NodoGrafo * pEntrada){
+        void addEntrada(Arco * pEntrada){
             this->NodosEntrada->push_back(pEntrada);
         }
 
-        vector<NodoGrafo*> * getEntradas(){
+        vector<Arco*> * getEntradas(){
             return NodosEntrada;
         }
 

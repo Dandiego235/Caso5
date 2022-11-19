@@ -188,7 +188,7 @@ class Grafo {
             Arco* newArc = new Arco(pOrigen, pDestino, pPeso); // crea el nuevo arco
 
             pOrigen->addArc(newArc); // crea establece el arco desde el origen al destino
-            pDestino->addEntrada(pOrigen);
+            pDestino->addEntrada(newArc);
             if (!this->esDirigido) { // si no es dirigido, crea un arco en dirección contraria.
                 Arco* reverseArc =  new Arco(pDestino, pOrigen , pPeso);
                 pDestino->addArc(reverseArc);
@@ -372,7 +372,8 @@ class Grafo {
             
             while (!VmenosF.empty()){
                 NodoGrafo * menor = minimo(&VmenosF, starting);
-                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
+                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){                    
+                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
                         distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso());
                         distancias->at((*current)->getDestino())->addArc((*current));
                     }
@@ -386,16 +387,16 @@ class Grafo {
         }
 
         void findCicloAux(vector<NodoGrafo*> pCiclo, NodoGrafo * currentNode, NodoGrafo * starting){
-            for (NodoGrafo * entrada : *(currentNode->getEntradas())){
-                if (entrada == starting){
+            for (Arco * entrada : *(currentNode->getEntradas())){
+                if (entrada->getOrigen() == starting){
                     if (pCiclo.size() >= 3){
                         pCiclo.push_back(starting);
                         starting->addCiclo(pCiclo);
                     }
-                } else if (starting->getCaminos()->at(currentNode)->getDistancia() != INT_MAX && !entrada->getVisitado()){
-                    pCiclo.push_back(entrada);
-                    entrada->setVisitado(true);
-                    findCicloAux(pCiclo, entrada, starting);
+                } else if (starting->getCaminos()->at(currentNode)->getDistancia() != INT_MAX && !entrada->getOrigen()->getVisitado()){
+                    pCiclo.push_back(entrada->getOrigen());
+                    entrada->getOrigen()->setVisitado(true);
+                    findCicloAux(pCiclo, entrada->getOrigen(), starting);
                     pCiclo.pop_back();
                 } 
             }
@@ -405,12 +406,12 @@ class Grafo {
 
             if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
                 
-                for (NodoGrafo * entrada : *(starting->getEntradas())){
+                for (Arco * entrada : *(starting->getEntradas())){
                     if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
                         vector<NodoGrafo*> ciclo;
                         ciclo.push_back(starting);
-                        ciclo.push_back(entrada);
-                        findCicloAux(ciclo, entrada, starting);
+                        ciclo.push_back(entrada->getOrigen());
+                        findCicloAux(ciclo, entrada->getOrigen(), starting);
                     }
                 }
                 
