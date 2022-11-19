@@ -228,6 +228,29 @@ int main(){
 
     crearMatches(grafo);
     
+    //grafo->saveToFile();
+
+    Grafo* grados = grafo->crearGrafoGrados();
+    
+    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
+
+    cout << "Recorrido en anchura" << endl;
+    for (INodo* nodo : anchura){
+        Registered * animal = (Registered*)(void*)(nodo);
+        cout << "     " << animal->getNickname() << endl;
+    }
+
+    cout << "Componentes conexas" << endl;
+    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+
+    for(vector<Arco*> componente : *componentes){
+        cout << "  Componente" << endl;
+        for (Arco* arco : componente){
+            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
+            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
+            cout << "    " << animCon->getNickname() << endl;
+        }
+    }
     // Cadena de valor menor
     // Grafo* grados = grafo->crearGrafoGrados();
 
@@ -263,7 +286,7 @@ int main(){
 
     //grados->saveToFile();
 
-    /*while (true) {
+    while (true) {
         int opcion;
         cout << "Gobiz" << endl;
         cout << "1. Registarse" << endl;
@@ -434,7 +457,7 @@ int main(){
                     NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
                     grafo->Dijkstra(nodeCycle);
                     grafo->findCiclo(nodeCycle);
-                    grafo->saveCycles(dijkstra);
+                    grafo->saveCycles(nodeCycle);
                 } else if (opcion == 3) {
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
@@ -458,7 +481,7 @@ int main(){
         } else {
             cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
         }
-    }*/
+    }
 
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));

@@ -162,7 +162,7 @@ class Grafo {
 
         Grafo(bool pDirigido) { // constructor del grafo
             this->esDirigido =  pDirigido;
-            int cantidadComponentes = 0;
+            cantidadComponentes = 0;
         }
 
         int getSize() { // obtiene la cantidad de nodos
