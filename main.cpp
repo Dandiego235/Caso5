@@ -13,6 +13,7 @@
 #include "BPlus/BPlusTree.h"
 #include "OrdenGrado.h"
 #include "OrdenWords.h"
+#include <ctime>
 
 #define NUM_ANIMALES 14
 
@@ -192,11 +193,14 @@ int main(){
     for (auto it = topRanking->begin(); it != topRanking->end(); it++){
         cout << *it << endl;
     }
+    
+    NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
+    grafo->Dijkstra(dijkstra);
 
-    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
-    // grafo->Dijkstra(dijkstra);
+    grafo->findCiclo(dijkstra);
 
-    // grafo->findCiclo(dijkstra);
+    
+    //grafo->saveCycles(dijkstra);
 
     // auto ciclos = dijkstra->getCiclos();
 
@@ -210,6 +214,136 @@ int main(){
 
     grafo->saveToFile();
 
+    while (true) {
+        int opcion;
+        cout << "Gobiz" << endl;
+        cout << "1. Registarse" << endl;
+        cout << "2. Revisar matches" << endl;
+        cout << "3. Analizar matches" << endl;
+        cout << "4. Salir" << endl;
+        cout << "Opción: ";
+        cin >> opcion;
+
+        if (opcion == 1){
+            while (true) {
+                string nickname;
+                cout << "Ingrese un nickname:" << endl;
+                cin >> nickname;
+                if (nickname.size() < 10 || nickname.size() > 32){
+                    cout << "ERROR: Ese nickname no es válido" << endl;
+                    continue;
+                }
+
+                // validar existencia del nickname
+
+                string contraseña;
+                cout << "Ingrese su contraseña" << endl;
+                cin >> contraseña;
+
+                if (contraseña.size() > 20 || contraseña == ""){
+                    cout << "ERROR: La contraseña no puede tener más de 20 caracteres" << endl;
+                    continue;
+                }
+
+                string confirm;
+                cout << "Confirme su contraseña" << endl;
+                cin >> confirm;
+                if (contraseña != confirm) {
+                    cout << "ERROR: Las dos contraseñas no son iguales" << endl;
+                    continue;
+                }
+
+                string offer;
+                cout << "Ingrese su oferta o déjelo vacío si no ofrece nada" << endl;
+                cin >> offer;
+
+                if (offer.size() > 250){
+                    cout << "ERROR: La oferta no puede tener más de 250 caracteres." << endl;
+                    continue;
+                }
+                string demand; 
+                cout << "Ingrese su demanda o déjelo vacío si no demanda nada" << endl;
+                cin >> demand;
+
+                if (demand.size() > 250){
+                    cout << "ERROR: La demanda no puede tener más de 250 caracteres." << endl;
+                    continue;
+                }
+
+                // current date/time based on current system
+                time_t now = time(0);
+
+                tm *ltm = localtime(&now);
+                string date = ltm->tm_mon + "/" + ltm->tm_mday;
+                date += "/";
+                date += ltm->tm_year;
+                cout << date << endl;
+                // Subir al server
+                allrecords.push_back(new Registered(nickname, offer,demand,date));
+
+            }
+        } else if (opcion == 2){
+            // print all matches
+        } else if (opcion == 3){
+            // obtain function to analize
+            while (true) {
+                int opcion2;
+                cout << "Analizar" << endl;
+                cout << "1. Visualizar matches actuales" << endl;
+                cout << "2. Comercio circular" << endl;
+                cout << "3. Tamaño de cadena de valor" << endl;
+                cout << "4. Gráfico con el Top 10 de productos más codiciados" << endl;
+                cout << "5. Áreas de mercado conexas" << endl;
+                cout << "6. Salir" << endl;
+                cout << "Opción: ";
+                cin >> opcion2;
+                if (opcion == 1){
+                    for (NodoGrafo * nodo : grafo->getNodos()) {
+                        Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                        cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                    }
+                    string opcion3;
+                    cout << "Opción: ";
+                    cin >> opcion3;
+                    int idMatch = std::stoi(opcion3);
+                    NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
+                } else if (opcion == 2) {
+                    for (NodoGrafo * nodo : grafo->getNodos()) {
+                        Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                        cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                    }
+                    string opcion3;
+                    cout << "Opción: ";
+                    cin >> opcion3;
+                    int idCycle = std::stoi(opcion3);
+                    NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
+                    grafo->Dijkstra(nodeCycle);
+                    grafo->findCiclo(nodeCycle);
+                    grafo->saveCycles(dijkstra);
+                } else if (opcion == 3) {
+                    for (NodoGrafo * nodo : grafo->getNodos()) {
+                        Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                        cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                    }
+                    string opcion3;
+                    cout << "Opción: ";
+                    cin >> opcion3;
+                    int idCycle = std::stoi(opcion3);
+                    NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
+                } else if (opcion == 4) {
+
+                } else if (opcion == 5) {
+
+                } else {
+                    break;
+                }
+            }
+        } else if (opcion ==4) {
+            break;
+        } else {
+            cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
+        }
+    }
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));

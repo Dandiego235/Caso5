@@ -105,6 +105,60 @@ class Grafo {
             Links.close();
         }
 
+        void saveCycles(NodoGrafo * nodo){
+            ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
+           // Gobiz.open("gobiz.csv");
+            Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
+
+            ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
+            Links << "Source,Target,Type\n";
+            int index = 0;
+
+            for (vector<NodoGrafo*> ciclo : *(nodo->getCiclos())){
+                Registered* registro = (Registered*)(void*)(nodo ->getInfo());
+                string offer = registro->getOffer();
+                registro->replace_all(offer, ",", ";");
+                string demand;
+                registro->replace_all(demand, ",", ";");
+                int tipo = 2;
+                NodoGrafo * anterior;
+                int quantity = 0;
+                int starting = nodo->getInfo()->getId() + index;
+                Gobiz << (starting) << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
+                for (NodoGrafo * nodoE : ciclo){
+                    registro = (Registered*)(void*)(nodoE->getInfo());
+                    offer = registro->getOffer();
+                    registro->replace_all(offer, ",", ";");
+                    demand = registro->getDemand();
+                    registro->replace_all(demand, ",", ";");
+                    
+                    if (offer == "" && demand != ""){
+                        tipo = 1;
+                    } else if (offer != "" && demand == ""){
+                        tipo = 0;
+                    } else {
+                        tipo = 2;
+                    }
+                    if ((nodoE->getInfo()->getId() + index) != starting){
+                        Gobiz << (nodoE->getInfo()->getId() + index) << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
+                    }
+                    if (quantity != 0){
+                        Links << nodoE->getInfo()->getId() + index << "," << anterior->getInfo()->getId() + index << "," << 0 << "\n";
+                    }
+                    anterior = nodoE;
+                    quantity++;
+                }
+                index += listaNodos.size();
+                if (anterior != nodo){
+                    Links << anterior->getInfo()->getId() + index << "," << nodo->getInfo()->getId() + index << ","  << 0 << "\n";
+                }
+                
+            }
+            
+            Gobiz.close();
+            Links.close();
+        }
+
         Grafo(bool pDirigido) { // constructor del grafo
             this->esDirigido =  pDirigido;
             int cantidadComponentes = 0;
@@ -309,26 +363,19 @@ class Grafo {
             starting->setDijkstraNodes(listaNodos);
             unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
             for (auto nodo : *(distancias)){
-                nodo.second->setDistancia(INT_MAX);
+                nodo.second->setDistancia(999999);
             }
             //distancias->at(starting)->setDistancia(0);
             for (std::vector<Arco*>::iterator current = starting->getArcs()->begin() ; current != starting->getArcs()->end(); ++current){
                 distancias->at((*current)->getDestino())->setDistancia((*current)->getPeso());
             }
-
+            
             while (!VmenosF.empty()){
                 NodoGrafo * menor = minimo(&VmenosF, starting);
-                resetNodes();
-                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){
-                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
+                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
                         distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso());
                         distancias->at((*current)->getDestino())->addArc((*current));
                     }
-                    /*
-                    if ((*current)->getDestino() == starting) {
-
-                    }
-                    */
                 }
                 F.insert_or_assign(menor,menor);
                 VmenosF.erase(menor);
@@ -341,8 +388,10 @@ class Grafo {
         void findCicloAux(vector<NodoGrafo*> pCiclo, NodoGrafo * currentNode, NodoGrafo * starting){
             for (NodoGrafo * entrada : *(currentNode->getEntradas())){
                 if (entrada == starting){
-                    pCiclo.push_back(starting);
-                    starting->addCiclo(pCiclo);
+                    if (pCiclo.size() >= 3){
+                        pCiclo.push_back(starting);
+                        starting->addCiclo(pCiclo);
+                    }
                 } else if (starting->getCaminos()->at(currentNode)->getDistancia() != INT_MAX && !entrada->getVisitado()){
                     pCiclo.push_back(entrada);
                     entrada->setVisitado(true);
@@ -367,11 +416,9 @@ class Grafo {
                 
                 for (vector<NodoGrafo*> ciclo : *(starting->getCiclos())){
                     cout << "Ciclo " << endl;
-                    cout << "Nodo : " << starting->getInfo()->getId() << endl;
                     for (NodoGrafo * nodo : ciclo){
                         cout <<"Nodo: " << nodo->getInfo()->getId() << endl;
                     }
-                    cout << "Nodo : " << starting->getInfo()->getId() << endl;
                 }
                 
             }
