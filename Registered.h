@@ -39,6 +39,8 @@ class Registered : public INodo{
 
         static unordered_map<string, int> *hashIDs;
 
+        static map<string, NodoGrafo*> nicknames;
+
         unordered_map<string, string> *fullWordsOffer;
         unordered_map<string, string> *fullWordsDemand;
 
@@ -71,6 +73,8 @@ class Registered : public INodo{
             } else {
                 comprador = false;
             }
+
+            nicknames.insert(nickname, this);
             
             cout << nickname << endl;
             cout << "  Oferta" << endl;
@@ -216,11 +220,16 @@ class Registered : public INodo{
         vector<Match>* getMatchesSalida(){
             return matchesSalida;
         }
+
+        static bool validateNickname(string pNickname){
+            return nicknames.count(pNickname);
+        }
 };
 
 int Registered::contadorId = 1;
 vector<Registered*>* Registered::compradores = new vector<Registered*>();
 vector<Registered*>* Registered::vendedores = new vector<Registered*>();
 unordered_map<string, int>* Registered::hashIDs = new unordered_map<string, int>();
+map<string, Registered*> Registered::nicknames = new map<string, Registered*>();
 
 #endif

@@ -228,45 +228,10 @@ int main(){
 
     crearMatches(grafo);
     
-    // Cadena de valor menor
-    // Grafo* grados = grafo->crearGrafoGrados();
-
-    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-    //     cout << *it << endl;
-    // }
-    
-    // cout << "\nCadena" << endl;
-    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
-    // grafo->Dijkstra(dijkstra);
-
-    // grafo->findCiclo(dijkstra);
-
-    // vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
-
-    // for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
-    //     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
-
-    //     cout << nickname->getNickname() << endl;
-    // }
-    
-    //grafo->saveCycles(dijkstra);
-
-    // auto ciclos = dijkstra->getCiclos();
-
-    // for (vector<NodoGrafo*> ciclo: *ciclos){
-    //     cout << "Ciclo" << endl;
-    //     for (auto rit = ciclo.rbegin(); rit != ciclo.rend(); rit++){
-    //         Registered* record = (Registered*)(void*)((*rit)->getInfo());
-    //         cout << "     " << record->getNickname() << endl;
-    //     }
-    // }
-
-    //grados->saveToFile();
-
-    /*while (true) {
+    while (true) {
         int opcion;
         cout << "Gobiz" << endl;
-        cout << "1. Registarse" << endl;
+        cout << "1. Registrarse" << endl;
         cout << "2. Revisar matches" << endl;
         cout << "3. Analizar matches" << endl;
         cout << "4. Salir" << endl;
@@ -279,11 +244,15 @@ int main(){
                 cout << "Ingrese un nickname:" << endl;
                 cin >> nickname;
                 if (nickname.size() < 10 || nickname.size() > 32){
-                    cout << "ERROR: Ese nickname no es válido" << endl;
+                    cout << "ERROR: El nickname debe tener una longitud entre 10 y 32 caracteres." << endl;
                     continue;
                 }
 
                 // validar existencia del nickname
+                if (Registered::validateNickname(nickname)){
+                    cout << "ERROR: Ese nickname ya está registrado." << endl;
+                    continue;
+                }
 
                 string contraseña;
                 cout << "Ingrese su contraseña" << endl;
@@ -328,13 +297,15 @@ int main(){
                 date += ltm->tm_year;
                 cout << date << endl;
                 // Subir al server
+                //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->mon, ltm->tm_year);
                 allrecords.push_back(new Registered(nickname, offer,demand,date));
-
             }
         } else if (opcion == 2){
             // print all matches
+
         } else if (opcion == 3){
             // obtain function to analize
+            
             while (true) {
                 int opcion2;
                 cout << "Analizar" << endl;
@@ -392,7 +363,42 @@ int main(){
         } else {
             cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
         }
-    }*/
+    }
+
+    // Cadena de valor menor
+    // Grafo* grados = grafo->crearGrafoGrados();
+
+    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+    //     cout << *it << endl;
+    // }
+    
+    // cout << "\nCadena" << endl;
+    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
+    // grafo->Dijkstra(dijkstra);
+
+    // grafo->findCiclo(dijkstra);
+
+    // vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
+
+    // for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
+    //     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
+
+    //     cout << nickname->getNickname() << endl;
+    // }
+    
+    //grafo->saveCycles(dijkstra);
+
+    // auto ciclos = dijkstra->getCiclos();
+
+    // for (vector<NodoGrafo*> ciclo: *ciclos){
+    //     cout << "Ciclo" << endl;
+    //     for (auto rit = ciclo.rbegin(); rit != ciclo.rend(); rit++){
+    //         Registered* record = (Registered*)(void*)((*rit)->getInfo());
+    //         cout << "     " << record->getNickname() << endl;
+    //     }
+    // }
+
+    //grados->saveToFile();
 
     // allrecords.push_back(new Registered("","","",""));
     // allrecords.push_back(new Registered("","","",""));
