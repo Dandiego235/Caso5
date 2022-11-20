@@ -228,6 +228,64 @@ int main(){
 
     crearMatches(grafo);
     
+    //grafo->saveToFile();
+
+    Grafo* grados = grafo->crearGrafoGrados();
+    
+    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
+
+    cout << "Recorrido en anchura" << endl;
+    for (INodo* nodo : anchura){
+        Registered * animal = (Registered*)(void*)(nodo);
+        cout << "     " << animal->getNickname() << endl;
+    }
+
+    cout << "Componentes conexas" << endl;
+    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+
+    for(vector<Arco*> componente : *componentes){
+        cout << "  Componente" << endl;
+        for (Arco* arco : componente){
+            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
+            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
+            cout << "    " << animCon->getNickname() << endl;
+        }
+    }
+    // Cadena de valor menor
+    // Grafo* grados = grafo->crearGrafoGrados();
+
+    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+    //     cout << *it << endl;
+    // }
+    
+    // cout << "\nCadena" << endl;
+    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
+    // grafo->Dijkstra(dijkstra);
+
+    // grafo->findCiclo(dijkstra);
+
+    // vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
+
+    // for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
+    //     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
+
+    //     cout << nickname->getNickname() << endl;
+    // }
+    
+    //grafo->saveCycles(dijkstra);
+
+    // auto ciclos = dijkstra->getCiclos();
+
+    // for (vector<NodoGrafo*> ciclo: *ciclos){
+    //     cout << "Ciclo" << endl;
+    //     for (auto rit = ciclo.rbegin(); rit != ciclo.rend(); rit++){
+    //         Registered* record = (Registered*)(void*)((*rit)->getInfo());
+    //         cout << "     " << record->getNickname() << endl;
+    //     }
+    // }
+
+    //grados->saveToFile();
+
     while (true) {
         int opcion;
         cout << "Gobiz" << endl;
@@ -405,7 +463,7 @@ int main(){
                     NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
                     grafo->Dijkstra(nodeCycle);
                     grafo->findCiclo(nodeCycle);
-                    grafo->saveCycles(dijkstra);
+                    grafo->saveCycles(nodeCycle);
                 } else if (opcion == 3) {
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
