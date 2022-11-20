@@ -47,9 +47,9 @@ class NodoGrafo {
             return visitado;
         }
 
-        void setDijkstraNodes(vector<NodoGrafo*> nodos){
+        void setDijkstraNodes(vector<NodoGrafo*> nodos, int distancia = 999999){
             for (NodoGrafo * nodo : nodos){
-                caminos->insert_or_assign(nodo, new DijkstraNode(nodo, this));
+                caminos->insert_or_assign(nodo, new DijkstraNode(nodo, this, distancia));
             }
         }
 

@@ -1,0 +1,44 @@
+{ 
+ "name": "Grafo", "children" : [
+{
+ "name" : "Componente 1",
+ "children": [
+{"name": "Wakanda_Med", "size" : 1},
+{"name": "Hospital_Tec", "size" : 9},
+{"name": "AstraMedical222", "size" : 9},
+{"name": "Mesa_School", "size" : 9},
+{"name": "BobTheBuilder250", "size" : 4},
+{"name": "metal_year_2000", "size" : 4},
+{"name": "construSoluciones2001", "size" : 6},
+{"name": "RealSolutions", "size" : 6},
+{"name": "EstructurasMina", "size" : 4}
+]
+},{
+ "name" : "Componente 2",
+ "children": [
+{"name": "vendePollos38", "size" : 1},
+{"name": "OlcoManGold", "size" : 1}
+]
+},{
+ "name" : "Componente 3",
+ "children": [
+{"name": "elvendeTacos29", "size" : 1}
+]
+},{
+ "name" : "Componente 4",
+ "children": [
+{"name": "badbunny_in_concert", "size" : 1},
+{"name": "CompuYankeeDev129", "size" : 1}
+]
+},{
+ "name" : "Componente 5",
+ "children": [
+{"name": "rock_odin_gold", "size" : 1}
+]
+},{
+ "name" : "Componente 6",
+ "children": [
+{"name": "josearnoldowood", "size" : 1}
+]
+}]
+}

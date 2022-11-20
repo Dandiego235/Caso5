@@ -20,10 +20,9 @@ class DijkstraNode {
 
     public:
         // constructor
-        DijkstraNode(NodoGrafo * pDestino, NodoGrafo * pStarting) {
+        DijkstraNode(NodoGrafo * pDestino, NodoGrafo * pStarting, int pDistancia) {
             this->destino = pDestino;
-            this->distancia = 999999;
-            this->distanciaMay = 999999;
+            this->distancia = pDistancia;
             this->starting = pStarting;
             cantidadNodos = 1;
         }

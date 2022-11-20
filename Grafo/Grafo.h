@@ -56,7 +56,7 @@ class Grafo {
 
         NodoGrafo * minimo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * s){
             int mx = INT_MAX;
-            NodoGrafo * v;
+            NodoGrafo * v = nullptr;
             for (auto nodo : (*VmenosF)){
                 if (!v){
                     v = nodo.first;
@@ -69,24 +69,40 @@ class Grafo {
             return v;
         }
 
+        NodoGrafo * maximo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * s){
+            int max = 0;
+            NodoGrafo * v = nullptr;
+            for (auto nodo : (*VmenosF)){
+                if (!v){
+                    v = nodo.first;
+                }
+                if (s->getCaminos()->at(nodo.first)->getDistancia() >= max){
+                    max = s->getCaminos()->at(nodo.first)->getDistancia();
+                    v = nodo.first;
+                } 
+            }
+            return v;
+        }
+
     public:
 
         void saveToFile(){
-            //ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
-            ofstream Gobiz("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\gobiz.csv", ios::out);
+            ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
+            //ofstream Gobiz("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\gobiz.csv", ios::out);
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
-            ofstream Links("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\links.csv", ios::out);
+            ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
+            //ofstream Links("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\links.csv
             Links << "Source,Target,Type\n";
             
             for (NodoGrafo * nodo : listaNodos){
                 Registered* registro = (Registered*)(void*)(nodo->getInfo());
                 string offer = registro->getOffer();
                 registro->replace_all(offer, ",", ";");
-                // cout << offer << endl;
+                // std::cout << offer << endl;
                 string demand = registro->getDemand();
                 registro->replace_all(demand, ",", ";");
-                // cout << demand << endl;
+                // std::cout << demand << endl;
                 int tipo;
                 if (offer == "" && demand != ""){
                     tipo = 1;
@@ -99,7 +115,7 @@ class Grafo {
             
                 for (Arco * arco : (*nodo->getArcs())){
                     Links << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
-                    cout << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
+                    std::cout << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
                 }
             }
             Gobiz.close();
@@ -261,6 +277,7 @@ class Grafo {
 
                         if (!adyacente->getProcesado()) { // si no está procesado
                             componente.push_back(arco);
+                            std::cout << arco->getPeso() << endl;
                             nodosProcesados.push(adyacente); // lo mete en la pila
                             adyacente->setProcesado(true); // lo marca
                         }
@@ -356,11 +373,42 @@ class Grafo {
             return &componentesConexas;
         }
 
+        void saveComponentes(){
+            int contador = 1;
+            ofstream Componentes("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\componentes.json", ios::out);
+            
+            Componentes << "{ \n \"name\": \"Grafo\", \"children\" : [\n";
+
+            for (vector<Arco*> componente : componentesConexas){
+                Componentes << "{\n \"name\" : \"Componente " << contador << "\",\n \"children\": [\n";
+                int contador2 = 1;
+                for (Arco * arco : componente){
+                    Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
+                    int peso = arco->getPeso();
+                    if (!peso){
+                        peso = 1;
+                    }
+
+                    Componentes << "{\"name\": \"" << registro->getNickname() << "\", \"size\" : " << peso << "}";
+                    if (contador2 != componente.size()){
+                        Componentes << ",";
+                    }
+                    Componentes << "\n";
+                    contador2++;
+                }
+                Componentes << "]\n}";
+                if (contador != componentesConexas.size()){
+                    Componentes << ",";
+                }
+                contador++;
+            }
+            Componentes << "]\n}";
+            Componentes.close();
+        }
 
         void Dijkstra(NodoGrafo * starting){
             unordered_map<NodoGrafo*, NodoGrafo*> F;
             
-            //vector<NodoGrafo*> VmenosF = listaNodos; // arreglar este para copiar la lista
             F.insert_or_assign(starting,starting);
             unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
             for (NodoGrafo * nodo : listaNodos){
@@ -388,7 +436,42 @@ class Grafo {
                 VmenosF.erase(menor);
             }
             for (auto nodo : *(distancias)){
-                cout << "Distancia más corta desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< " con nodos " <<  distancias->at(nodo.first)->getCantidadNodos() << endl;               
+                std::cout << "Distancia más corta desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< " con nodos " <<  distancias->at(nodo.first)->getCantidadNodos() << endl;               
+            }
+        }
+
+        void dijkstraMayor(NodoGrafo * starting){
+            unordered_map<NodoGrafo*, NodoGrafo*> F;
+            
+            F.insert_or_assign(starting,starting);
+            unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
+            for (NodoGrafo * nodo : listaNodos){
+                VmenosF.insert_or_assign(nodo, nodo);
+            }
+            VmenosF.erase(starting);
+            starting->setDijkstraNodes(listaNodos, 0);
+            unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
+            distancias->at(starting)->setDistancia(0);
+            for (Arco* arco : *starting->getArcs()){
+                distancias->at(arco->getDestino())->setDistancia(arco->getPeso());
+                distancias->at(arco->getDestino())->addArc(arco, distancias->at(arco->getOrigen())->getCantidadNodos());
+            }
+            
+            while (!VmenosF.empty()){
+                NodoGrafo * mayor = maximo(&VmenosF, starting);
+                for (Arco* arco : *mayor->getArcs()){   
+                   // cout << distancias->at(arco->getDestino())->getDistancia() << " " << distancias->at(arco->getOrigen())->getDistancia() << " " << arco->getPeso() << endl;
+                    if (distancias->at(arco->getDestino())->getDistancia() < distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() && distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() != arco->getPeso()){
+                        distancias->at(arco->getDestino())->setDistancia(distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso());
+                        distancias->at(arco->getDestino())->addArc(arco, distancias->at(arco->getOrigen())->getCantidadNodos());
+                        cout << "Desde " << arco->getOrigen()->getInfo()->getId() << " a " << arco->getDestino()->getInfo()->getId() << endl;
+                    }
+                }
+                F.insert_or_assign(mayor,mayor);
+                VmenosF.erase(mayor);
+            }
+            for (auto nodo : *(distancias)){
+                std::cout << "Distancia más larga desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< " con nodos " <<  distancias->at(nodo.first)->getCantidadNodos() << endl;               
             }
         }
 
@@ -422,9 +505,9 @@ class Grafo {
                 }
                 
                 for (vector<NodoGrafo*> ciclo : *(starting->getCiclos())){
-                    cout << "Ciclo " << endl;
+                    std::cout << "Ciclo " << endl;
                     for (NodoGrafo * nodo : ciclo){
-                        cout <<"Nodo: " << nodo->getInfo()->getId() << endl;
+                        std::cout <<"Nodo: " << nodo->getInfo()->getId() << endl;
                     }
                 }
                 
@@ -440,10 +523,10 @@ class Grafo {
             }
             for (NodoGrafo* nodo : listaNodos){
                 int concurrencia = nodo->getArcs()->size() + nodo->getNodosEntrada()->size();
-                cout << nodo->getArcs()->size() << " + " << nodo->getNodosEntrada()->size() << " = " << concurrencia << endl;
+                std::cout << nodo->getArcs()->size() << " + " << nodo->getNodosEntrada()->size() << " = " << concurrencia << endl;
                 for (Arco* arco : *nodo->getArcs()){
-                    // cout << nodo->getInfo()->getId() << endl;
-                    // cout << arco->getDestino()->getInfo()->getId() << endl;
+                    // std::cout << nodo->getInfo()->getId() << endl;
+                    // std::cout << arco->getDestino()->getInfo()->getId() << endl;
                     result->addArc(result->getNodo(nodo->getInfo()->getId()),result->getNodo(arco->getDestino()->getInfo()->getId()), concurrencia);
                 }
             }
@@ -454,7 +537,7 @@ class Grafo {
         void printCounters() {
             for (std::vector<NodoGrafo*>::iterator current = listaNodos.begin() ; current != listaNodos.end(); ++current) {
                 NodoGrafo* actual = (*current);
-                cout << actual->getInfo()->getId() << " tiene " << actual->getArcs()->size() << endl;
+                std::cout << actual->getInfo()->getId() << " tiene " << actual->getArcs()->size() << endl;
                 
             }
         }
