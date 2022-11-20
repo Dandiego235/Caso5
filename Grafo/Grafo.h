@@ -442,7 +442,7 @@ class Grafo {
 
         void dijkstraMayor(NodoGrafo * starting){
             unordered_map<NodoGrafo*, NodoGrafo*> F;
-            
+            resetNodes();
             F.insert_or_assign(starting,starting);
             unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
             for (NodoGrafo * nodo : listaNodos){
@@ -450,6 +450,7 @@ class Grafo {
             }
             VmenosF.erase(starting);
             starting->setDijkstraNodes(listaNodos, 0);
+            starting->setVisitado(true);
             unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
             distancias->at(starting)->setDistancia(0);
             for (Arco* arco : *starting->getArcs()){
@@ -461,9 +462,10 @@ class Grafo {
                 NodoGrafo * mayor = maximo(&VmenosF, starting);
                 for (Arco* arco : *mayor->getArcs()){   
                    // cout << distancias->at(arco->getDestino())->getDistancia() << " " << distancias->at(arco->getOrigen())->getDistancia() << " " << arco->getPeso() << endl;
-                    if (distancias->at(arco->getDestino())->getDistancia() < distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() && distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() != arco->getPeso()){
+                    if (!arco->getDestino()->getVisitado() && distancias->at(arco->getDestino())->getDistancia() < distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() && distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() != arco->getPeso()){
                         distancias->at(arco->getDestino())->setDistancia(distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso());
                         distancias->at(arco->getDestino())->addArc(arco, distancias->at(arco->getOrigen())->getCantidadNodos());
+                        arco->getOrigen()->setVisitado(true);
                         cout << "Desde " << arco->getOrigen()->getInfo()->getId() << " a " << arco->getDestino()->getInfo()->getId() << endl;
                     }
                 }

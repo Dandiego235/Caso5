@@ -277,7 +277,7 @@ int main(){
         cout << registro->getNickname() << endl;
     }
     //saveTop10(grafo);
-    grados->saveToFile();
+    // grados->saveToFile();
     /*
     Grafo* grados = grafo->crearGrafoGrados();
     
