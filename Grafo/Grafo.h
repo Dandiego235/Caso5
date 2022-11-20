@@ -407,9 +407,6 @@ class Grafo {
         }
 
         void Dijkstra(NodoGrafo * starting){
-            unordered_map<NodoGrafo*, NodoGrafo*> F;
-            
-            F.insert_or_assign(starting,starting);
             unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
             for (NodoGrafo * nodo : listaNodos){
                 VmenosF.insert_or_assign(nodo, nodo);
@@ -432,7 +429,6 @@ class Grafo {
                         distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos());
                     }
                 }
-                F.insert_or_assign(menor,menor);
                 VmenosF.erase(menor);
             }
             for (auto nodo : *(distancias)){
@@ -441,9 +437,7 @@ class Grafo {
         }
 
         void dijkstraMayor(NodoGrafo * starting){
-            unordered_map<NodoGrafo*, NodoGrafo*> F;
             resetNodes();
-            F.insert_or_assign(starting,starting);
             unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
             for (NodoGrafo * nodo : listaNodos){
                 VmenosF.insert_or_assign(nodo, nodo);
@@ -469,7 +463,6 @@ class Grafo {
                         cout << "Desde " << arco->getOrigen()->getInfo()->getId() << " a " << arco->getDestino()->getInfo()->getId() << endl;
                     }
                 }
-                F.insert_or_assign(mayor,mayor);
                 VmenosF.erase(mayor);
             }
             for (auto nodo : *(distancias)){

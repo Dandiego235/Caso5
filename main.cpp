@@ -178,7 +178,7 @@ void saveTop10(Grafo * pGrafo){
     TopFile.close();
 }
 
-vector<NodoGrafo*>* menorCadena(Grafo* grafo){
+vector<NodoGrafo*>* menorCadena(Grafo* grafo, int * concurrencia){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
     for (NodoGrafo* nodo : grafo->getNodos()){
         grafo->Dijkstra(nodo);
@@ -266,6 +266,7 @@ int main(){
     allrecords.push_back(new Registered("BobTheBuilder250","Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.","Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.","11/17/2022"));
     //allrecords.push_back(new Registered("","","",""));
 
+/*
     Grafo *grafo = crearGrafo(allrecords);
 
     crearMatches(grafo);
@@ -276,6 +277,7 @@ int main(){
         Registered *registro = (Registered*)(void*)(nodo->getInfo());
         cout << registro->getNickname() << endl;
     }
+    */
     //saveTop10(grafo);
     // grados->saveToFile();
     /*
@@ -339,224 +341,242 @@ int main(){
 
     //grados->saveToFile();
 
-    // while (true) {
-    //     int opcion;
-    //     std::cout << "Gobiz" << endl;
-    //     std::cout << "1. Registarse" << endl;
-    //     std::cout << "2. Revisar matches" << endl;
-    //     std::cout << "3. Analizar matches" << endl;
-    //     std::cout << "4. Salir" << endl;
-    //     std::cout << "Opción: ";
-    //     cin >> opcion;
+    while (true) {
+        int opcion;
+        std::cout << "Gobiz" << endl;
+        std::cout << "1. Registarse" << endl;
+        std::cout << "2. Revisar matches" << endl;
+        std::cout << "3. Analizar matches" << endl;
+        std::cout << "4. Salir" << endl;
+        std::cout << "Opción: ";
+        cin >> opcion;
 
-    //     if (opcion == 1){
-    //         while (true) {
-    //             string nickname;
-    //             std::cout << "Ingrese un nickname:" << endl;
-    //             cin >> nickname;
-    //             if (nickname.size() < 10 || nickname.size() > 32){
-    //                 std::cout << "ERROR: Ese nickname no es válido" << endl;
-    //                 continue;
-    //             }
+        if (opcion == 1){
+            while (true) {
+                string nickname;
+                std::cout << "Ingrese un nickname:" << endl;
+                cin >> nickname;
+                if (nickname.size() < 10 || nickname.size() > 32){
+                    std::cout << "ERROR: Ese nickname no es válido" << endl;
+                    continue;
+                }
 
-    //             validar existencia del nickname
-    //             if (Registered::validateNickname(nickname)){
-    //                 cout << "ERROR: Ese nickname ya está registrado." << endl;
-    //                 continue;
-    //             }
+                //validar existencia del nickname
+                if (Registered::validateNickname(nickname)){
+                    cout << "ERROR: Ese nickname ya está registrado." << endl;
+                    continue;
+                }
 
-    //             string contraseña;
-    //             std::cout << "Ingrese su contraseña" << endl;
-    //             cin >> contraseña;
+                string contraseña;
+                std::cout << "Ingrese su contraseña" << endl;
+                cin >> contraseña;
 
-    //             if (contraseña.size() > 20 || contraseña == ""){
-    //                 std::cout << "ERROR: La contraseña no puede tener más de 20 caracteres" << endl;
-    //                 continue;
-    //             }
+                if (contraseña.size() > 20 || contraseña == ""){
+                    std::cout << "ERROR: La contraseña no puede tener más de 20 caracteres" << endl;
+                    continue;
+                }
 
-    //             string confirm;
-    //             std::cout << "Confirme su contraseña" << endl;
-    //             cin >> confirm;
-    //             if (contraseña != confirm) {
-    //                 std::cout << "ERROR: Las dos contraseñas no son iguales" << endl;
-    //                 continue;
-    //             }
+                string confirm;
+                std::cout << "Confirme su contraseña" << endl;
+                cin >> confirm;
+                if (contraseña != confirm) {
+                    std::cout << "ERROR: Las dos contraseñas no son iguales" << endl;
+                    continue;
+                }
 
-    //             string offer;
-    //             std::cout << "Ingrese su oferta o déjelo vacío si no ofrece nada" << endl;
-    //             cin >> offer;
+                string offer;
+                std::cout << "Ingrese su oferta o déjelo vacío si no ofrece nada" << endl;
+                cin >> offer;
 
-    //             if (offer.size() > 250){
-    //                 std::cout << "ERROR: La oferta no puede tener más de 250 caracteres." << endl;
-    //                 continue;
-    //             }
-    //             string demand; 
-    //             std::cout << "Ingrese su demanda o déjelo vacío si no demanda nada" << endl;
-    //             cin >> demand;
+                if (offer.size() > 250){
+                    std::cout << "ERROR: La oferta no puede tener más de 250 caracteres." << endl;
+                    continue;
+                }
+                string demand; 
+                std::cout << "Ingrese su demanda o déjelo vacío si no demanda nada" << endl;
+                cin >> demand;
 
-    //             if (demand.size() > 250){
-    //                 std::cout << "ERROR: La demanda no puede tener más de 250 caracteres." << endl;
-    //                 continue;
-    //             }
+                if (demand.size() > 250){
+                    std::cout << "ERROR: La demanda no puede tener más de 250 caracteres." << endl;
+                    continue;
+                }
 
-    //             current date/time based on current system
-    //             time_t now = time(0);
+                //current date/time based on current system
+                time_t now = time(0);
 
-    //             tm *ltm = localtime(&now);
-    //             string date = ltm->tm_mon + "/" + ltm->tm_mday;
-    //             date += "/";
-    //             date += ltm->tm_year;
-    //             std::cout << date << endl;
-    //             Subir al server
-    //             regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->mon, ltm->tm_year);
-    //             allrecords.push_back(new Registered(nickname, offer,demand,date));
-    //         }
-    //     } else if (opcion == 2){
-    //         print all matches
+                tm *ltm = localtime(&now);
+                string date = ltm->tm_mon + "/" + ltm->tm_mday;
+                date += "/";
+                date += ltm->tm_year;
+                std::cout << date << endl;
+                // Subir al server
+                //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->mon, ltm->tm_year);
+                allrecords.push_back(new Registered(nickname, offer,demand,date));
+            }
 
-    //     } else if (opcion == 3){
-    //         obtain function to analize
-            
-    //         while (true) {
-    //             int opcion2;
-    //             std::cout << "Analizar" << endl;
-    //             std::cout << "1. Visualizar matches actuales" << endl;
-    //             std::cout << "2. Comercio circular" << endl;
-    //             std::cout << "3. Tamaño de cadena de valor" << endl;
-    //             std::cout << "4. Gráfico con el Top 10 de productos más codiciados" << endl;
-    //             std::cout << "5. Áreas de mercado conexas" << endl;
-    //             std::cout << "6. Salir" << endl;
-    //             std::cout << "Opción: ";
-    //             cin >> opcion2;
-    //             if (opcion2 == 1){
-    //                 int contador = 1;
-    //                 for (NodoGrafo * nodo : grafo->getNodos()) {
-    //                     Registered* registro = (Registered*)(void*)(nodo->getInfo());
-    //                     std::cout << contador << ". " << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
-    //                     contador++;
-    //                 }
-    //                 std::cout << contador << ". Todos" << endl;
-    //                 string opcion3;
-    //                 std::cout << "Opción: ";
-    //                 cin >> opcion3;
-    //                 int idMatch = std::stoi(opcion3);
-    //                 if (idMatch == contador){
-    //                     imprime todo el grafo
-    //                     int contador = 1;
-    //                     for (NodoGrafo * nodo : grafo->getNodos()) {
-    //                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
-    //                         std::cout << contador << ". " << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
-    //                         contador++;
-    //                         std::cout << "Matches" << endl;
-    //                         contador = 1;
-    //                         std::cout << "Oferta:" << endl;
-    //                         for (Arco * arco : *nodo->getArcs()){
-    //                             Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
-    //                             std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
-    //                             contador++;
-    //                         }
-    //                         std::cout << "Demanda:" << endl;
-    //                         contador = 1;
-    //                         for (Arco * arco : *nodo->getEntradas()){
-    //                             Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
-    //                             std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
-    //                             contador++;
-    //                         }
-    //                     }
-    //                     grafo->saveToFile();
-    //                 } else {
-    //                     NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
-    //                     std::cout << "Matches" << endl;
-    //                     contador = 1;
-    //                     std::cout << "Oferta:" << endl;
-    //                     Grafo newGrafo = new Grafo(true);
-    //                     newGrafo.addNode(nodeMatch->getInfo());
-    //                     for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
-    //                         Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
-    //                         std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
-    //                         contador++;
-    //                         newGrafo.addNode((*it)->getDestino()->getInfo());
-    //                         newGrafo.addArc(nodeMatch->getInfo()->getId(), (*it)->getDestino()->getInfo()->getId(), (*it)->getPeso());
-    //                     }
-    //                     std::cout << "Demanda:" << endl;
-    //                     contador = 1;
-    //                     for (Arco * arco : *nodeMatch->getEntradas()){
-    //                         Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
-    //                         std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
-    //                         contador++;
-    //                         if (!newGrafo.getNodo(registro->getId())){
-    //                             newGrafo.addNode(arco->getOrigen()->getInfo());
-    //                         }
-    //                         newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
-    //                     }
-    //                     newGrafo.saveToFile();
-    //                     /*
-    //                     string opcion4;
-    //                     std::cout << "Opción: ";
-    //                     cin >> opcion4;
-    //                     */
-    //                 }
+        } else if (opcion == 2){
+            //print all matches
+
+        } else if (opcion == 3){
+            //obtain function to analize
+            Grafo *grafo = crearGrafo(allrecords);
+            crearMatches(grafo);
+            while (true) {
+                int opcion2;
+                std::cout << "Analizar" << endl;
+                std::cout << "1. Visualizar matches actuales" << endl;
+                std::cout << "2. Comercio circular" << endl;
+                std::cout << "3. Tamaño de cadena de valor" << endl;
+                std::cout << "4. Gráfico con el Top 10 de productos más codiciados" << endl;
+                std::cout << "5. Áreas de mercado conexas" << endl;
+                std::cout << "6. Salir" << endl;
+                std::cout << "Opción: ";
+                cin >> opcion2;
+                if (opcion2 == 1){
+                    int contador = 1;
+                    for (NodoGrafo * nodo : grafo->getNodos()) {
+                        Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                        std::cout << contador << ". " << registro->getNickname() << endl;
+                        contador++;
+                    }
+                    std::cout << contador << ". Todos" << endl;
+                    string opcion3;
+                    std::cout << "Opción: ";
+                    cin >> opcion3;
+                    int idMatch = std::stoi(opcion3);
+                    if (idMatch == contador){
+                        //imprime todo el grafo
+                        int contador = 1;
+                        for (NodoGrafo * nodo : grafo->getNodos()) {
+                            Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                            std::cout << contador << ". " << registro->getNickname() << endl;
+                            contador++;
+                            std::cout << "Matches" << endl;
+                            contador = 1;
+                            std::cout << "Oferta:" << endl;
+                            for (Arco * arco : *nodo->getArcs()){
+                                Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
+                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                                contador++;
+                            }
+                            std::cout << "Demanda:" << endl;
+                            contador = 1;
+                            for (Arco * arco : *nodo->getEntradas()){
+                                Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                                contador++;
+                            }
+                        }
+                        grafo->saveToFile();
+                        cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                    } else {
+                        NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
+                        std::cout << "Matches" << endl;
+                        contador = 1;
+                        std::cout << "Oferta:" << endl;
+                        Grafo newGrafo = new Grafo(true);
+                        newGrafo.addNode(nodeMatch->getInfo());
+                        for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
+                            Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
+                            std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
+                            contador++;
+                            newGrafo.addNode((*it)->getDestino()->getInfo());
+                            newGrafo.addArc(nodeMatch->getInfo()->getId(), (*it)->getDestino()->getInfo()->getId(), (*it)->getPeso());
+                        }
+                        std::cout << "Demanda:" << endl;
+                        contador = 1;
+                        for (Arco * arco : *nodeMatch->getEntradas()){
+                            Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+                            std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                            contador++;
+                            if (!newGrafo.getNodo(registro->getId())){
+                                newGrafo.addNode(arco->getOrigen()->getInfo());
+                            }
+                            newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
+                        }
+                        newGrafo.saveToFile();
+                        cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                        /*
+                        string opcion4;
+                        std::cout << "Opción: ";
+                        cin >> opcion4;
+                        */
+                    }
                     
                     
-    //             } else if (opcion2 == 2) {
-    //                 for (NodoGrafo * nodo : grafo->getNodos()) {
-    //                     Registered* registro = (Registered*)(void*)(nodo->getInfo());
-    //                     std::cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
-    //                 }
-    //                 string opcion3;
-    //                 std::cout << "Opción: ";
-    //                 cin >> opcion3;
-    //                 int idCycle = std::stoi(opcion3);
-    //                 NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
-    //                 grafo->Dijkstra(nodeCycle);
-    //                 grafo->findCiclo(nodeCycle);
-    //                 grafo->saveCycles(nodeCycle);
-    //             } else if (opcion2 == 3) {
-    //                 Grafo* grados = grafo->crearGrafoGrados();
-    //                 vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
+                } else if (opcion2 == 2) {
+                    for (NodoGrafo * nodo : grafo->getNodos()) {
+                        Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                        std::cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                    }
+                    string opcion3;
+                    std::cout << "Opción: ";
+                    cin >> opcion3;
+                    int idCycle = std::stoi(opcion3);
+                    NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
+                    grafo->Dijkstra(nodeCycle);
+                    grafo->findCiclo(nodeCycle);
+                    grafo->saveCycles(nodeCycle);
+                    cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                } else if (opcion2 == 3) {
+                    Grafo* grados = grafo->crearGrafoGrados();
+                    int concurrencia = 0;
+                    vector<NodoGrafo*> *cadenaMin = menorCadena(grados, &concurrencia);
 
-    //                 cout << "Cadena de valor más larga con menor concurrenia: " << endl;
-    //                 for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
-    //                     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
-    //                     cout << "   " << nickname->getNickname() << endl;
-    //                 }
-    //             } else if (opcion2 == 4) {
-    //                 cout << "Top 10" << endl;
-    //                 vector<string>* topRanking = top10(grafo);
-    //                 for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-    //                     cout << "  " << *it << endl;
-    //                 }
-    //             } else if (opcion2 == 5) {
-    //                 Grafo* grados = grafo->crearGrafoGrados();
-    //                 vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
+                    cout << "Cadena de valor más larga con menor concurrencia: " << endl;
+                    
+                    for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
+                        Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
+                        cout << "   " << nickname->getNickname() << ", Concurrencia: " << endl;
+                    }
 
-    //                 cout << "Recorrido en anchura" << endl;
-    //                 for (INodo* nodo : anchura){
-    //                     Registered * animal = (Registered*)(void*)(nodo);
-    //                     cout << "     " << animal->getNickname() << endl;
-    //                 }
+                    cout << "Cadena de valor más larga con mayor concurrencia:" << endl;
+                    vector<NodoGrafo*> *cadenaMax = mayorCadena(grados);
+                    for (NodoGrafo* nodo: *cadenaMax){
+                        Registered *registro = (Registered*)(void*)(nodo->getInfo());
+                        cout << registro->getNickname() << endl;
+                    }
 
-    //                 cout << "Componentes conexas" << endl;
-    //                 vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+                } else if (opcion2 == 4) {
+                    cout << "Top 10" << endl;
+                    vector<string>* topRanking = top10(grafo);
+                    for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+                        cout << "  " << *it << endl;
+                    }
+                    cout << "Link a la página: https://observablehq.com/d/c2adc8c189e19fe9" << endl;
+                } else if (opcion2 == 5) {
+                    Grafo* grados = grafo->crearGrafoGrados();
+                    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
 
-    //                 for(vector<Arco*> componente : *componentes){
-    //                     cout << "  Componente" << endl;
-    //                     for (Arco* arco : componente){
-    //                         NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
-    //                         Registered* animCon = (Registered*)(void*)(nodo->getInfo());
-    //                         cout << "    " << animCon->getNickname() << endl;
-    //                     }
-    //                 }
-    //             } else {
-    //                 break;
-    //             }
-    //         }
-    //     } else if (opcion ==4) {
-    //         break;
-    //     } else {
-    //         std::cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
-    //     }
-    // }
+                    cout << "Recorrido en anchura" << endl;
+                    for (INodo* nodo : anchura){
+                        Registered * animal = (Registered*)(void*)(nodo);
+                        cout << "     " << animal->getNickname() << endl;
+                    }
+
+                    cout << "Componentes conexas" << endl;
+                    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+
+                    for(vector<Arco*> componente : *componentes){
+                        cout << "  Componente" << endl;
+                        for (Arco* arco : componente){
+                            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
+                            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
+                            cout << "    " << animCon->getNickname() << endl;
+                        }
+                    } 
+                    grados->saveComponentes();
+                    cout << "Link: https://observablehq.com/d/0e47ebf585a89363" << endl;
+                } else {
+                    break;
+                }
+            }
+        } else if (opcion ==4) {
+            break;
+        } else {
+            std::cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
+        }
+    }
 
     // Cadena de valor menor
     // Grafo* grados = grafo->crearGrafoGrados();
