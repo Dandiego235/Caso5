@@ -232,25 +232,25 @@ int main(){
 
     Grafo* grados = grafo->crearGrafoGrados();
     
-    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
+    // vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
 
-    cout << "Recorrido en anchura" << endl;
-    for (INodo* nodo : anchura){
-        Registered * animal = (Registered*)(void*)(nodo);
-        cout << "     " << animal->getNickname() << endl;
-    }
+    // cout << "Recorrido en anchura" << endl;
+    // for (INodo* nodo : anchura){
+    //     Registered * animal = (Registered*)(void*)(nodo);
+    //     cout << "     " << animal->getNickname() << endl;
+    // }
 
-    cout << "Componentes conexas" << endl;
-    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+    // cout << "Componentes conexas" << endl;
+    // vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
 
-    for(vector<Arco*> componente : *componentes){
-        cout << "  Componente" << endl;
-        for (Arco* arco : componente){
-            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
-            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
-            cout << "    " << animCon->getNickname() << endl;
-        }
-    }
+    // for(vector<Arco*> componente : *componentes){
+    //     cout << "  Componente" << endl;
+    //     for (Arco* arco : componente){
+    //         NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
+    //         Registered* animCon = (Registered*)(void*)(nodo->getInfo());
+    //         cout << "    " << animCon->getNickname() << endl;
+    //     }
+    // }
     // Cadena de valor menor
     // Grafo* grados = grafo->crearGrafoGrados();
 
@@ -375,11 +375,11 @@ int main(){
                 cout << "6. Salir" << endl;
                 cout << "Opción: ";
                 cin >> opcion2;
-                if (opcion == 1){
+                if (opcion2 == 1){
                     int contador = 1;
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                        cout << contador << ". " << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                        cout << contador << ". " << registro->getNickname() << endl;
                         contador++;
                     }
                     cout << contador << ". Todos" << endl;
@@ -418,12 +418,13 @@ int main(){
                         cout << "Oferta:" << endl;
                         Grafo newGrafo = new Grafo(true);
                         newGrafo.addNode(nodeMatch->getInfo());
-                        for (Arco * arco : *nodeMatch->getArcs()){
-                            Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
-                            cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                        cout << nodeMatch->getArcs()->size();
+                        for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
+                            Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
+                            cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
                             contador++;
-                            newGrafo.addNode(arco->getDestino()->getInfo());
-                            newGrafo.addArc(nodeMatch, arco->getDestino(), arco->getPeso());
+                            newGrafo.addNode((*it)->getDestino()->getInfo());
+                            newGrafo.addArc(nodeMatch->getInfo()->getId(), (*it)->getDestino()->getInfo()->getId(), (*it)->getPeso());
                         }
                         cout << "Demanda:" << endl;
                         contador = 1;
@@ -431,16 +432,10 @@ int main(){
                             Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
                             cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
                             contador++;
-                            std::vector<NodoGrafo*>::iterator current;
-                            for (current = newGrafo.getNodos().begin() ; current != newGrafo.getNodos().end(); ++current){
-                                if (arco->getOrigen() == *current){
-                                    break;
-                                }
-                            }
-                            if (current == newGrafo.getNodos().end()){
+                            if (!newGrafo.getNodo(registro->getId())){
                                 newGrafo.addNode(arco->getOrigen()->getInfo());
                             }
-                            newGrafo.addArc(arco->getOrigen(), nodeMatch, arco->getPeso());
+                            newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
                         }
                         newGrafo.saveToFile();
                         /*
@@ -451,7 +446,7 @@ int main(){
                     }
                     
                     
-                } else if (opcion == 2) {
+                } else if (opcion2 == 2) {
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
                         cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
@@ -464,20 +459,40 @@ int main(){
                     grafo->Dijkstra(nodeCycle);
                     grafo->findCiclo(nodeCycle);
                     grafo->saveCycles(nodeCycle);
-                } else if (opcion == 3) {
-                    for (NodoGrafo * nodo : grafo->getNodos()) {
-                        Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                        cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
+                } else if (opcion2 == 3) {
+                    vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
+
+                    cout << "Cadena de valor más larga con menor concurrenia: " << endl;
+                    for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
+                        Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
+                        cout << "   " << nickname->getNickname() << endl;
                     }
-                    string opcion3;
-                    cout << "Opción: ";
-                    cin >> opcion3;
-                    int idCycle = std::stoi(opcion3);
-                    NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
-                } else if (opcion == 4) {
+                } else if (opcion2 == 4) {
+                    cout << "Top 10" << endl;
+                    vector<string>* topRanking = top10(grafo);
+                    for (auto it = topRanking->begin(); it != topRanking->end(); it++){
+                        cout << "  " << *it << endl;
+                    }
+                } else if (opcion2 == 5) {
+                    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
 
-                } else if (opcion == 5) {
+                    // cout << "Recorrido en anchura" << endl;
+                    // for (INodo* nodo : anchura){
+                    //     Registered * animal = (Registered*)(void*)(nodo);
+                    //     cout << "     " << animal->getNickname() << endl;
+                    // }
 
+                    cout << "Componentes conexas" << endl;
+                    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+
+                    for(vector<Arco*> componente : *componentes){
+                        cout << "  Componente" << endl;
+                        for (Arco* arco : componente){
+                            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
+                            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
+                            cout << "    " << animCon->getNickname() << endl;
+                        }
+                    }
                 } else {
                     break;
                 }

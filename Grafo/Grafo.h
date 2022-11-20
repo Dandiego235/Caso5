@@ -215,8 +215,14 @@ class Grafo {
 
 
         // esta función busca un nodo en el hash map y lo retorna
-        NodoGrafo* getNodo(int pId) { 
-            return hashNodos.at(pId);
+        NodoGrafo* getNodo(int pId) {
+            NodoGrafo *result;
+            try {
+                result = hashNodos.at(pId);
+            } catch (...){
+                result = nullptr;
+            }
+            return result;
         }
 
 
