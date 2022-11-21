@@ -13,7 +13,6 @@ class DijkstraNode {
         NodoGrafo* destino;
         int distancia;
         Arco* camino;
-        int distanciaMay;
         vector<Arco*> caminoMay;
         NodoGrafo * starting;
         int cantidadNodos;
@@ -55,14 +54,6 @@ class DijkstraNode {
 
         NodoGrafo * getStarting(){
             return starting;
-        }
-
-        void setDistanciaMay(int pDistanciaMay){
-            distanciaMay = pDistanciaMay;
-        }
-
-        int getDistanciaMay(){
-            return distanciaMay;
         }
 
         void addArcMay(Arco* pArco) {
