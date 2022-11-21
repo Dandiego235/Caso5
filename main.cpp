@@ -579,33 +579,33 @@ int main(){
                     }
                 } else if (opcion2 == 4) {
                     cout << "Top 10" << endl;
-                    vector<string>* topRanking = top10(grafo);
+                    vector<string>* topRanking = top10(grafo); // se crea el vector con los productos más cotizados
                     for (auto it = topRanking->begin(); it != topRanking->end(); it++){
                         cout << "  " << *it << endl;
-                    }
+                    } // se imprimen los productos
                     cout << "Link a la página: https://observablehq.com/d/c2adc8c189e19fe9" << endl;
                 } else if (opcion2 == 5) {
-                    Grafo* grados = grafo->crearGrafoGrados();
-                    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
+                    Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo de nodos
+                    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo()); // se realiza un recorrido en anchura
 
                     cout << "Recorrido en anchura" << endl;
-                    for (INodo* nodo : anchura){
-                        Registered * animal = (Registered*)(void*)(nodo);
-                        cout << "     " << animal->getNickname() << endl;
+                    for (INodo* nodo : anchura){ // se recorre el vector
+                        Registered * registro = (Registered*)(void*)(nodo); // se imprime el 
+                        cout << "     " << registro->getNickname() << endl;
                     }
 
                     cout << "Componentes conexas" << endl;
-                    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
+                    vector<vector<Arco*>> * componentes = grados->getComponentesConexas(); // se obtienen las componentes conexas
 
-                    for(vector<Arco*> componente : *componentes){
-                        cout << "  Componente" << endl;
-                        for (Arco* arco : componente){
-                            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
-                            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
-                            cout << "    " << animCon->getNickname() << endl;
+                    for(vector<Arco*> componente : *componentes){ // se  recorre el vector de las componentes conexas
+                        cout << "  Componente" << endl; 
+                        for (Arco* arco : componente){ // se recorre cada arco de la componente
+                            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino(); // se imprimen los nicknames de cada componente
+                            Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                            cout << "    " << registro->getNickname() << endl;
                         }
                     } 
-                    grados->saveComponentes();
+                    grados->saveComponentes(); // se salvan las componentes
                     cout << "Link: https://observablehq.com/d/0e47ebf585a89363" << endl;
                 } else {
                     break;
