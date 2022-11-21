@@ -178,7 +178,7 @@ void saveTop10(Grafo * pGrafo){
     TopFile.close();
 }
 
-vector<NodoGrafo*>* menorCadena(Grafo* grafo, int * concurrencia){
+vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
     for (NodoGrafo* nodo : grafo->getNodos()){
         grafo->Dijkstra(nodo);
@@ -205,6 +205,7 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int * concurrencia){
             break;
         }
     }
+    pConcurrencia = menor->getDistancia() + menor->getDestino()->getArcs()->size() + menor->getDestino()->getNodosEntrada()->size();
     std::cout << menor->getDestino()->getInfo()->getId() << ' ' << menor->getStarting()->getInfo()->getId() << endl;
     vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
     NodoGrafo * starting = menor->getStarting();
@@ -217,7 +218,7 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int * concurrencia){
     return result;
 }
 
-vector<NodoGrafo*>* mayorCadena(Grafo *grafo){
+vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
     for (NodoGrafo* nodo : grafo->getNodos()){
         grafo->dijkstraMayor(nodo);
@@ -233,6 +234,7 @@ vector<NodoGrafo*>* mayorCadena(Grafo *grafo){
     }
     
     DijkstraNode* mayor = *cadenas.rbegin();
+    pConcurrencia = mayor->getDistancia() + mayor->getDestino()->getArcs()->size() + mayor->getDestino()->getNodosEntrada()->size();
     std::cout << mayor->getDestino()->getInfo()->getId() << ' ' << mayor->getStarting()->getInfo()->getId() << endl;
     vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
     NodoGrafo * starting = mayor->getStarting();
@@ -266,6 +268,9 @@ int main(){
     allrecords.push_back(new Registered("BobTheBuilder250","Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.","Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.","11/17/2022"));
     //allrecords.push_back(new Registered("","","",""));
 
+            Grafo *grafo = crearGrafo(allrecords);
+            crearMatches(grafo);
+            
 /*
     Grafo *grafo = crearGrafo(allrecords);
 
@@ -352,10 +357,11 @@ int main(){
         cin >> opcion;
 
         if (opcion == 1){
-            while (true) {
+            while (true) { // Se pide la información del registro.
                 string nickname;
-                std::cout << "Ingrese un nickname:" << endl;
-                cin >> nickname;
+                std::cout << "Ingrese un nickname:" << endl; // 
+                cin >> nickname; 
+                // se validan las restricciones
                 if (nickname.size() < 10 || nickname.size() > 32){
                     std::cout << "ERROR: Ese nickname no es válido" << endl;
                     continue;
@@ -401,17 +407,16 @@ int main(){
                     continue;
                 }
 
-                //current date/time based on current system
-                time_t now = time(0);
+                time_t now = time(0); // se obtiene la fecha actual
 
-                tm *ltm = localtime(&now);
+                tm *ltm = localtime(&now); // Se obtiene la fecha actual
                 string date = ltm->tm_mon + "/" + ltm->tm_mday;
                 date += "/";
                 date += ltm->tm_year;
                 std::cout << date << endl;
                 // Subir al server
-                //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->mon, ltm->tm_year);
-                allrecords.push_back(new Registered(nickname, offer,demand,date));
+                //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->mon, ltm->tm_year); // se registra el nuevo usuario
+                allrecords.push_back(new Registered(nickname, offer,demand,date)); // Se añade al vector con los registros
             }
 
         } else if (opcion == 2){
@@ -419,10 +424,10 @@ int main(){
 
         } else if (opcion == 3){
             //obtain function to analize
-            Grafo *grafo = crearGrafo(allrecords);
-            crearMatches(grafo);
+            Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
+            crearMatches(grafo); // Se crean los matches
             while (true) {
-                int opcion2;
+                int opcion2; // se pide la elección del usuario
                 std::cout << "Analizar" << endl;
                 std::cout << "1. Visualizar matches actuales" << endl;
                 std::cout << "2. Comercio circular" << endl;
@@ -440,10 +445,9 @@ int main(){
                         contador++;
                     }
                     std::cout << contador << ". Todos" << endl;
-                    string opcion3;
+                    int idMatch;
                     std::cout << "Opción: ";
-                    cin >> opcion3;
-                    int idMatch = std::stoi(opcion3);
+                    cin >> idMatch;
                     if (idMatch == contador){
                         //imprime todo el grafo
                         int contador = 1;
@@ -505,38 +509,74 @@ int main(){
                     
                     
                 } else if (opcion2 == 2) {
-                    for (NodoGrafo * nodo : grafo->getNodos()) {
+                    for (NodoGrafo * nodo : grafo->getNodos()) { // Se imprimen los registros
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
                         std::cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
                     }
-                    string opcion3;
+                    string opcion3; // se pide la elección del usuario
                     std::cout << "Opción: ";
                     cin >> opcion3;
                     int idCycle = std::stoi(opcion3);
-                    NodoGrafo * nodeCycle = grafo->getNodo(idCycle);
-                    grafo->Dijkstra(nodeCycle);
-                    grafo->findCiclo(nodeCycle);
-                    grafo->saveCycles(nodeCycle);
+                    NodoGrafo * nodeCycle = grafo->getNodo(idCycle); // obtiene el nodo con base en el Id ingresado 
+                    grafo->Dijkstra(nodeCycle); // se encuentran todos los menores caminos
+                    grafo->findCiclo(nodeCycle); // se encuentran todos los ciclos
+                    grafo->saveCycles(nodeCycle); // se salvan los ciclos al archivo
                     cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
-                } else if (opcion2 == 3) {
-                    Grafo* grados = grafo->crearGrafoGrados();
-                    int concurrencia = 0;
-                    vector<NodoGrafo*> *cadenaMin = menorCadena(grados, &concurrencia);
-
-                    cout << "Cadena de valor más larga con menor concurrencia: " << endl;
-                    
-                    for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
-                        Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
-                        cout << "   " << nickname->getNickname() << ", Concurrencia: " << endl;
+                
+                } else if (opcion2 == 3) { 
+                    Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo con todas las concurrencias
+                    int concurrencia = 0; // se obtiene el total de concurrencia
+                    while (true){
+                        cout << "Cadena de valor: " << endl;
+                        cout << "1. Cadena menor" << endl;
+                        cout << "2. Cadena mayor" << endl;
+                        cout << "3. Salir" << endl;
+                        int opcion3; // se pide la elección del usuario
+                        std::cout << "Opción: ";
+                        cin >> opcion3;
+                        if (opcion3 == 1){
+                            vector<NodoGrafo*> *cadenaMin = menorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            Grafo newGrafo = new Grafo(true);
+                            cout << "Cadena de valor más larga con menor concurrencia: " << endl;
+                            cout << "Concurrencia: " << concurrencia << endl;
+                            
+                            // se imprimen los nodos
+                            NodoGrafo * anterior = nullptr; // almacena el nodo anterior de la cadena
+                            for (NodoGrafo* nodo: *cadenaMin){ // recorre toda la cadena
+                                newGrafo.addNode(nodo->getInfo()); // se añade el nodo al grafo nuevo
+                                if (anterior){ // Si no es el primer nodo,
+                                // se añade el arco desde el anterior al actual
+                                    newGrafo.addArc(anterior->getInfo()->getId(),nodo->getInfo()->getId(), (anterior->getNodosEntrada()->size() + anterior->getArcs()->size()));
+                                }
+                                anterior = nodo; // se cambia el anterior al actual
+                                Registered* nickname = (Registered*)(void*)(nodo->getInfo()); // se imprime el nickname
+                                cout << "   " << nickname->getNickname() << ", Concurrencia: " << (nodo->getArcs()->size() + nodo->getNodosEntrada()->size()) << endl;
+                            }
+                            newGrafo.saveToFile();
+                            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                        } else if (opcion3 == 2){
+                            cout << "Cadena de valor más larga con mayor concurrencia:" << endl;
+                            Grafo newGrafo = new Grafo(true);
+                            vector<NodoGrafo*> *cadenaMax = mayorCadena(grados, concurrencia); // se obtiene la cadena más larga
+                            cout << "Concurrencia: " << concurrencia << endl;
+                            // se imprimen los nodos
+                            NodoGrafo * anterior = nullptr;
+                            for (NodoGrafo* nodo: *cadenaMax){
+                                newGrafo.addNode(nodo->getInfo()); // se añade el nodo al grafo nuevo
+                                if (anterior){ // Si no es el primer nodo,
+                                // se añade el arco desde el anterior al actual
+                                    newGrafo.addArc(anterior->getInfo()->getId(),nodo->getInfo()->getId(), (anterior->getNodosEntrada()->size() + anterior->getArcs()->size()));
+                                }
+                                anterior = nodo; // se cambia el anterior al actual
+                                Registered* nickname = (Registered*)(void*)(nodo->getInfo()); // se imprime el nickname
+                                cout << "   " << nickname->getNickname() << ", Concurrencia: " << (nodo->getArcs()->size() + nodo->getNodosEntrada()->size()) << endl;
+                            }
+                            newGrafo.saveToFile();
+                            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                        } else {
+                            break;    
+                        }
                     }
-
-                    cout << "Cadena de valor más larga con mayor concurrencia:" << endl;
-                    vector<NodoGrafo*> *cadenaMax = mayorCadena(grados);
-                    for (NodoGrafo* nodo: *cadenaMax){
-                        Registered *registro = (Registered*)(void*)(nodo->getInfo());
-                        cout << registro->getNickname() << endl;
-                    }
-
                 } else if (opcion2 == 4) {
                     cout << "Top 10" << endl;
                     vector<string>* topRanking = top10(grafo);
@@ -575,6 +615,7 @@ int main(){
             break;
         } else {
             std::cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
+            break;
         }
     }
 
