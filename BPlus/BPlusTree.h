@@ -7,7 +7,7 @@
 #include "List.h"
 #include "queue.h"
 #include <iostream>
-
+#include "StringData.h"
 using namespace std;
 
 class BPlusTree{
@@ -46,6 +46,11 @@ class BPlusTree{
             searchPointer = root; // search pointer empieza en la raiz
             index = 0; // indice del padre del nodo
 
+                StringData* strData = (StringData*)(void*)(data);
+                if (strData->getPalabra() == "gran"){
+                    cout << "Here" << endl;
+                }
+                
             while (!searchPointer->getType()){ // mientras no sea hoja
 
                 //obtenemos las llaves y los hijos

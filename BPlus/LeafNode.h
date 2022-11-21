@@ -59,11 +59,6 @@ class LeafNode : public BNode {
                     parent1->getKeys()->insert(parent1->getKeys()->begin() + parentIndex, *halfPos);
                     parent1->getChildren()->insert(parent1->getChildren()->begin() + parentIndex + 1, brother);
                     
-                    if (parent2){ // si este bloque tenía un segundo padre, se cambian los punteros.
-                        parent2->getChildren()->at(0) = brother;
-                        brother->setParent2(parent2);
-                        parent2 = nullptr;
-                    }
                     result = parent1->rebalance(); // se rebalancea desde el padre
                 }
             } else {

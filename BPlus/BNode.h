@@ -93,20 +93,17 @@ class BNode{
                     keys->pop_back();
                     (*newChildren->begin())->setParent1(brother);
                 }
-                newChildren->insert(newChildren->begin(), *children->rbegin()); // agregamos el hijo que van a compartir
-                (*children->rbegin())->setParent2(brother); // establecemos el segundo padre del último hijo del nodo actual.
+                newChildren->insert(newChildren->begin(), *children->rbegin()); // agregamos el primer hijo del hermano
+                (*newChildren->begin())->setParent1(brother);
 
                 parent1->getKeys()->insert(parent1->getKeys()->begin() + parentIndex, *halfPos); // insertamos el elemento del medio en el padre.
                 parent1->getChildren()->insert(parent1->getChildren()->begin() + parentIndex + 1, brother);
 
-                if (parent2){ // si el nodo tiene un segundo padre,
-                    parent2->getChildren()->at(0) = brother; // el nuevo primer elemento del segundo padre es el hermano.
-                    brother->setParent2(parent2); // el segundo padre del brother es el segundo padre del nodo actual.
-                    parent2 = nullptr; // el nodo actual pasa a no tener segundo padre.
-                }
+                children->pop_back(); // borramos el elemento que subimos del nodo
+                keys->pop_back();
+
                 updateIndex(parentIndex + 1);
-                
-                brother->updateIndex(1);
+                brother->updateIndex(0);
                 // actualizmos las posiciones de inserción de los hijos del brother, ya que ahora insertan en el brother.
 
                 result = parent1->rebalance(); // rebalanceamos los padres hasta que quede balanceado o hasta crear la raíz nueva.
