@@ -1,6 +1,6 @@
 #ifndef REGISTERED
 
-#define REGISTERED
+#define REGISTERED 1
 
 #include <vector>
 #include <set>
@@ -17,6 +17,7 @@
 
 using namespace std;
 
+// Clase para representar los registros de la plataforma. Hereda de INodo para poder ser metido en el grafo.
 class Registered : public INodo{
     private:
         string nickname;
@@ -24,8 +25,8 @@ class Registered : public INodo{
         string demand;
         string postdate;
 
-        set<StringData*, StrCompare> *wordsOffer;
-        set<StringData*, StrCompare> *wordsDemand;
+        set<StringData*, StrCompare> *wordsOffer; // conjunto de las palabras de oferta
+        set<StringData*, StrCompare> *wordsDemand; // conjunto de las palabras de demanda
 
         vector<Match> *matchesEntrada;
         vector<Match> *matchesSalida;
@@ -39,9 +40,9 @@ class Registered : public INodo{
 
         static unordered_map<string, int> *hashIDs;
 
-        static unordered_map<string, Registered*> *nicknames;
+        static unordered_map<string, Registered*> *nicknames; // hashmap que contiene todos los nicknames registrados.
 
-        unordered_map<string, string> *fullWordsOffer;
+        unordered_map<string, string> *fullWordsOffer; // hashmaps que contienen parejas del fragmento y su palabra completa
         unordered_map<string, string> *fullWordsDemand;
 
     public:
@@ -55,12 +56,12 @@ class Registered : public INodo{
             wordsDemand = new set<StringData*, StrCompare>();
             fullWordsOffer = new unordered_map<string, string>();
             fullWordsDemand = new unordered_map<string, string>();
-            fillSet(wordsOffer, offer, fullWordsOffer);
+            fillSet(wordsOffer, offer, fullWordsOffer); // se llenan los conjuntos de palabras
             fillSet(wordsDemand, demand, fullWordsDemand);
             matchesEntrada = new vector<Match>();
             matchesSalida = new vector<Match>();
 
-            if (!pOffer.size() == 0){
+            if (!pOffer.size() == 0){ // se establecen las banderas de si son compradores o vendedores
                 vendedor = true;
                 vendedores->push_back(this);
             } else {
@@ -76,15 +77,15 @@ class Registered : public INodo{
 
             nicknames->insert(pair<string, Registered*>(nickname, this));
             
-            cout << nickname << endl;
-            cout << "  Oferta" << endl;
-            for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
-                cout << "    " << (*it)->toString() << endl;
-            }
-            cout << "  Demanda" << endl;
-            for (auto it = wordsDemand->begin(); it != wordsDemand->end(); it++){
-                cout << "    " << (*it)->toString() << endl;
-            }
+            // cout << nickname << endl;
+            // cout << "  Oferta" << endl;
+            // for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
+            //     cout << "    " << (*it)->toString() << endl;
+            // }
+            // cout << "  Demanda" << endl;
+            // for (auto it = wordsDemand->begin(); it != wordsDemand->end(); it++){
+            //     cout << "    " << (*it)->toString() << endl;
+            // }
             hashIDs->insert(pair<string,int>(nickname, id));
         }
 
@@ -132,8 +133,15 @@ class Registered : public INodo{
             return id;
         }
 
+        // Función que retorna el id a partir del nickname.
         static int findId(string pNickname){
-            return hashIDs->at(pNickname);
+            int id;
+            try{
+                id = hashIDs->at(pNickname);
+            } catch (...){
+                id = -1;
+            }
+            return id;
         }
         
         void replace_all(string& s, string const& toReplace, string const& replaceWith) {
@@ -221,11 +229,13 @@ class Registered : public INodo{
             return matchesSalida;
         }
 
+        // Método para validar si un nickname ya está registrado.
         static bool validateNickname(string pNickname){
             return nicknames->count(pNickname);
         }
 };
 
+// inicialización de variables estáticas
 int Registered::contadorId = 1;
 vector<Registered*>* Registered::compradores = new vector<Registered*>();
 vector<Registered*>* Registered::vendedores = new vector<Registered*>();

@@ -9,10 +9,11 @@
 #define PORCENTAJE_SIMILITUD 0.8
 class Registered;
 
+// Clase para contener la información de los fragmentos de palabras en el árbol
 class StringData : public IData{
     private:
         string palabra;
-        Registered * usuario;
+        Registered * usuario; // usuario al que pertenece esa palabra.
 
     public:
         StringData(string pPalabra, Registered * pUsuario){
@@ -28,14 +29,14 @@ class StringData : public IData{
             palabra = pPalabra;
         }
 
-        // método usado para comparar dos IData
-        int compareTo(IData *pToCompare){
+        // método usado para comparar dos StringData
+        int compareTo(const StringData &compare) const{
             int contador = 0; // contador de caracteres similares para el porcentaje de coincidencia
-            StringData * compare = dynamic_cast<StringData*>(pToCompare);
-            string comparePalabra = compare->getPalabra();
-            if (!palabra.compare(comparePalabra)){
+            string comparePalabra = compare.getPalabra();
+            if (!palabra.compare(comparePalabra)){ // si son iguales, retorna 0
                 return 0;
             } else if (palabra.compare(comparePalabra) > 0){
+                // si es mayor, compara la menor con palabra, contando las coincidencias de letras
                 for (int character = 0; character < comparePalabra.size(); character++){
                     if (palabra[character] == comparePalabra[character]){
                         contador++;
@@ -43,16 +44,21 @@ class StringData : public IData{
                         break;
                     }
                 }
+                // Si el final, las dos palabras son similares en al menos el porcentaje establecido, las toma como iguales
+                // Esto se usa para tomar en cuenta las pequeñas variaciones de palabras, como programa, programado, program, programo, etc.
                 if (contador >= (comparePalabra.size() * PORCENTAJE_SIMILITUD)){
                     return 0;
                 }
                 return 1;
             }
+            // Si es menor, se compara la mayor con palabra para encontrar las coincidencias de letras.
             for (int character = 0; character < palabra.size(); character++){
                 if (palabra[character] == comparePalabra[character]){
                     contador++;
                 }
             }
+            // Si el final, las dos palabras son similares en al menos el porcentaje establecido, las toma como iguales
+            // Esto se usa para tomar en cuenta las pequeñas variaciones de palabras, como programa, programado, program, programo, etc.    
             if (contador >= palabra.size() * PORCENTAJE_SIMILITUD){
                 return 0;
             }
@@ -60,33 +66,9 @@ class StringData : public IData{
         }
 
         // método usado para comparar dos IData
-        int compareTo(const StringData &compare) const{
-            int contador = 0; // contador de caracteres similares para el porcentaje de coincidencia
-            string comparePalabra = compare.getPalabra();
-            if (!palabra.compare(comparePalabra)){
-                return 0;
-            } else if (palabra.compare(comparePalabra) > 0){
-                for (int character = 0; character < comparePalabra.size(); character++){
-                    if (palabra[character] == comparePalabra[character]){
-                        contador++;
-                    } else {
-                        break;
-                    }
-                }
-                if (contador >= (comparePalabra.size() * PORCENTAJE_SIMILITUD)){
-                    return 0;
-                }
-                return 1;
-            }
-            for (int character = 0; character < palabra.size(); character++){
-                if (palabra[character] == comparePalabra[character]){
-                    contador++;
-                }
-            }
-            if (contador >= palabra.size() * PORCENTAJE_SIMILITUD){
-                return 0;
-            }
-            return -1;
+        int compareTo(IData *pToCompare){
+            StringData * compare = dynamic_cast<StringData*>(pToCompare);
+            return this->compareTo(*compare);
         }
 
         string getKey(){

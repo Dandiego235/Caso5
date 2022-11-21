@@ -6,13 +6,14 @@
 
 class Registered;
 
+// clase que representa un Match entre vendedor y comprador
 class Match{
     private:
         int peso;
         int rating;
         Registered* comprador;
         Registered* vendedor;
-        vector<StringData*> *words;
+        vector<StringData*> *words; // palabras que son compartidas por el match.
 
     public:
         Match(Registered* pComprador, Registered* pVendedor){
@@ -39,7 +40,7 @@ class Match{
             return words;
         }
         
-        void incrementPeso(){
+        void incrementPeso(){ // el peso se incrementa y se suma al rating del match.
             rating += ++peso;
         }
 
@@ -47,6 +48,7 @@ class Match{
             return rating;
         }
 
+        // Función para comparar dos matches de acuerdo a su rating.
         bool operator < (const Match& match) const { 
             return rating < match.getRating(); 
         }

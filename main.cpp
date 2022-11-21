@@ -8,7 +8,6 @@
 #include <fstream>
 #include <math.h>
 #include "Grafo/Grafo.h"
-#include "Grafo/Animal.h"
 #include "Grafo/INodo.h"
 #include "Grafo/Arco.h"
 #include "Registered.h"
@@ -270,7 +269,7 @@ void printGraph(Grafo* grafo){
     int contador = 1;
     for (NodoGrafo * nodo : grafo->getNodos()) {
         Registered* registro = (Registered*)(void*)(nodo->getInfo());
-        std::cout << contador << ". " << registro->getNickname() << endl;
+        std::cout << registro->getId() << ". " << registro->getNickname() << endl;
         contador++;
         std::cout << "Matches" << endl;
         contador = 1;

@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Clase para los arcos del grafo
 class Arco {
     private:
         NodoGrafo* origen;
