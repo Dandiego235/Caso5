@@ -18,8 +18,7 @@ class LeafNode : public BNode {
         LeafNode(int pSize, BNode* pParent, int pParentIndex, int pOrder){
             type = true;
             size = pSize;
-            parent1 = pParent;
-            parent2 = nullptr;
+            parent = pParent;
             parentIndex = pParentIndex;
             secuencia = new vector<IData*>();
             brother = nullptr;
@@ -35,15 +34,15 @@ class LeafNode : public BNode {
                 secuencia->insert(element, data); // insertamos el nuevo dato en el elemento
 
                 if (secuencia->size() > size){ // si nos pasamos del tamaño permitido, se realiza la partición
-                    if (!parent1){ // si no tiene padre, crea un padre. (si es la raíz)
-                        parent1 = new BNode(order, nullptr, 0);
-                        parent1->getChildren()->insert(parent1->getChildren()->begin(), this);
-                        result = parent1;
+                    if (!parent){ // si no tiene padre, crea un padre. (si es la raíz)
+                        parent = new BNode(order, nullptr, 0);
+                        parent->getChildren()->insert(parent->getChildren()->begin(), this);
+                        result = parent;
                     }
                     int half = (secuencia->size() - 1) >> 1; // punto donde se va a hacer el recorte de la mitad.
                     vector<IData*>::iterator halfPos = secuencia->begin() + half;
 
-                    LeafNode* brother = new LeafNode(size, parent1, parentIndex + 1, order);
+                    LeafNode* brother = new LeafNode(size, parent, parentIndex + 1, order);
                     // se crea el nuevo nodo de la partición.
                     brother->setBrother(this->getBrother());
                     this->setBrother(brother);
@@ -56,10 +55,10 @@ class LeafNode : public BNode {
                     }
 
                     // insertamos el elemento medio en el padre.                    
-                    parent1->getKeys()->insert(parent1->getKeys()->begin() + parentIndex, *halfPos);
-                    parent1->getChildren()->insert(parent1->getChildren()->begin() + parentIndex + 1, brother);
-                    
-                    result = parent1->rebalance(); // se rebalancea desde el padre
+                    parent->getKeys()->insert(parent->getKeys()->begin() + parentIndex, *halfPos);
+                    parent->getChildren()->insert(parent->getChildren()->begin() + parentIndex + 1, brother);
+
+                    result = parent->rebalance(); // se rebalancea desde el padre
                 }
             } else {
                 secuencia->push_back(data);

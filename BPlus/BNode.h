@@ -17,8 +17,7 @@ class BNode{
     protected:
         int order; // orden M
         bool type; // no es hoja: false. es hoja: true
-        BNode* parent1; // puede que un nodo tenga 1 o 2 padres.
-        BNode* parent2;
+        BNode* parent; // puede que un nodo tenga 1 o 2 padres.
         int parentIndex; // posicion donde se inserta si se hace una partición
 
     public:
@@ -27,19 +26,17 @@ class BNode{
             children = nullptr;
             order = 0;
             type = false;
-            parent1 = nullptr;
-            parent2 = nullptr;
+            parent = nullptr;
             parentIndex = 0;
         }
 
-        BNode(int pOrder, BNode* pParent1, int pParentIndex, BNode* pParent2 = nullptr){
+        BNode(int pOrder, BNode* pParent, int pParentIndex){
             type = false;
             order = pOrder;
             keys = new vector<IData*>();
             children = new vector<BNode*>();
-            parent1 = pParent1;
+            parent = pParent;
             parentIndex = pParentIndex;
-            parent2 = pParent2;
         }
 
         vector<IData*>* getKeys(){
@@ -50,20 +47,12 @@ class BNode{
             return children;
         }
 
-        BNode* getParent1(){
-            return parent1;
+        BNode* getParent(){
+            return parent;
         }
 
-        void setParent1(BNode* pParent1){
-            parent1 = pParent1;
-        }
-
-        BNode* getParent2(){
-            return parent2;
-        }
-
-        void setParent2(BNode* pParent2){
-            parent2 = pParent2;
+        void setParent(BNode* pParent){
+            parent = pParent;
         }
 
         BNode* rebalance(){ // calcular el rebalanceo del B+
@@ -71,17 +60,17 @@ class BNode{
 
             if (keys->size() > order){ // si las llaves sobrepasaron el orden
 
-                if (!parent1){ // si toca rebalancear la raíz, se crea la nueva raíz.
-                    parent1 = new BNode(order, nullptr, 0);
-                    parent1->getChildren()->insert(parent1->getChildren()->begin(), this); // insertamos este nodo como primer hijo
-                    result = parent1;
+                if (!parent){ // si toca rebalancear la raíz, se crea la nueva raíz.
+                    parent = new BNode(order, nullptr, 0);
+                    parent->getChildren()->insert(parent->getChildren()->begin(), this); // insertamos este nodo como primer hijo
+                    result = parent;
                 }
 
                 vector<IData*>::iterator element; // iterador para ir pasando los elementos de vector
                 int half = (keys->size() - 1) >> 1; // punto donde se va a hacer el recorte de la mitad.
                 vector<IData*>::iterator halfPos = keys->begin() + half;
 
-                BNode* brother = new BNode(order, parent1, parentIndex + 1); // se crea el nuevo nodo de la partición.
+                BNode* brother = new BNode(order, parent, parentIndex + 1); // se crea el nuevo nodo de la partición.
                 vector<IData*> *newKeys = brother->getKeys();
                 vector<BNode*> *newChildren = brother->getChildren();
 
@@ -91,13 +80,13 @@ class BNode{
                     newChildren->insert(newChildren->begin(), *children->rbegin());
                     children->pop_back();
                     keys->pop_back();
-                    (*newChildren->begin())->setParent1(brother);
+                    (*newChildren->begin())->setParent(brother);
                 }
                 newChildren->insert(newChildren->begin(), *children->rbegin()); // agregamos el primer hijo del hermano
-                (*newChildren->begin())->setParent1(brother);
+                (*newChildren->begin())->setParent(brother);
 
-                parent1->getKeys()->insert(parent1->getKeys()->begin() + parentIndex, *halfPos); // insertamos el elemento del medio en el padre.
-                parent1->getChildren()->insert(parent1->getChildren()->begin() + parentIndex + 1, brother);
+                parent->getKeys()->insert(parent->getKeys()->begin() + parentIndex, *halfPos); // insertamos el elemento del medio en el padre.
+                parent->getChildren()->insert(parent->getChildren()->begin() + parentIndex + 1, brother);
 
                 children->pop_back(); // borramos el elemento que subimos del nodo
                 keys->pop_back();
@@ -106,10 +95,10 @@ class BNode{
                 brother->updateIndex(0);
                 // actualizmos las posiciones de inserción de los hijos del brother, ya que ahora insertan en el brother.
 
-                result = parent1->rebalance(); // rebalanceamos los padres hasta que quede balanceado o hasta crear la raíz nueva.
+                result = parent->rebalance(); // rebalanceamos los padres hasta que quede balanceado o hasta crear la raíz nueva.
                 return result;
             }
-            if (!parent1){ // si el nodo actual es la raíz, retornamos este nodo, sino, se va a retornar nullptr.
+            if (!parent){ // si el nodo actual es la raíz, retornamos este nodo, sino, se va a retornar nullptr.
                 result = this;
             }
             updateIndex(parentIndex + 1);

@@ -232,7 +232,6 @@ int main(void)
 {
     Contenful regs;
 
-    //regs.registerUser("EstructurasMina", "Somos una empresa constructora que construye edificios de oficinas modernos y espaciosos. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.", "Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.", "SteveCEO067", 16, 11, 2022);
     vector<Registered*> allrecords = regs.getRecords();
     for (int index = 0; index < allrecords.size(); index++){
         cout << "NickName: " << allrecords.at(index)->getNickname() << "\nOffer: " << allrecords.at(index)->getOffer() << "\nDemand: " << allrecords.at(index)->getDemand() << "\nPostDate: " << allrecords.at(index)->getPostdate()  << endl;

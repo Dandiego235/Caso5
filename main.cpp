@@ -5,9 +5,12 @@
 #include <algorithm>
 #include <set>
 #include <ctime>
+#include <fstream>
+#include <math.h>
 #include "Grafo/Grafo.h"
 #include "Grafo/Animal.h"
 #include "Grafo/INodo.h"
+#include "Grafo/Arco.h"
 #include "Registered.h"
 #include "Match.h"
 #include "BPlus/StringData.h"
@@ -15,76 +18,76 @@
 #include "OrdenCadenasMin.h"
 #include "OrdenGrado.h"
 #include "OrdenWords.h"
-#include <fstream>
 
 #define NUM_ANIMALES 14
 
 #define COMPRADORES_POR_ARBOL 6
-#define ORDEN 5
-#define SIZE 6
+#define ORDEN 10
+#define SIZE 20
 #define WORDS_TOP 3
+#define ELEMENTOS_TOP 10
+#define RANKING_PERCENT 0.8
 
 using namespace std;
 
+// Función que crea un grafo a partir del conjunto de registros y retorna el nuevo grafo creado
 Grafo* crearGrafo(vector<Registered*> records){
     Grafo *grafo = new Grafo(true);
     for (Registered* record : records){
-        grafo->addNode(record);
+        grafo->addNode(record); // agrega un nuevo nodo por cada registro.
     }
     return grafo;
 }
 
+// Función que crea analiza los matches y crea los arcos en el grafo que recibe.
 void crearMatches(Grafo* grafo){
     vector<Registered*> *compradores = Registered::getCompradores();
     vector<Registered*> *vendedores = Registered::getVendedores();
 
     int index = 0;
     vector<Match> ranking;
-    while (index < compradores->size()){
+    while (index < compradores->size()){ // mientras el índice no haya llegado al final.
         int cantidad = compradores->size() - index;
-        if (cantidad > COMPRADORES_POR_ARBOL){
+        if (cantidad > COMPRADORES_POR_ARBOL){ // Si la cantidad se pasa del máximo permitido, lo limitamos al máximo.
             cantidad = COMPRADORES_POR_ARBOL;
         }
 
-        BPlusTree *arbol = new BPlusTree(ORDEN, SIZE);
-        for (int contador = 0; contador < cantidad; contador++, index++){
+        BPlusTree *arbol = new BPlusTree(ORDEN, SIZE); // se crea un nuevo árbol
+        for (int contador = 0; contador < cantidad; contador++, index++){ // vamos a agregar la cantidad de compradores que diga la constante
             for (StringData* palabra : *compradores->at(index)->getWordsDemand()){
-                arbol->insert(palabra);
+                arbol->insert(palabra); // se inserta cada palabra en el árbol
             }
         }
         arbol->print();
         std::cout << endl;
 
         for (Registered* vendedor : *vendedores){
+            // vamos a recorrer los vendedores e ir comparando sus palabras con las palabras del árbol para hacer matches.
+
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
-            for (StringData* palabra : *vendedor->getWordsOffer()){
+            // hashmap que va a almacenar los matches con cada comprador
+            
+            for (StringData* palabra : *vendedor->getWordsOffer()){ // se itera sobre las palabras del vendedor
                 int leafIndex = 0;
-                LeafNode* leaf = arbol->find(palabra, leafIndex);
-                if (leaf){
+                LeafNode* leaf = arbol->find(palabra, leafIndex); // la posición de la palabra queda en leaf y en el índice leafIndex
+                if (leaf){ // si no es nullptr, se encontró la palabra en el árbol
                     while (!palabra->compareTo(leaf->getSecuencia()->at(leafIndex))){
-                        StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(leafIndex));
+                        // recorre el conjunto secuencia mientras las palabras sean iguales, haciendo los matches.
+
+                        StringData* strData = (StringData*)(void*)(leaf->getSecuencia()->at(leafIndex)); // extrae el data del nodo hoja
                         Registered* comprador = strData->getUsuario();
-                        if (matches->find(comprador->getNickname()) == matches->end()){
+                        if (matches->find(comprador->getNickname()) == matches->end()){ // Si el comprador no está en el hash, lo agrega
                             matches->insert(pair<string, Match*> (comprador->getNickname(), new Match(comprador, vendedor)));
                         }
-                        Match *match;
-                        try{
-                            match = matches->at(comprador->getNickname());
-                        } 
-                        catch (...) {
-                            std::cout << comprador->getNickname() << " not found" << endl;
-                            for (auto it = matches->begin(); it != matches->end(); it++){
-                                std::cout << it->first << ' ' << it->second << endl;
-                            }
-                            return;
-                        }
+                        Match *match = matches->at(comprador->getNickname()); // extraemos el match con el comprador;
 
-                        match->incrementPeso();
-                        leafIndex++;
-                        match->addWord(palabra);
+                        match->incrementPeso(); // incrementa el peso del match
+                        leafIndex++; // se corre a la siguiente posición
+                        match->addWord(palabra); // guarda la palabra que hizo match
 
                         if (leafIndex == leaf->getSecuencia()->size()){ // si llegó al final 
-                            if (leaf->getSecuencia()->size() == arbol->getSize()){
+                            if (leaf->getSecuencia()->size() == arbol->getSize()){ // revisa si ya llegamos al final del nodo
+                                // se pasa al hermano.
                                 leaf = leaf->getBrother();
                                 leafIndex = 0;
                             } else {
@@ -95,32 +98,39 @@ void crearMatches(Grafo* grafo){
                 }
             }
             for(auto iterador = matches->begin(); iterador != matches->end(); iterador++){
+                // mete los matches en el ranking para quedarse con los mejores.
                 ranking.push_back(*(iterador->second));
             }
         }
     }
-    std::sort(ranking.begin(), ranking.end());
+    std::sort(ranking.begin(), ranking.end()); // ordena el ranking de menor a mayor en cuanto al rating del match
     auto riterator = ranking.rbegin();
     Match *match = &(*riterator);
-    while(match->getRating() > 1){
+    int cantidadMatches = 0;
+    int maxCantidad = ceil(ranking.size() * RANKING_PERCENT);
+    while(cantidadMatches < maxCantidad && riterator != ranking.rend()){
         if (match->getComprador() != match->getVendedor()){
-            std::cout << match->getVendedor()->getNickname() << " apunta a " << match->getComprador()->getNickname() << " con rating " << match->getRating() << " con " << endl;
-            for (StringData* str : *match->getWords()){
-                std::cout << str->toString() << " ";
-            }
-            std::cout << endl;
+            // std::cout << match->getVendedor()->getNickname() << " apunta a " << match->getComprador()->getNickname() << " con rating " << match->getRating() << " con " << endl;
+            // for (StringData* str : *match->getWords()){
+            //     std::cout << str->toString() << " ";
+            // }
+            // std::cout << endl;
             grafo->addArc(match->getVendedor(), match->getComprador(), match->getRating());
             match->getVendedor()->addMatchSalida(*match);
             match->getComprador()->addMatchEntrada(*match);
+            cantidadMatches++;
         }
         riterator++;
         match = &(*riterator);
     }
 }
 
+// Esta función averigua el Top 10
 vector<string>* top10(Grafo* grafo){
     auto nodos = grafo->getNodos();
     set<NodoGrafo*, OrdenGrado> ordenGrado;
+    // se ordenan los nodos del grafo en cuanto al grado de salida, ya que los arcos apuntan del vendedor al comprador.
+    // Los nodos con más arcos de salida representan el producto más deseado.
     for (NodoGrafo* nodo : nodos){
         ordenGrado.insert(nodo);        
     }
@@ -129,35 +139,36 @@ vector<string>* top10(Grafo* grafo){
 
     int contadorRanking = 0;
     auto riterator = ordenGrado.rbegin();
-    while (contadorRanking < 10 && riterator != ordenGrado.rend()){
+    while (contadorRanking < ELEMENTOS_TOP && riterator != ordenGrado.rend()){
+        // se recorre el orden al revés para empezar con el mayor.
+
         Registered* registro = (Registered*)(void*)((*riterator)->getInfo());
-        unordered_map<StringData*, int> palabras;
+        unordered_map<StringData*, int> palabras; // hash map para contar las apariciones de las palabras en los matches.
         for (Match match : *registro->getMatchesSalida()){
-            //std::cout << match.getWords()->size() << endl;
             for (StringData* word : *match.getWords()){
-                //std::cout << word->getPalabra() << endl;
                 try{
-                    //std::cout << palabras.at(word) << endl;
-                    palabras.at(word) = ++palabras.at(word);
+                    palabras.at(word) = ++palabras.at(word); // si la palabra existe en el map, se incrementa el contador.
                 } catch (...){
+                    // si no está en el map, se inserta al map.
                     palabras.insert(pair<StringData*, int>(word, 1));
                 }
             }
         }
+
         set<pair<StringData*, int>, OrdenWords> rankingPalabras(palabras.begin(), palabras.end());
+        // Se ordenan las parejas de palabras en orden de apariciones de menor a mayor.
         int contadorPalabras = 0;
         auto ritSet = rankingPalabras.rbegin();
-        string entry = "";
+        string entry = ""; // string donde se almacenan las primeras palabras más comunes para formar la categoría.
         while (contadorPalabras < WORDS_TOP && ritSet != rankingPalabras.rend()){
             string fragment = (*ritSet).first->getPalabra();
-            //std::cout << fragment << " " << (*ritSet).first->getUsuario()->getNickname() << endl;
-            string str = registro->getFullWordsOffer()->at(fragment);;
-            str[0] = toupper(str[0]);       
-            entry += str;
+            string str = registro->getFullWordsOffer()->at(fragment); // se obtiene la palabra completa a partir del fragmento.
+            str[0] = toupper(str[0]); // se pasa la primera letra a mayúscula.
+            entry += str; // se concatena la palabra al string.
             contadorPalabras++;
             ritSet++;
         }
-        if (entry != ""){
+        if (entry != ""){ // agregamos el último entry al ranking.
             topRanking->push_back(entry);
         }
         riterator++;
@@ -166,6 +177,7 @@ vector<string>* top10(Grafo* grafo){
     return topRanking;
 }
 
+// Esta función salva el Top 10 en un archivo para desplegarlo
 void saveTop10(Grafo * pGrafo){ 
     ofstream TopFile("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\top10.csv", ios::out);
     TopFile << "id,value" << endl;
@@ -178,6 +190,9 @@ void saveTop10(Grafo * pGrafo){
     TopFile.close();
 }
 
+// Esta función calcula la mayor cadena con menor concurrencia de un grafo.
+// El grafo que recibe debe ser el grafo donde los arcos son las concurrencias del nodo.
+// Deja la mayor concurrencia en la variable dada por referencia.
 vector<NodoGrafo*>* menorCadena(Grafo* grafo, int * concurrencia){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
     for (NodoGrafo* nodo : grafo->getNodos()){
@@ -217,6 +232,9 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int * concurrencia){
     return result;
 }
 
+// Esta función calcula la mayor cadena con mayor concurrencia de un grafo.
+// El grafo que recibe debe ser el grafo donde los arcos son las concurrencias del nodo.
+// Deja la mayor concurrencia en la variable dada por referencia.
 vector<NodoGrafo*>* mayorCadena(Grafo *grafo){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
     for (NodoGrafo* nodo : grafo->getNodos()){
@@ -245,6 +263,31 @@ vector<NodoGrafo*>* mayorCadena(Grafo *grafo){
     return result;
 }
 
+// Esta función imprime todos los matches que tiene un grafo.
+void printGraph(Grafo* grafo){
+    int contador = 1;
+    for (NodoGrafo * nodo : grafo->getNodos()) {
+        Registered* registro = (Registered*)(void*)(nodo->getInfo());
+        std::cout << contador << ". " << registro->getNickname() << endl;
+        contador++;
+        std::cout << "Matches" << endl;
+        contador = 1;
+        std::cout << "  Oferta:" << endl;
+        for (Arco * arco : *nodo->getArcs()){
+            Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
+            std::cout << "    " << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+            contador++;
+        }
+        std::cout << "  Demanda:" << endl;
+        contador = 1;
+        for (Arco * arco : *nodo->getEntradas()){
+            Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+            std::cout << "    " << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+            contador++;
+        }
+    }
+}
+
 int main(){
 
     vector<Registered*> allrecords;
@@ -264,82 +307,10 @@ int main(){
     allrecords.push_back(new Registered("CompuYankeeDev129","Soy un ingeniero en computación con cuatro años de experiencia. He trabajado como programador en Python y Java en empresas desarrolladoras de software como RealSolutions.","Busco entretenimiento. Me gustaría asistir a un concierto de 2 horas con el estadio lleno de gente y no me preocupa la falta de complejidad armónica en los acordes ya que me gusta el reguetón.","11/17/2022"));
     allrecords.push_back(new Registered("OlcoManGold","Me desempeño como programador y desarrollador de software. Tengo mucha experiencia tras trabajar once años en la industria. Soy experto en lenguajes como Python y me especializo en el desarrollo del firmware para dispositivos","Soy aficionado a la gastronomía mexicana, por lo que necesito poder almorzar tacos de pollo, ya sea asado, frito o al ajillo, todos los días y desde un punto de venta accesible.","11/17/2022"));
     allrecords.push_back(new Registered("BobTheBuilder250","Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.","Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.","11/17/2022"));
+    allrecords.push_back(new Registered("the_agustd7","composicion de letras y beats de diferentes generos musicales","artistas musicales talentosos con facilidad de adaptarse facilmente a un proyecto musical","11/18/2022"));
+    allrecords.push_back(new Registered("Kenneth483883","vendo","","11/02/2022"));
+    allrecords.push_back(new Registered("arbolito4848","se vende arbolitos de pino a buen precio","","11/02/2022"));
     //allrecords.push_back(new Registered("","","",""));
-
-/*
-    Grafo *grafo = crearGrafo(allrecords);
-
-    crearMatches(grafo);
-    Grafo* grados = grafo->crearGrafoGrados();
-
-    vector<NodoGrafo*> *result = mayorCadena(grados);
-    for (NodoGrafo* nodo: *result){
-        Registered *registro = (Registered*)(void*)(nodo->getInfo());
-        cout << registro->getNickname() << endl;
-    }
-    */
-    //saveTop10(grafo);
-    // grados->saveToFile();
-    /*
-    Grafo* grados = grafo->crearGrafoGrados();
-    
-    vector<INodo*> anchura = grados->deepPath(grados->getNodo(1)->getInfo());
-    grados->saveToFile();
-    grados->saveComponentes();
-    std::cout << "Recorrido en anchura" << endl;
-    for (INodo* nodo : anchura){
-        Registered * animal = (Registered*)(void*)(nodo);
-        std::cout << "     " << animal->getNickname() << endl;
-    }
-
-    std::cout << "Componentes conexas" << endl;
-    vector<vector<Arco*>> * componentes = grados->getComponentesConexas();
-
-    for(vector<Arco*> componente : *componentes){
-        std::cout << "  Componente" << endl;
-        for (Arco* arco : componente){
-            NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
-            Registered* animCon = (Registered*)(void*)(nodo->getInfo());
-            std::cout << "    " << animCon->getNickname() << endl;
-        }
-    }
-    */
-
-   
-    // Cadena de valor menor
-    // Grafo* grados = grafo->crearGrafoGrados();
-
-    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-    //     std::cout << *it << endl;
-    // }
-    
-    // std::cout << "\nCadena" << endl;
-    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
-    // grafo->Dijkstra(dijkstra);
-
-    // grafo->findCiclo(dijkstra);
-
-    // vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
-
-    // for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
-    //     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
-
-    //     std::cout << nickname->getNickname() << endl;
-    // }
-    
-    //grafo->saveCycles(dijkstra);
-
-    // auto ciclos = dijkstra->getCiclos();
-
-    // for (vector<NodoGrafo*> ciclo: *ciclos){
-    //     std::cout << "Ciclo" << endl;
-    //     for (auto rit = ciclo.rbegin(); rit != ciclo.rend(); rit++){
-    //         Registered* record = (Registered*)(void*)((*rit)->getInfo());
-    //         std::cout << "     " << record->getNickname() << endl;
-    //     }
-    // }
-
-    //grados->saveToFile();
 
     while (true) {
         int opcion;
@@ -411,11 +382,18 @@ int main(){
                 std::cout << date << endl;
                 // Subir al server
                 //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->mon, ltm->tm_year);
+                //regs.registerUser("EstructurasMina", "Somos una empresa constructora que construye edificios de oficinas modernos y espaciosos. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.", "Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.", "SteveCEO067", 16, 11, 2022);
                 allrecords.push_back(new Registered(nickname, offer,demand,date));
             }
 
         } else if (opcion == 2){
             //print all matches
+            //imprime todo el grafo
+            Grafo *grafo = crearGrafo(allrecords);
+            crearMatches(grafo);
+            printGraph(grafo);
+            grafo->saveToFile();
+            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
 
         } else if (opcion == 3){
             //obtain function to analize
@@ -446,27 +424,7 @@ int main(){
                     int idMatch = std::stoi(opcion3);
                     if (idMatch == contador){
                         //imprime todo el grafo
-                        int contador = 1;
-                        for (NodoGrafo * nodo : grafo->getNodos()) {
-                            Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                            std::cout << contador << ". " << registro->getNickname() << endl;
-                            contador++;
-                            std::cout << "Matches" << endl;
-                            contador = 1;
-                            std::cout << "Oferta:" << endl;
-                            for (Arco * arco : *nodo->getArcs()){
-                                Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
-                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
-                                contador++;
-                            }
-                            std::cout << "Demanda:" << endl;
-                            contador = 1;
-                            for (Arco * arco : *nodo->getEntradas()){
-                                Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
-                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
-                                contador++;
-                            }
-                        }
+                        printGraph(grafo);
                         grafo->saveToFile();
                         cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                     } else {
@@ -577,116 +535,6 @@ int main(){
             std::cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;
         }
     }
-
-    // Cadena de valor menor
-    // Grafo* grados = grafo->crearGrafoGrados();
-
-    // for (auto it = topRanking->begin(); it != topRanking->end(); it++){
-    //     cout << *it << endl;
-    // }
-    
-    // cout << "\nCadena" << endl;
-    // NodoGrafo * dijkstra = grafo->getNodo(Registered::findId("Wakanda_Med"));
-    // grafo->Dijkstra(dijkstra);
-
-    // grafo->findCiclo(dijkstra);
-
-    // vector<NodoGrafo*> *cadenaMin = menorCadena(grados);
-
-    // for (auto rit = cadenaMin->rbegin(); rit != cadenaMin->rend(); rit++){
-    //     Registered* nickname = (Registered*)(void*)((*rit)->getInfo());
-
-    //     cout << nickname->getNickname() << endl;
-    // }
-    
-    //grafo->saveCycles(dijkstra);
-
-    // auto ciclos = dijkstra->getCiclos();
-
-    // for (vector<NodoGrafo*> ciclo: *ciclos){
-    //     cout << "Ciclo" << endl;
-    //     for (auto rit = ciclo.rbegin(); rit != ciclo.rend(); rit++){
-    //         Registered* record = (Registered*)(void*)((*rit)->getInfo());
-    //         cout << "     " << record->getNickname() << endl;
-    //     }
-    // }
-
-    //grados->saveToFile();
-
-    // allrecords.push_back(new Registered("","","",""));
-    // allrecords.push_back(new Registered("","","",""));
-    // allrecords.push_back(new Registered("","","",""));
-
-    // Grafo zoologico(true); // grafo dirigido
-
-    // string animales [NUM_ANIMALES] = {"Perro", "Gato", "Vaca", "Oso", "León", "Loro", "Mono", "Búho", "Pato", "Rata", "Naga", "Zorro", "Jaguar", "Toro"};
-
-    // for (int index = 1; index <= NUM_ANIMALES; index++){
-    //     zoologico.addNode(new Animal(index, animales[index - 1]));
-    // }
-
-    // zoologico.addArc(1, 2, 8);
-    // zoologico.addArc(1, 3, 3);
-    // zoologico.addArc(1, 6, 13);
-    // zoologico.addArc(2, 3, 2);
-    // zoologico.addArc(2, 4, 1);
-    // zoologico.addArc(3, 2, 3);
-    // zoologico.addArc(3, 4, 9);
-    // zoologico.addArc(3, 5, 2);
-    // zoologico.addArc(4, 5, 4);
-    // zoologico.addArc(4, 8, 2);
-    // zoologico.addArc(4, 7, 6);
-    // zoologico.addArc(5, 1, 5);
-    // zoologico.addArc(5, 6, 5);
-    // zoologico.addArc(5, 4, 6);
-    // zoologico.addArc(5, 9, 4);
-    // zoologico.addArc(6, 9, 7);
-    // zoologico.addArc(6, 7, 1);
-    // zoologico.addArc(7, 5, 3);
-    // zoologico.addArc(7, 8, 4);
-    // zoologico.addArc(8, 9, 3);
-    // zoologico.addArc(9, 7, 5);
-    // zoologico.addArc(10, 6, 0);
-    // zoologico.addArc(11, 12, 0);
-    // zoologico.addArc(11, 13, 0);
-    // zoologico.addArc(12, 13, 0);
-    // zoologico.addArc(13, 12, 0);
-    // zoologico.addArc(13, 14, 0);
-    // zoologico.addArc(14, 11, 0);
-
-    // NodoGrafo * dijkstra = zoologico.getNodo(4);
-    // zoologico.Dijkstra(dijkstra);
-
-    // zoologico.findCiclo(dijkstra);
-
-    // vector<INodo*> profundidad = zoologico.deepPath(zoologico.getNodo(1)->getInfo());
-    
-    // std::cout << "Recorrido en profundidad" << endl;
-    // for (INodo* nodo : profundidad){
-    //     Animal* animal = (Animal*)(void*)nodo;
-    //     std::cout << "     " << animal->getNombre() << endl;
-    // }
-
-    // vector<INodo*> anchura = zoologico.broadPath(zoologico.getNodo(1)->getInfo());
-
-    // std::cout << "Recorrido en anchura" << endl;
-    // for (INodo* nodo : anchura){
-    //     Animal* animal = (Animal*)(void*)(nodo);
-    //     std::cout << "     " << animal->getNombre() << endl;
-    // }
-
-    // std::cout << "Componentes conexas" << endl;
-    // vector<vector<Arco*>> componentes = *zoologico.getComponentesConexas();
-
-    // for(vector<Arco*> componente : componentes){
-    //     std::cout << "  Componente" << endl;
-    //     for (Arco* arco : componente){
-    //         NodoGrafo* nodo = (NodoGrafo*)arco->getDestino();
-    //         Animal* animCon = (Animal*)(void*)(nodo->getInfo());
-    //         std::cout << "    " << animCon->getNombre() << endl;
-    //     }
-    // }
-    
 }
 
 /*
