@@ -548,11 +548,8 @@ int main(){
                             newGrafo.saveToFile();
                             cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                         }
-                        /*
-                        string opcion4;
-                        std::cout << "Opción: ";
-                        cin >> opcion4;
-                        */
+                        newGrafo.saveToFile();
+                        cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                     }
                     
                     
@@ -646,11 +643,12 @@ int main(){
                     vector<vector<Arco*>> * componentes = grados->getComponentesConexas(); // se obtienen las componentes conexas
 
                     for(vector<Arco*> componente : *componentes){ // se  recorre el vector de las componentes conexas
-                        cout << "  Componente" << endl; 
+                        int porcentaje = 100 * componente.size() / grados->getNodos().size(); // se obtiene el porcentaje del
+                        cout << "  Componente, " << "Porcentaje: " << porcentaje << endl; // obtiene el porcentaje del componente
                         for (Arco* arco : componente){ // se recorre cada arco de la componente
                             NodoGrafo* nodo = (NodoGrafo*)arco->getDestino(); // se imprimen los nicknames de cada componente
                             Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                            cout << "    " << registro->getNickname() << endl;
+                            cout << "    " << registro->getNickname() <<  endl;
                         }
                     } 
                     grados->saveComponentes(); // se salvan las componentes
@@ -659,7 +657,7 @@ int main(){
                     break;
                 }
             }
-        } else if (opcion ==4) {
+        } else if (opcion == 4) {
             break;
         } else {
             std::cout << "ERROR: OPCIÓN NO ES VÁLIDA" << endl;

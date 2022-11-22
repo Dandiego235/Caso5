@@ -8,7 +8,6 @@
 #include <stack>
 #include "Arco.h"
 #include <iostream>
-#include <climits>
 #include <fstream>
 #include <stack>
 #include "../Registered.h"
@@ -22,7 +21,7 @@ class Grafo {
                                 // pero si no es dirigido, tiene que hacer ida y vuelta
         std::map<int,NodoGrafo*> hashNodos; // se usa para buscar el nodo más fácilmente.
 
-        vector<vector<Arco*>> componentesConexas;
+        vector<vector<Arco*>> componentesConexas; // este vector contiene todos las componentes conexas, que a su vez son vectores
         int cantidadComponentes;
 
         // esta función se usa para restaurar los valores de los nodos de visitado y procesado para el siguiente recorrido
@@ -43,26 +42,26 @@ class Grafo {
 
         // esta función busca el primer nodo que no ha sido visitado por el recorrido
         NodoGrafo* findNotVisited() {
-            NodoGrafo* result = nullptr;
+            NodoGrafo* result = nullptr; // almacena el nodo que no ha sido visitado
             for (std::vector<NodoGrafo*>::iterator current = listaNodos.begin() ; current != listaNodos.end(); ++current) {
                 NodoGrafo* actual = (*current);
                 if (!actual->getVisitado()) {
-                    result = actual;
-                    break;
+                    return actual; // retorna el primer nodo que no ha sido visitado
                 }
             }
-            return result; // si todos han sido visitados, retorna nulo
+            return nullptr; // si todos han sido visitados, retorna nulo
         }
 
-        NodoGrafo * minimo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * s){
-            int mx = INT_MAX;
-            NodoGrafo * v = nullptr;
-            for (auto nodo : (*VmenosF)){
-                if (!v){
+        // esta función encuentra el nodo que tenga la menor distancia desde el punto de partida 
+        NodoGrafo * minimo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * starting){
+            int mx = 999999; // almacena la distancia
+            NodoGrafo * v = nullptr; // almacena el nodo con la menor distancia
+            for (auto nodo : (*VmenosF)){ // por cada nodo que no ha sido visitado
+                if (!v){ // si el nodo es el primero, establece el nodo como el primero
                     v = nodo.first;
                 }
-                if (s->getCaminos()->at(nodo.first)->getDistancia()<= mx){
-                    mx = s->getCaminos()->at(nodo.first)->getDistancia();
+                if (starting->getCaminos()->at(nodo.first)->getDistancia()<= mx){
+                    mx = starting->getCaminos()->at(nodo.first)->getDistancia();
                     v = nodo.first;
                 } 
             }
@@ -70,7 +69,7 @@ class Grafo {
         }
 
         NodoGrafo * maximo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * s){
-            int max = 0;
+            int max = 0; // es igual a la función de mínimo, nada más que al revés
             NodoGrafo * v = nullptr;
             for (auto nodo : (*VmenosF)){
                 if (!v){
@@ -87,6 +86,7 @@ class Grafo {
     public:
 
         void saveToFile(){
+            // se abren los archivos
             ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
             //ofstream Gobiz("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\gobiz.csv", ios::out);
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
@@ -95,15 +95,13 @@ class Grafo {
             //ofstream Links("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\links.csv
             Links << "Source,Target,Type\n";
             
-            for (NodoGrafo * nodo : listaNodos){
-                Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                string offer = registro->getOffer();
-                registro->replace_all(offer, ",", ";");
-                // std::cout << offer << endl;
+            for (NodoGrafo * nodo : listaNodos){ // por cada nodo en la lista
+                Registered* registro = (Registered*)(void*)(nodo->getInfo()); // se obtiene el registro correspondente
+                string offer = registro->getOffer(); // Se obtiene la oferta del registro 
+                registro->replace_all(offer, ",", ";"); // se cambian las comas por semicolons para evitar problemas en parsing del CSV
                 string demand = registro->getDemand();
                 registro->replace_all(demand, ",", ";");
-                // std::cout << demand << endl;
-                int tipo;
+                int tipo; // almacena el tipo, si es de oferta, demanda o ambos
                 if (offer == "" && demand != ""){
                     tipo = 1;
                 } else if (offer != "" && demand == ""){
@@ -111,39 +109,44 @@ class Grafo {
                 } else {
                     tipo = 2;
                 }
+                // se escribe la información del nodo en el archivo
                 Gobiz << nodo->getInfo()->getId() << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
             
+                // Se escribe la información de los arcos de ese nodo en el archivo 
                 for (Arco * arco : (*nodo->getArcs())){
                     Links << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
                     std::cout << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
                 }
             }
+            // se cierran los archivos
             Gobiz.close();
             Links.close();
         }
 
         void saveCycles(NodoGrafo * nodo){
+            // se abren los archivos
             ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
            // Gobiz.open("gobiz.csv");
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
             ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
             Links << "Source,Target,Type\n";
-            int index = 0;
+            int index = 0; // se utiliza para diferenciar los nodos y los distintos ciclos que hay
 
-            for (vector<NodoGrafo*> ciclo : *(nodo->getCiclos())){
-                Registered* registro = (Registered*)(void*)(nodo ->getInfo());
-                string offer = registro->getOffer();
+            for (vector<NodoGrafo*> ciclo : *(nodo->getCiclos())){ // se recorre la lista de ciclos del nodo
+                Registered* registro = (Registered*)(void*)(nodo ->getInfo()); // se obtiene el registro correspondiente
+                string offer = registro->getOffer(); // se reemplazan las comas por semicolons
                 registro->replace_all(offer, ",", ";");
                 string demand;
                 registro->replace_all(demand, ",", ";");
                 int tipo = 2;
-                NodoGrafo * anterior;
-                int quantity = 0;
-                int starting = nodo->getInfo()->getId() + index;
+                NodoGrafo * anterior; // almacena el nodo anterior del ciclo
+                int quantity = 0; // almacena la cantidad de nodos en el ciclo
+                int starting = nodo->getInfo()->getId() + index; // almacena el principio del nodo
+                // se escribe la información del primer nodo en el archivo
                 Gobiz << (starting) << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
-                for (NodoGrafo * nodoE : ciclo){
-                    registro = (Registered*)(void*)(nodoE->getInfo());
+                for (NodoGrafo * nodoE : ciclo){ // por cada nodo en el ciclo
+                    registro = (Registered*)(void*)(nodoE->getInfo()); // se obtiene su información
                     offer = registro->getOffer();
                     registro->replace_all(offer, ",", ";");
                     demand = registro->getDemand();
@@ -156,22 +159,24 @@ class Grafo {
                     } else {
                         tipo = 2;
                     }
-                    if ((nodoE->getInfo()->getId() + index) != starting){
+                    if ((nodoE->getInfo()->getId() + index) != starting){ // si el nodo no es el primer
+                    // se escribe en el archivo
                         Gobiz << (nodoE->getInfo()->getId() + index) << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
                     }
                     if (quantity != 0){
+                        // si el nodo no es el primero, se escribe la información del 
                         Links << nodoE->getInfo()->getId() + index << "," << anterior->getInfo()->getId() + index << "," << 0 << "\n";
                     }
-                    anterior = nodoE;
-                    quantity++;
+                    anterior = nodoE; // se establece el nodo actual como el anterior
+                    quantity++; // se incrementa la cantidad de nodos
                 }
-                index += listaNodos.size();
-                if (anterior != nodo){
+                index += listaNodos.size(); // se incrementa el index la cantidad de nodos en el grafo
+                if (anterior != nodo){ // se retorna el anterior
                     Links << anterior->getInfo()->getId() + index << "," << nodo->getInfo()->getId() + index << ","  << 0 << "\n";
                 }
                 
             }
-            
+            // se cierran los archivos
             Gobiz.close();
             Links.close();
         }
@@ -359,84 +364,82 @@ class Grafo {
             return result;
         }
 
-        /*
-        Este método retorna el camino, pero todavía no está implementado
-        vector<INodo> path(INodo* pOrigen, INodo* pDestino) { // debe retornar un camino, el primero que encuentre estre el nodo origen y destino
-            // en caso de que no haya camino, result se retorna vacío
-            vector<INodo> result;
-
-            return result;
-        }
-        */
-
         vector<vector<Arco*>>* getComponentesConexas(){
             return &componentesConexas;
         }
 
+        // esta función salva todas las componentes conexas del grafo al archivo
         void saveComponentes(){
-            int contador = 1;
+            int contador = 1; // contador de componentes
             ofstream Componentes("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\componentes.json", ios::out);
             
             Componentes << "{ \n \"name\": \"Grafo\", \"children\" : [\n";
 
+            // se recorren todas las componentes
             for (vector<Arco*> componente : componentesConexas){
-                Componentes << "{\n \"name\" : \"Componente " << contador << "\",\n \"children\": [\n";
-                int contador2 = 1;
-                for (Arco * arco : componente){
+                // se escribe el formato
+                int porcentaje = 100 * componente.size() / listaNodos.size();
+                Componentes << "{\n \"name\" : \"Componente " << contador << "\", \"size\" : " << porcentaje << ", \n \"children\": [\n";
+                int contador2 = 1; // se utiliza para numerar los elementos de la componente
+                for (Arco * arco : componente){ // se recorre cada arco de la componente
                     Registered* registro = (Registered*)(void*)(arco->getDestino()->getInfo());
                     int peso = arco->getPeso();
                     if (!peso){
-                        peso = 1;
+                        peso = 1; // si el peso es 0, se establece en 1 para que se vea en el grafico
                     }
 
+                    // se escribe en el archivo la información
                     Componentes << "{\"name\": \"" << registro->getNickname() << "\", \"size\" : " << peso << "}";
-                    if (contador2 != componente.size()){
+                    if (contador2 != componente.size()){ // si es el último, no se pone una coma. Si no, sí
                         Componentes << ",";
-                    }
+                    } 
                     Componentes << "\n";
-                    contador2++;
-                }
+                    contador2++; // se incrementa el contador
+                } // Se escribe el final del formato de cada componente conexa.
                 Componentes << "]\n}";
-                if (contador != componentesConexas.size()){
+                if (contador != componentesConexas.size()){ // Si no es la última componente conexa, escribe una coma
                     Componentes << ",";
                 }
-                contador++;
+                contador++; // se incrementa el contador
             }
             Componentes << "]\n}";
-            Componentes.close();
+            Componentes.close(); // se cierra el archivo
         }
 
+
+        // Esta función encuentra todos los caminos más cortos desde un punto de partida
         void Dijkstra(NodoGrafo * starting){
-            unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
-            for (NodoGrafo * nodo : listaNodos){
+            unordered_map<NodoGrafo*, NodoGrafo*> VmenosF; // se almacenan los nodos que de los cuales no se han encontrado su distancia más corta
+            for (NodoGrafo * nodo : listaNodos){ // se meten todos los nodos a la lista
                 VmenosF.insert_or_assign(nodo, nodo);
             }
-            //VmenosF.erase(starting);
-            starting->setDijkstraNodes(listaNodos);
+            starting->setDijkstraNodes(listaNodos); // se establecen los dijkstra nodes, los cuales contienen la distancia desde el punto de partida hasta ese nodo
             unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
-            
-            //distancias->at(starting)->setDistancia(0);
+            // En esta versión no se borra el starting del conjunto VmenosF, ya que si así se obtiene un ciclo, si este existe
+            // Se recorre el vector de arcos del punto de partida para establecer sus distancias.
             for (std::vector<Arco*>::iterator current = starting->getArcs()->begin() ; current != starting->getArcs()->end(); ++current){
                 distancias->at((*current)->getDestino())->setDistancia((*current)->getPeso());
                 distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos());
             }
             
+            // mientras el conjunto de VmenosF no esté vacío
             while (!VmenosF.empty()){
-                NodoGrafo * menor = minimo(&VmenosF, starting);
-                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){                    
+                NodoGrafo * menor = minimo(&VmenosF, starting); // se obtiene el nodo que tiene la menor distancia
+                for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){ // por cada adyacente a ese nodo    
+                    // Si la distancia de ese adyacente es mayor que la distancia desde el punto de partida al menor más la distancia entre el menor y el adyacente, se actualiza        
                     if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
-                        distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso());
-                        distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos());
+                        distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()); // se cambia la distancia
+                        distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos()); // se actualiza el camino
                     }
                 }
-                VmenosF.erase(menor);
-            }
-            for (auto nodo : *(distancias)){
-                std::cout << "Distancia más corta desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< " con nodos " <<  distancias->at(nodo.first)->getCantidadNodos() << endl;               
+                VmenosF.erase(menor); // se elimina del vector el menor ya que ya se procesó
             }
         }
 
+        // Esta función obtiene los caminos más largos desde un punto de partida a todos los nodos
         void dijkstraMayor(NodoGrafo * starting){
+            // el procedimiento es exactamente igual al dijkstran normal, nada más que en esta versión sí se borra el punto de partida
+            // del conjunto VmenosF, para evitar que se haga esos recorridos
             resetNodes();
             unordered_map<NodoGrafo*, NodoGrafo*> VmenosF;
             for (NodoGrafo * nodo : listaNodos){
@@ -453,52 +456,56 @@ class Grafo {
             }
             
             while (!VmenosF.empty()){
-                NodoGrafo * mayor = maximo(&VmenosF, starting);
-                for (Arco* arco : *mayor->getArcs()){   
-                   // cout << distancias->at(arco->getDestino())->getDistancia() << " " << distancias->at(arco->getOrigen())->getDistancia() << " " << arco->getPeso() << endl;
+                NodoGrafo * mayor = maximo(&VmenosF, starting); // se obtiene el nodo con la mayor distancia.
+                for (Arco* arco : *mayor->getArcs()){    // Se recorren todos los arcos.
+                    // si la distancia al adyacente es menor que la distancia desde el punto inicial al mayor + la distancia desde el mayor al adyacente
+                    // y el origen no ha sido visitado y la distancia desde el mayor no es 0, se actualiza la distancia 
                     if (!arco->getDestino()->getVisitado() && distancias->at(arco->getDestino())->getDistancia() < distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() && distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso() != arco->getPeso()){
                         distancias->at(arco->getDestino())->setDistancia(distancias->at(arco->getOrigen())->getDistancia() + arco->getPeso());
                         distancias->at(arco->getDestino())->addArc(arco, distancias->at(arco->getOrigen())->getCantidadNodos());
                         arco->getOrigen()->setVisitado(true);
-                        cout << "Desde " << arco->getOrigen()->getInfo()->getId() << " a " << arco->getDestino()->getInfo()->getId() << endl;
                     }
                 }
-                VmenosF.erase(mayor);
-            }
-            for (auto nodo : *(distancias)){
-                std::cout << "Distancia más larga desde " << starting->getInfo()->getId() << " a " << nodo.first->getInfo()->getId() << " es " << distancias->at(nodo.first)->getDistancia()<< " con nodos " <<  distancias->at(nodo.first)->getCantidadNodos() << endl;               
+                VmenosF.erase(mayor); // se elimina el mayor del conjunto
             }
         }
 
+        // Esta función auxiliar se utiliza para realizar el procedimiento recursivo de encontrar los ciclos.
+        // Se recorren todos los nodos del grafo y si se llega al punto inicial, añade todo el camino al vector de ciclos del nodo
+        // Los caminos se van recorriendo al revés, revisando las entradas cada nodo.
         void findCicloAux(vector<NodoGrafo*> pCiclo, NodoGrafo * currentNode, NodoGrafo * starting){
-            for (Arco * entrada : *(currentNode->getEntradas())){
-                if (entrada->getOrigen() == starting){
-                    if (pCiclo.size() >= 3){
-                        pCiclo.push_back(starting);
-                        starting->addCiclo(pCiclo);
+            // Recibe el camino que se lleva, el nodo actual, y el punto de partida
+            for (Arco * entrada : *(currentNode->getEntradas())){ // por cada entrada del nodo
+                if (entrada->getOrigen() == starting){ // si el anterior a ese nodo es el punto inicial,
+                    if (pCiclo.size() >= 3){ // si el ciclo que se lleva tiene un tamaño mayor o igual a 3
+                        pCiclo.push_back(starting); // se añade el punto de partida al ciclo
+                        starting->addCiclo(pCiclo); // se añade el ciclo al vector
+                        pCiclo.pop_back(); // se elimina el punto de partida del ciclo para que no aparezca en el ciclo de la siguiente entrada
                     }
-                } else if (starting->getCaminos()->at(currentNode)->getDistancia() != INT_MAX && !entrada->getOrigen()->getVisitado()){
-                    pCiclo.push_back(entrada->getOrigen());
-                    entrada->getOrigen()->setVisitado(true);
-                    findCicloAux(pCiclo, entrada->getOrigen(), starting);
-                    pCiclo.pop_back();
+                    // Si no, revisa si la distancia al nodo actual no es infinito y si la entrada no ha sido visitada
+                } else if (starting->getCaminos()->at(currentNode)->getDistancia() != 999999 && !entrada->getOrigen()->getVisitado()){
+                    // si es el caso, 
+                    pCiclo.push_back(entrada->getOrigen()); // añade la entrada al ciclo
+                    entrada->getOrigen()->setVisitado(true); // la establece como visitada
+                    findCicloAux(pCiclo, entrada->getOrigen(), starting); // vuelve a llamar la función con los valores actualizados
+                    pCiclo.pop_back(); // elimina la entrada del ciclo para que no aparezca en la siguiente iteración
                 } 
             }
         }
 
+        // esta es la función principal de encontrar ciclos.
         void findCiclo(NodoGrafo * starting){
-
-            if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
-                
+            // si hay un camino desde el punto de partida al punto de partida
+            if (starting->getCaminos()->at(starting)->getDistancia() != 999999){
+                // Se recorre cada entrada del punto de partida
                 for (Arco * entrada : *(starting->getEntradas())){
-                    if (starting->getCaminos()->at(starting)->getDistancia() != INT_MAX){
-                        vector<NodoGrafo*> ciclo;
-                        ciclo.push_back(starting);
-                        ciclo.push_back(entrada->getOrigen());
-                        findCicloAux(ciclo, entrada->getOrigen(), starting);
-                    }
+                    vector<NodoGrafo*> ciclo; // se crea el vector del ciclo
+                    ciclo.push_back(starting); // se añade el punto de partida al ciclo
+                    ciclo.push_back(entrada->getOrigen()); // se añade la entrada al ciclo
+                    findCicloAux(ciclo, entrada->getOrigen(), starting); // se llama a la función auxiliar
                 }
                 
+                // se imprimen los ciclos encontrados
                 for (vector<NodoGrafo*> ciclo : *(starting->getCiclos())){
                     std::cout << "Ciclo " << endl;
                     for (NodoGrafo * nodo : ciclo){
@@ -510,22 +517,19 @@ class Grafo {
         }
         
 
-
+        // Esta función crea el grafo de grados de cada nodo del grafo actual
         Grafo* crearGrafoGrados(){
-            Grafo* result = new Grafo(true);
-            for (NodoGrafo* nodo : listaNodos){
+            Grafo* result = new Grafo(true); // el nuevo grafo
+            for (NodoGrafo* nodo : listaNodos){ // Se añaden todos los nodos
                 result->addNode(nodo->getInfo());
             }
-            for (NodoGrafo* nodo : listaNodos){
+            for (NodoGrafo* nodo : listaNodos){ // se establecen los mismos arcos con la concurrencia como peso.
                 int concurrencia = nodo->getArcs()->size() + nodo->getNodosEntrada()->size();
-                std::cout << nodo->getArcs()->size() << " + " << nodo->getNodosEntrada()->size() << " = " << concurrencia << endl;
-                for (Arco* arco : *nodo->getArcs()){
-                    // std::cout << nodo->getInfo()->getId() << endl;
-                    // std::cout << arco->getDestino()->getInfo()->getId() << endl;
+                for (Arco* arco : *nodo->getArcs()){ 
                     result->addArc(result->getNodo(nodo->getInfo()->getId()),result->getNodo(arco->getDestino()->getInfo()->getId()), concurrencia);
                 }
             }
-            return result;
+            return result; // se retorna el grafo
         }
 
         // Este método imprime los nodos y la cantidad de arcos que tienen 
@@ -533,7 +537,6 @@ class Grafo {
             for (std::vector<NodoGrafo*>::iterator current = listaNodos.begin() ; current != listaNodos.end(); ++current) {
                 NodoGrafo* actual = (*current);
                 std::cout << actual->getInfo()->getId() << " tiene " << actual->getArcs()->size() << endl;
-                
             }
         }
 };
