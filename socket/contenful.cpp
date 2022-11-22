@@ -227,7 +227,7 @@ class Contenful {
         }
 };
 
-
+/*
 int main(void)
 {
     Contenful regs;
@@ -238,3 +238,4 @@ int main(void)
     }
     return 0;
 }
+*/

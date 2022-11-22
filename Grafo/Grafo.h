@@ -115,7 +115,6 @@ class Grafo {
                 // Se escribe la información de los arcos de ese nodo en el archivo 
                 for (Arco * arco : (*nodo->getArcs())){
                     Links << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
-                    std::cout << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
                 }
             }
             // se cierran los archivos
