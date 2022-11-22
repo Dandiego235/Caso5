@@ -3,7 +3,6 @@
 
 #include "INodo.h"
 #include <vector>
-#include <climits>
 
 using namespace std;
 class Arco;
@@ -13,7 +12,6 @@ class DijkstraNode {
         NodoGrafo* destino;
         int distancia;
         Arco* camino;
-        vector<Arco*> caminoMay;
         NodoGrafo * starting;
         int cantidadNodos;
 
@@ -56,11 +54,6 @@ class DijkstraNode {
             return starting;
         }
 
-        void addArcMay(Arco* pArco) {
-            this->caminoMay.clear();
-            this->caminoMay.push_back(pArco);
-            
-        }
 };
 
 #endif
