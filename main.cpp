@@ -289,6 +289,49 @@ void printGraph(Grafo* grafo){
     }
 }
 
+bool validateDate(const string* date){
+    int day = std::stoi(date.substr(0,2));
+    int month = std::stoi(date.substr(3,2));
+    int year = std::stoi(date.substr(6,4));
+
+    if (!(1 <= month && month <= 12))
+        return false;
+    if (!(1 <= day && day <= 31))
+        return false;
+    if ((day == 31) && !(month % 2))
+        return false;
+    if ((day == 30) && (month == 2))
+        return false;
+    if ((month == 2) && (day == 29) && (year % 4 != 0))
+        return false;
+    if ((month == 2) && (day == 29) && (year % 400 == 0))
+        return true;
+    if ((month == 2) && (day == 29) && (year  % 100 == 0))
+        return false;
+    if ((month == 2) && (day == 29) && (year % 4 == 0))
+        return true;
+    return true;
+}
+
+bool dateInRange(const string& date, const string& start, const string& end){
+    int day = std::stoi(date.substr(0,2));
+    int month = std::stoi(date.substr(3,2));
+    int year = std::stoi(date.substr(6,4));
+    int date = year * 10000 + month * 100 + day;
+
+    int dayStart = std::stoi(start.substr(0,2));
+    int monthStart = std::stoi(start.substr(3,2));
+    int yearStart = std::stoi(start.substr(6,4));
+    int dateStart = yearStart * 10000 + monthStart * 100 + dayStart;
+    
+    int dayEnd = std::stoi(end.substr(0,2));
+    int monthEnd = std::stoi(end.substr(3,2));
+    int yearEnd = std::stoi(end.substr(6,4));
+    int dateEnd = yearEnd * 10000 + monthEnd * 100 + dayEnd;
+
+    return dateStart <= date <= dateEnd;
+}
+
 int main(){
 
     vector<Registered*> allrecords;
@@ -429,31 +472,82 @@ int main(){
                         cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                     } else {
                         NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
-                        std::cout << "Matches" << endl;
-                        contador = 1;
-                        std::cout << "Oferta:" << endl;
-                        Grafo newGrafo = new Grafo(true);
-                        newGrafo.addNode(nodeMatch->getInfo());
-                        for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
-                            Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
-                            std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
-                            contador++;
-                            newGrafo.addNode((*it)->getDestino()->getInfo());
-                            newGrafo.addArc(nodeMatch->getInfo()->getId(), (*it)->getDestino()->getInfo()->getId(), (*it)->getPeso());
-                        }
-                        std::cout << "Demanda:" << endl;
-                        contador = 1;
-                        for (Arco * arco : *nodeMatch->getEntradas()){
-                            Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
-                            std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
-                            contador++;
-                            if (!newGrafo.getNodo(registro->getId())){
-                                newGrafo.addNode(arco->getOrigen()->getInfo());
+                        std::cout << "1. Desplegar todos los matches.\n2.Desplegar los matches en un rango de fechas." << endl;
+                        int desplegarFechas;
+                        cin >> desplegarFechas;
+                        if (desplegarFechas == 1){
+                            bool fecha1Val = false;
+                            string fechaInicio;
+                            while (!fecha1Val){
+                                std::cout << "Ingrese una fecha válida para el inicio del rango:" << endl;
+                                cin >> fechaInicio;
+                                fecha1Val = validateDate(fechaInicio);
                             }
-                            newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
+                            bool fecha2Val = false;
+                            string fechaFinal;
+                            while (!fecha2Val){
+                                std::cout << "Ingrese una fecha válida para el final del rango:" << endl;
+                                cin >> fechaInicio;
+                                fecha2Val = validateDate(fechaInicio);
+                            }
+                            std::cout << "Matches" << endl;
+                            contador = 1;
+                            std::cout << "  Oferta:" << endl;
+                            Grafo newGrafo = new Grafo(true);
+                            newGrafo.addNode(nodeMatch->getInfo());
+                            for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
+                                Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
+                                if (!dateInRange(registro->getPostdate(), fechaInicio, fechaFinal)){
+                                    continue;
+                                }
+                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
+                                contador++;
+                                newGrafo.addNode((*it)->getDestino()->getInfo());
+                                newGrafo.addArc(nodeMatch->getInfo()->getId(), (*it)->getDestino()->getInfo()->getId(), (*it)->getPeso());
+                            }
+                            std::cout << "  Demanda:" << endl;
+                            contador = 1;
+                            for (Arco * arco : *nodeMatch->getEntradas()){
+                                Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+                                if (!dateInRange(registro->getPostdate(), fechaInicio, fechaFinal)){
+                                    continue;
+                                }
+                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                                contador++;
+                                if (!newGrafo.getNodo(registro->getId())){
+                                    newGrafo.addNode(arco->getOrigen()->getInfo());
+                                }
+                                newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
+                            }
+                            newGrafo.saveToFile();
+                            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                        } else {
+                            std::cout << "Matches" << endl;
+                            contador = 1;
+                            std::cout << "  Oferta:" << endl;
+                            Grafo newGrafo = new Grafo(true);
+                            newGrafo.addNode(nodeMatch->getInfo());
+                            for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
+                                Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
+                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
+                                contador++;
+                                newGrafo.addNode((*it)->getDestino()->getInfo());
+                                newGrafo.addArc(nodeMatch->getInfo()->getId(), (*it)->getDestino()->getInfo()->getId(), (*it)->getPeso());
+                            }
+                            std::cout << "  Demanda:" << endl;
+                            contador = 1;
+                            for (Arco * arco : *nodeMatch->getEntradas()){
+                                Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
+                                std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
+                                contador++;
+                                if (!newGrafo.getNodo(registro->getId())){
+                                    newGrafo.addNode(arco->getOrigen()->getInfo());
+                                }
+                                newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
+                            }
+                            newGrafo.saveToFile();
+                            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                         }
-                        newGrafo.saveToFile();
-                        cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                         /*
                         string opcion4;
                         std::cout << "Opción: ";
