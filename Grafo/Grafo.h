@@ -94,6 +94,7 @@ class Grafo {
             ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
             //ofstream Links("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\links.csv
             Links << "Source,Target,Type\n";
+            vector<int> ids;
             
             for (NodoGrafo * nodo : listaNodos){ // por cada nodo en la lista
                 Registered* registro = (Registered*)(void*)(nodo->getInfo()); // se obtiene el registro correspondente
@@ -110,8 +111,14 @@ class Grafo {
                     tipo = 2;
                 }
                 // se escribe la información del nodo en el archivo
+                for (int i : ids){
+                    if (nodo->getInfo()->getId() == i){
+                        goto cnt;
+                    }
+                }
                 Gobiz << nodo->getInfo()->getId() << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
-            
+                ids.push_back(nodo->getInfo()->getId());
+                cnt:;
                 // Se escribe la información de los arcos de ese nodo en el archivo 
                 for (Arco * arco : (*nodo->getArcs())){
                     Links << arco->getOrigen()->getInfo()->getId() << "," << arco->getDestino()->getInfo()->getId() << "," << arco->getPeso() << "\n";
@@ -409,12 +416,20 @@ class Grafo {
 
         // Esta función encuentra todos los caminos más cortos desde un punto de partida
         void Dijkstra(NodoGrafo * starting){
+            
             unordered_map<NodoGrafo*, NodoGrafo*> VmenosF; // se almacenan los nodos que de los cuales no se han encontrado su distancia más corta
             for (NodoGrafo * nodo : listaNodos){ // se meten todos los nodos a la lista
                 VmenosF.insert_or_assign(nodo, nodo);
             }
             starting->setDijkstraNodes(listaNodos); // se establecen los dijkstra nodes, los cuales contienen la distancia desde el punto de partida hasta ese nodo
             unordered_map<NodoGrafo*, DijkstraNode*> * distancias = starting->getCaminos();
+            if (!starting->getArcs()->size()){
+                return;
+            }
+            
+            for (auto nodoD : *distancias){
+                cout << nodoD.first->getInfo()->getId() << ": " <<  nodoD.second->getDistancia() << endl;
+            }
             // En esta versión no se borra el starting del conjunto VmenosF, ya que si así se obtiene un ciclo, si este existe
             // Se recorre el vector de arcos del punto de partida para establecer sus distancias.
             for (std::vector<Arco*>::iterator current = starting->getArcs()->begin() ; current != starting->getArcs()->end(); ++current){
@@ -427,7 +442,8 @@ class Grafo {
                 NodoGrafo * menor = minimo(&VmenosF, starting); // se obtiene el nodo que tiene la menor distancia
                 for (std::vector<Arco*>::iterator current = menor->getArcs()->begin() ; current != menor->getArcs()->end(); ++current){ // por cada adyacente a ese nodo    
                     // Si la distancia de ese adyacente es mayor que la distancia desde el punto de partida al menor más la distancia entre el menor y el adyacente, se actualiza        
-                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()){
+                    
+                    if (distancias->at((*current)->getDestino())->getDistancia() > distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso() && distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso() < 999999){
                         distancias->at((*current)->getDestino())->setDistancia(distancias->at((*current)->getOrigen())->getDistancia() + (*current)->getPeso()); // se cambia la distancia
                         distancias->at((*current)->getDestino())->addArc((*current), distancias->at((*current)->getOrigen())->getCantidadNodos()); // se actualiza el camino
                     }
