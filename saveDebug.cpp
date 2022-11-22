@@ -9,7 +9,7 @@
 #include <math.h>
 #include <ios> //used to get stream size
 #include <limits> //used to get numeric limits
-#include "socket/contenful.cpp"
+//#include "socket/contenful.cpp"
 #include "Grafo/Grafo.h"
 #include "Grafo/INodo.h"
 #include "Grafo/Arco.h"
@@ -71,12 +71,14 @@ void crearMatches(Grafo* grafo){
         std::cout << endl;
 
         for (Registered* vendedor : *vendedores){
+            cout << vendedor->getNickname() << endl;
             // vamos a recorrer los vendedores e ir comparando sus palabras con las palabras del árbol para hacer matches.
             if (!grafo->getNodo(vendedor->getId())){ // si el vendedor no está en el grafo, lo saltamos.
                 continue;
             }
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
             // hashmap que va a almacenar los matches con cada comprador
+            
             for (StringData* palabra : *vendedor->getWordsOffer()){ // se itera sobre las palabras del vendedor
                 int leafIndex = 0;
                 LeafNode* leaf = arbol->find(palabra, leafIndex); // la posición de la palabra queda en leaf y en el índice leafIndex
@@ -94,12 +96,10 @@ void crearMatches(Grafo* grafo){
                         match->incrementPeso(); // incrementa el peso del match
                         leafIndex++; // se corre a la siguiente posición
                         match->addWord(palabra); // guarda la palabra que hizo match
+
                         if (leafIndex == leaf->getSecuencia()->size()){ // si llegó al final 
                             if (leaf->getSecuencia()->size() == arbol->getSize()){ // revisa si ya llegamos al final del nodo
                                 // se pasa al hermano.
-                                if (!leaf->getBrother()){ // si ya no tiene hermano, se sale.
-                                    break;
-                                }
                                 leaf = leaf->getBrother();
                                 leafIndex = 0;
                             } else {
@@ -122,6 +122,11 @@ void crearMatches(Grafo* grafo){
     int maxCantidad = ceil(ranking.size() * RANKING_PERCENT);
     while(cantidadMatches < maxCantidad && riterator != ranking.rend()){
         if (match->getComprador() != match->getVendedor() && match->getRating() > 1){
+            // std::cout << match->getVendedor()->getNickname() << " apunta a " << match->getComprador()->getNickname() << " con rating " << match->getRating() << " con " << endl;
+            // for (StringData* str : *match->getWords()){
+            //     std::cout << str->toString() << " ";
+            // }
+            // std::cout << endl;
             grafo->addArc(match->getVendedor(), match->getComprador(), match->getRating());
             match->getVendedor()->addMatchSalida(*match);
             match->getComprador()->addMatchEntrada(*match);
@@ -210,6 +215,11 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
         }
     }
 
+    for (auto rit = cadenas.rbegin(); rit != cadenas.rend(); rit++){
+        int concurrencia = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
+        std::cout << (*rit)->getStarting()->getInfo()->getId() << " a " << (*rit)->getDestino()->getInfo()->getId() << " " << (*rit)->getDistancia() + concurrencia << " " << (*rit)->getCantidadNodos() << endl;
+    }
+
     DijkstraNode* menor = *cadenas.rbegin();
     for (auto rit = ++cadenas.rbegin(); rit != cadenas.rend(); rit++){
         if ((*rit)->getCantidadNodos() == menor->getCantidadNodos()){
@@ -246,6 +256,11 @@ vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia){
         for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
             cadenas.insert(iterador->second);
         }
+    }
+
+    for (auto rit = cadenas.rbegin(); rit != cadenas.rend(); rit++){
+        int concurrencia = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
+        std::cout << (*rit)->getStarting()->getInfo()->getId() << " a " << (*rit)->getDestino()->getInfo()->getId() << " " << (*rit)->getDistancia() + concurrencia << " " << (*rit)->getCantidadNodos() << endl;
     }
     
     DijkstraNode* mayor = *cadenas.rbegin();
@@ -330,38 +345,43 @@ bool dateInRange(const string& date, const string& start, const string& end){
     return dateStart <= dateCheck  && dateCheck <= dateEnd;
 }
 
-void getRecords(Contenful &regs, vector<Registered*> &allrecords){
-    Registered::getCompradores()->clear();
-    Registered::getVendedores()->clear();
-    Registered::resetContadorId();
-    allrecords = regs.getRecords();
-}
+// void getRecords(Contenful &regs, vector<Registered*> &allrecords){
+//     Registered::getCompradores()->clear();
+//     Registered::getVendedores()->clear();
+//     Registered::resetContadorId();
+//     allrecords = regs.getRecords();
+// }
 
 int main(){
 
-    Contenful regs;
+    // Contenful regs;
 
     vector<Registered*> allrecords;
 
-    // allrecords.push_back(new Registered("Wakanda_Med","Vendemos máquinas con fines médicos de alta tecnología y calidad, hechas de metales exóticos, para tratamientos de enfermedades o heridas fatales.","Necesitamos muchos programadores con mucha experiencia para desarrollar el software de nuestros dispositivos médicos","11/16/2022"));
-    // allrecords.push_back(new Registered("vendePollos38","Se vende pollo asado, frito o al ajillo","carne de pollo de la más alta calidad y aceite","11/03/2022"));
-    // allrecords.push_back(new Registered("elvendeTacos29","venta de tacos al estilo mexicano tradicional","Verduras frescas de la más alta calidad y carne de res o cerdo","11/02/2022"));
-    // allrecords.push_back(new Registered("badbunny_in_concert","conciertos a estadio lleno de gente escuchando pum pum con el mismo acorde por 2 horas","transporte y seguridad en todos los paises que visita y mucha fiesta tambien","11/02/2022"));
-    // allrecords.push_back(new Registered("rock_odin_gold","soy programador python con experiencia","","01/23/2019"));
-    // allrecords.push_back(new Registered("metal_year_2000","","requiero de 5 ingenieros en computación con 8 años de experiencia, conocimientos en python.","10/28/2022"));
-    // allrecords.push_back(new Registered("josearnoldowood","esta es la oferta","esta es la demanda","10/10/2022"));
-    // allrecords.push_back(new Registered("Hospital_Tec","Somos una institución que brinda un servicio de alta calidad en el área de la salud. Nos especializamos en tratar lesiones provocadas por accidentes en el área de trabajo.","Necesitamos dispositivos médicos de alta calidad y tecnología, hechos de metales resistentes, para sacar radiografías de fracturas, resonancias magnéticas, y quirófanos.","11/16/2022"));
-    // allrecords.push_back(new Registered("EstructurasMina","Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.","Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.","11/16/2022"));
-    // allrecords.push_back(new Registered("RealSolutions","Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.","Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.","11/16/2022"));
-    // allrecords.push_back(new Registered("construSoluciones2001","Ofrecemos mano de obra y materiales para la construccion de su casa, edificio o proyect","Materiales de construccion de las mas alta claidad e ingenieros con experiencia","11/71/2022"));
-    // allrecords.push_back(new Registered("AstraMedical222","Somos una empresa farmacéutica que desarrolla medicamentos para combatir enfermedades respiratorias para niños de escuela con factores de riesgo","Dispositivos médicos de alta tecnología y calidad para ayudarnos en nuestro trabajo de investigación de medicamentos para tratar enfermedades respiratorias infantiles.","11/17/2022"));
-    // allrecords.push_back(new Registered("Mesa_School","Somos una institución educativa para niños y adolescentes talentosos que busca explotar su potencial intelectual desarrollando sus habilidades STEM para llegar a ser los futuros ingenieros en computación.","Necesitamos medicamentos para los estudiantes de la escuela, especialmente para los niños de primaria ya que las enfermedades respiratorias tienen una alta incidencia en la población estudiantil.","11/17/2022"));
-    // allrecords.push_back(new Registered("CompuYankeeDev129","Soy un ingeniero en computación con cuatro años de experiencia. He trabajado como programador en Python y Java en empresas desarrolladoras de software como RealSolutions.","Busco entretenimiento. Me gustaría asistir a un concierto de 2 horas con el estadio lleno de gente y no me preocupa la falta de complejidad armónica en los acordes ya que me gusta el reguetón.","11/17/2022"));
-    // allrecords.push_back(new Registered("OlcoManGold","Me desempeño como programador y desarrollador de software. Tengo mucha experiencia tras trabajar once años en la industria. Soy experto en lenguajes como Python y me especializo en el desarrollo del firmware para dispositivos","Soy aficionado a la gastronomía mexicana, por lo que necesito poder almorzar tacos de pollo, ya sea asado, frito o al ajillo, todos los días y desde un punto de venta accesible.","11/17/2022"));
-    // allrecords.push_back(new Registered("BobTheBuilder250","Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.","Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.","11/17/2022"));
-    // allrecords.push_back(new Registered("the_agustd7","composicion de letras y beats de diferentes generos musicales","artistas musicales talentosos con facilidad de adaptarse facilmente a un proyecto musical","11/18/2022"));
-    // allrecords.push_back(new Registered("Kenneth483883","vendo","","11/02/2022"));
-    // allrecords.push_back(new Registered("arbolito4848","se vende arbolitos de pino a buen precio","","11/02/2022"));
+    allrecords.push_back(new Registered("Wakanda_Med","Vendemos máquinas con fines médicos de alta tecnología y calidad, hechas de metales exóticos, para tratamientos de enfermedades o heridas fatales.","Necesitamos muchos programadores con mucha experiencia para desarrollar el software de nuestros dispositivos médicos","11/16/2022"));
+    allrecords.push_back(new Registered("vendePollos38","Se vende pollo asado, frito o al ajillo","carne de pollo de la más alta calidad y aceite","11/03/2022"));
+    allrecords.push_back(new Registered("elvendeTacos29","venta de tacos al estilo mexicano tradicional","Verduras frescas de la más alta calidad y carne de res o cerdo","11/02/2022"));
+    allrecords.push_back(new Registered("badbunny_in_concert","conciertos a estadio lleno de gente escuchando pum pum con el mismo acorde por 2 horas","transporte y seguridad en todos los paises que visita y mucha fiesta tambien","11/02/2022"));
+    allrecords.push_back(new Registered("rock_odin_gold","soy programador python con experiencia","","01/23/2019"));
+    allrecords.push_back(new Registered("metal_year_2000","","requiero de 5 ingenieros en computación con 8 años de experiencia, conocimientos en python.","10/28/2022"));
+    allrecords.push_back(new Registered("josearnoldowood","esta es la oferta","esta es la demanda","10/10/2022"));
+    allrecords.push_back(new Registered("Hospital_Tec","Somos una institución que brinda un servicio de alta calidad en el área de la salud. Nos especializamos en tratar lesiones provocadas por accidentes en el área de trabajo.","Necesitamos dispositivos médicos de alta calidad y tecnología, hechos de metales resistentes, para sacar radiografías de fracturas, resonancias magnéticas, y quirófanos.","11/16/2022"));
+    allrecords.push_back(new Registered("EstructurasMina","Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.","Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.","11/16/2022"));
+    allrecords.push_back(new Registered("RealSolutions","Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.","Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.","11/16/2022"));
+    allrecords.push_back(new Registered("construSoluciones2001","Ofrecemos mano de obra y materiales para la construccion de su casa, edificio o proyect","Materiales de construccion de las mas alta claidad e ingenieros con experiencia","11/71/2022"));
+    allrecords.push_back(new Registered("AstraMedical222","Somos una empresa farmacéutica que desarrolla medicamentos para combatir enfermedades respiratorias para niños de escuela con factores de riesgo","Dispositivos médicos de alta tecnología y calidad para ayudarnos en nuestro trabajo de investigación de medicamentos para tratar enfermedades respiratorias infantiles.","11/17/2022"));
+    allrecords.push_back(new Registered("Mesa_School","Somos una institución educativa para niños y adolescentes talentosos que busca explotar su potencial intelectual desarrollando sus habilidades STEM para llegar a ser los futuros ingenieros en computación.","Necesitamos medicamentos para los estudiantes de la escuela, especialmente para los niños de primaria ya que las enfermedades respiratorias tienen una alta incidencia en la población estudiantil.","11/17/2022"));
+    allrecords.push_back(new Registered("CompuYankeeDev129","Soy un ingeniero en computación con cuatro años de experiencia. He trabajado como programador en Python y Java en empresas desarrolladoras de software como RealSolutions.","Busco entretenimiento. Me gustaría asistir a un concierto de 2 horas con el estadio lleno de gente y no me preocupa la falta de complejidad armónica en los acordes ya que me gusta el reguetón.","11/17/2022"));
+    allrecords.push_back(new Registered("OlcoManGold","Me desempeño como programador y desarrollador de software. Tengo mucha experiencia tras trabajar once años en la industria. Soy experto en lenguajes como Python y me especializo en el desarrollo del firmware para dispositivos","Soy aficionado a la gastronomía mexicana, por lo que necesito poder almorzar tacos de pollo, ya sea asado, frito o al ajillo, todos los días y desde un punto de venta accesible.","11/17/2022"));
+    allrecords.push_back(new Registered("BobTheBuilder250","Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.","Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.","11/17/2022"));
+    allrecords.push_back(new Registered("the_agustd7","composicion de letras y beats de diferentes generos musicales","artistas musicales talentosos con facilidad de adaptarse facilmente a un proyecto musical","11/18/2022"));
+    allrecords.push_back(new Registered("Kenneth483883","vendo","","11/02/2022"));
+    allrecords.push_back(new Registered("arbolito4848","se vende arbolitos de pino a buen precio","","11/02/2022"));
+    allrecords.push_back(new Registered("poly_bridgers","Somos una empresa constructora de puentes hechos con materiales de calidad. Hemos construido puentes en ciudades como Lóndres, San Francisco, Tokyo y San José.","Necesitamos materiales de construcción de alta calidad para construir nuestros puentes.","10/22/122"));
+    allrecords.push_back(new Registered("Green_Lion","Vendemos botellas hechas de un material a base de bambú, por lo que son amigables con el ambiente. Las botellas son biodegradables y se podrían usar para tomar agua, café, jugo y más.","Necesitamos un servicio de envíos rápidos para que nuestros clientes reciban sus botellas el mismo día que las compran.","10/22/122"));
+    allrecords.push_back(new Registered("SuperSmashCoders122","Desarrollamos video juegos extremadamente divertidos que ofrecen cientas de horas de entretenimiento. Los jugadores pueden jugar en línea o localmente.","Buscamos un compositor de música que pueda trabajar con diferentes géneros musicales para que componga la música de nuestros juegos.","10/22/122"));
+    allrecords.push_back(new Registered("PapaNoel2512","Brindamos un servicio de recepción y envíos de paquetes a una escala mundial. El tiempo estimado de envío es de una noche hasta un día completo gracias a nuestros vehículos de gran velocidad.","Necesitamos muchos arbolitos de pino para decorar nuestro almacén de productos para la época navideña. Se prefieren buenos precios.","10/22/122"));
+    allrecords.push_back(new Registered("SantaClaus37","Brindamos","un","10/22/122"));
     //allrecords.push_back(new Registered("","","",""));
 
     while (true) {
@@ -449,6 +469,7 @@ int main(){
             date += to_string(ltm->tm_year + 1900);
             std::cout << nickname << password << offer << demand << endl;
             std::cout << "Fecha de registro: " << date << endl;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Confirmar: Sí (s) o No (n)" << endl;
             char confirmar;
             cin >> confirmar;
@@ -456,12 +477,12 @@ int main(){
                 continue;
             }
             // Subir al server
-            regs.registerUser(nickname, offer, demand, password, ltm->tm_mday + 1, ltm->tm_mon, ltm->tm_year + 1900);
+            //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->tm_mon + 1, ltm->tm_year + 1900);
             //("EstructurasMina", "Somos una empresa constructora que construye edificios de oficinas modernos y espaciosos. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.", "Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.", "SteveCEO067", 16, 11, 2022);
         } else if (opcion == 2){
             //print all matches
             //imprime todo el grafo
-            getRecords(regs, allrecords);
+            //getRecords(regs, allrecords);
             Grafo *grafo = crearGrafo(allrecords);
             crearMatches(grafo);
             cout << "Save" << endl;
@@ -483,7 +504,7 @@ int main(){
                 std::cout << "Opción: ";
                 cin >> opcion2;
                 if (opcion2 == 1){
-                    getRecords(regs, allrecords);
+                    //getRecords(regs, allrecords);
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     int contador = 1;
@@ -584,7 +605,7 @@ int main(){
                     
                     
                 } else if (opcion2 == 2) {
-                    getRecords(regs, allrecords);
+                    //getRecords(regs, allrecords);
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     for (NodoGrafo * nodo : grafo->getNodos()) { // Se imprimen los registros
@@ -602,7 +623,7 @@ int main(){
                     cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                 
                 } else if (opcion2 == 3) { 
-                    getRecords(regs, allrecords);
+                    //getRecords(regs, allrecords);
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo con todas las concurrencias
@@ -663,7 +684,7 @@ int main(){
                     std::cout << "1. Desplegar el Top 10 de productos hasta la fecha.\n2. Desplegar el Top 10 de productos en un rango de fechas." << endl;
                     int rangoTop;
                     cin >> rangoTop;
-                    getRecords(regs, allrecords);
+                    //getRecords(regs, allrecords);
                     Grafo *grafo;
                     if (rangoTop == 2){
                         bool fecha1ValTop = false;
@@ -700,7 +721,7 @@ int main(){
                     saveTop10(grafo);
                     cout << "Link a la página: https://observablehq.com/d/c2adc8c189e19fe9" << endl;
                 } else if (opcion2 == 5) {
-                    getRecords(regs, allrecords);
+                    //getRecords(regs, allrecords);
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo de nodos

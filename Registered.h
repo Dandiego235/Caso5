@@ -233,6 +233,10 @@ class Registered : public INodo{
         static bool validateNickname(string pNickname){
             return nicknames->count(pNickname);
         }
+
+        static void resetContadorId(){
+            contadorId = 1;
+        }
 };
 
 // inicialización de variables estáticas

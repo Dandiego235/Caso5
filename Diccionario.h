@@ -6,6 +6,7 @@
 #include "StrCompare.h"
 using namespace std;
 
+// Esta clase sirve como un diccionario de palabras comunes que no se toman en cuenta.
 class Diccionario{
     private:
         set<StringData*, StrCompare> *conjunto;
@@ -19,6 +20,7 @@ class Diccionario{
             conjunto->insert(new StringData("calid", nullptr));
             conjunto->insert(new StringData("much", nullptr));
             conjunto->insert(new StringData("nuest", nullptr));
+            conjunto->insert(new StringData("pued", nullptr));
         }
 
     public:
