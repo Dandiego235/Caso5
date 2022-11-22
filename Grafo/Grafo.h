@@ -269,10 +269,10 @@ class Grafo {
             nodosProcesados.push(puntoPartida); // lo mete a la pila
             puntoPartida->setProcesado(true); // establece que ese nodo es procesado
             
-            int contador = 0;
+            int contador = 0; // contador de componentes conexas
             do {
-                vector<Arco*> componente;
-                componente.push_back(new Arco(NULL, puntoPartida, 0));
+                vector<Arco*> componente; // vector para la componente conexa
+                componente.push_back(new Arco(NULL, puntoPartida, 0)); // se agrega el punto de partida a la componente
                 while (!nodosProcesados.empty()) { // mientras la lista de procesados no esté vacía
                     NodoGrafo* actual = nodosProcesados.top(); // obtiene el primer nodo
                     nodosProcesados.pop(); // lo saca de la pila
@@ -288,14 +288,14 @@ class Grafo {
                         NodoGrafo* adyacente = arco->getDestino(); // obtiene el nodo adyacente en sí
 
                         if (!adyacente->getProcesado()) { // si no está procesado
-                            componente.push_back(arco);
+                            componente.push_back(arco); // se agrega a la componente
                             std::cout << arco->getPeso() << endl;
                             nodosProcesados.push(adyacente); // lo mete en la pila
                             adyacente->setProcesado(true); // lo marca
                         }
                     }
                 }
-                if (!cantidadComponentes){
+                if (!cantidadComponentes){ // Si todavía no se han calculado las componentes conexas, se agregan al vector de componentes.
                     componentesConexas.push_back(componente);
                     contador++;
                 }
@@ -327,11 +327,11 @@ class Grafo {
             nodosProcesados.push(puntoPartida);
             puntoPartida->setProcesado(true);
             
-            int contador = 0;
+            int contador = 0; // contador de componentes conexas
 
             do {
-                vector<Arco*> componente;
-                componente.push_back(new Arco(NULL, puntoPartida, 0));
+                vector<Arco*> componente; // vector para la componente conexa
+                componente.push_back(new Arco(NULL, puntoPartida, 0)); // se agrega el punto de partida a la componente
                 while (!nodosProcesados.empty()) {
                     NodoGrafo* actual = nodosProcesados.front(); // obtiene el primero de la cola
                     nodosProcesados.pop(); // lo saca de la cola
@@ -346,14 +346,14 @@ class Grafo {
                         // recorremos los arcos para encontrar los nodos adyacentes
                         NodoGrafo* adyacente = arco->getDestino();
 
-                        if (!adyacente->getProcesado()) {
+                        if (!adyacente->getProcesado()) { // si el nodo no ha sido procesado, se agrega a la componente
                             componente.push_back(arco);
                             nodosProcesados.push(adyacente);
                             adyacente->setProcesado(true);
                         }
                     }
                 }
-                if (!cantidadComponentes){
+                if (!cantidadComponentes){ // Si todavía no se han calculado las componentes conexas, se agregan al vector de componentes.
                     componentesConexas.push_back(componente);
                     contador++;
                 }
@@ -367,7 +367,7 @@ class Grafo {
 
             } while (visitados < this->getSize()); 
 
-            cantidadComponentes = contador;
+            cantidadComponentes = contador; // se establece la cantidad de componentes como el contador.
             return result;
         }
 
