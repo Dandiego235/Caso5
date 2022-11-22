@@ -1,4 +1,5 @@
 Id,Name,Tipo,Fecha,Descripcion
+<<<<<<< HEAD
 1,poly_bridgers,2,10/22/122,Somos una empresa constructora de puentes hechos con materiales de calidad. Hemos construido puentes en ciudades como Lóndres; San Francisco; Tokyo y San José. Necesitamos materiales de construcción de alta calidad para construir nuestros puentes.
 2,Green_Lion,2,10/22/122,Vendemos botellas hechas de un material a base de bambú; por lo que son amigables con el ambiente. Las botellas son biodegradables y se podrían usar para tomar agua; café; jugo y más. Necesitamos un servicio de envíos rápidos para que nuestros clientes reciban sus botellas el mismo día que las compran.
 3,SuperSmashCoders122,2,10/22/122,Desarrollamos video juegos extremadamente divertidos que ofrecen cientas de horas de entretenimiento. Los jugadores pueden jugar en línea o localmente. Buscamos un compositor de música que pueda trabajar con diferentes géneros musicales para que componga la música de nuestros juegos.
@@ -23,3 +24,6 @@ Id,Name,Tipo,Fecha,Descripcion
 22,rock_odin_gold,0,01/23/2019,soy programador python con experiencia 
 23,metal_year_2000,1,10/28/2022, requiero de 5 ingenieros en computación con 8 años de experiencia; conocimientos en python.
 24,josearnoldowood,2,10/10/2022,esta es la oferta esta es la demanda
+=======
+17,the_agustd7,2,11/18/2022,composicion de letras y beats de diferentes generos musicales artistas musicales talentosos con facilidad de adaptarse facilmente a un proyecto musical
+>>>>>>> d9fd04377b9e5527480dca79a667bf65d94f56fe

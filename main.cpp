@@ -200,15 +200,30 @@ void saveTop10(Grafo * pGrafo){
 // Esta función calcula la mayor cadena con menor concurrencia de un grafo.
 // El grafo que recibe debe ser el grafo donde los arcos son las concurrencias del nodo.
 // Deja la mayor concurrencia en la variable dada por referencia.
-vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
+vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pStarting = nullptr){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
-    for (NodoGrafo* nodo : grafo->getNodos()){
-        grafo->Dijkstra(nodo);
-        auto caminos = nodo->getCaminos();
+    if (pStarting){
+        if (!pStarting->getArcs()->size()){
+            vector<NodoGrafo*>* singleChain = new vector<NodoGrafo*>();
+            singleChain->push_back(pStarting);
+            return singleChain;
+        }
+        grafo->Dijkstra(pStarting);
+        auto caminos = pStarting->getCaminos();
         for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
             cadenas.insert(iterador->second);
         }
+
+    } else {
+        for (NodoGrafo* nodo : grafo->getNodos()){
+            grafo->Dijkstra(nodo);
+            auto caminos = nodo->getCaminos();
+            for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
+                cadenas.insert(iterador->second);
+            }
+        }
     }
+    
 
     DijkstraNode* menor = *cadenas.rbegin();
     for (auto rit = ++cadenas.rbegin(); rit != cadenas.rend(); rit++){
@@ -238,13 +253,26 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
 // Esta función calcula la mayor cadena con mayor concurrencia de un grafo.
 // El grafo que recibe debe ser el grafo donde los arcos son las concurrencias del nodo.
 // Deja la mayor concurrencia en la variable dada por referencia.
-vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia){
+vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia, NodoGrafo * pStarting = nullptr){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
-    for (NodoGrafo* nodo : grafo->getNodos()){
-        grafo->dijkstraMayor(nodo);
-        auto caminos = nodo->getCaminos();
+    if (pStarting){
+        if (!pStarting->getArcs()->size()){
+            vector<NodoGrafo*>* singleChain = new vector<NodoGrafo*>();
+            singleChain->push_back(pStarting);
+            return singleChain;
+        }
+        grafo->dijkstraMayor(pStarting);
+        auto caminos = pStarting->getCaminos();
         for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
             cadenas.insert(iterador->second);
+        }
+    } else {
+        for (NodoGrafo* nodo : grafo->getNodos()){
+            grafo->dijkstraMayor(nodo);
+            auto caminos = nodo->getCaminos();
+            for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
+                cadenas.insert(iterador->second);
+            }
         }
     }
     
@@ -591,10 +619,9 @@ int main(){
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
                         std::cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
                     }
-                    string opcion3; // se pide la elección del usuario
+                    int idCycle; // se pide la elección del usuario
                     std::cout << "Opción: ";
-                    cin >> opcion3;
-                    int idCycle = std::stoi(opcion3);
+                    cin >> idCycle;
                     NodoGrafo * nodeCycle = grafo->getNodo(idCycle); // obtiene el nodo con base en el Id ingresado 
                     grafo->Dijkstra(nodeCycle); // se encuentran todos los menores caminos
                     grafo->findCiclo(nodeCycle); // se encuentran todos los ciclos
@@ -608,6 +635,9 @@ int main(){
                     Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo con todas las concurrencias
                     int concurrencia = 0; // se obtiene el total de concurrencia
                     while (true){
+                        Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo con todas las concurrencias
+                        int concurrencia = 0; // se obtiene el total de concurrencia
+                        int contador = 1;
                         cout << "Cadena de valor: " << endl;
                         cout << "1. Cadena menor" << endl;
                         cout << "2. Cadena mayor" << endl;
@@ -615,8 +645,24 @@ int main(){
                         int opcion3; // se pide la elección del usuario
                         std::cout << "Opción: ";
                         cin >> opcion3;
+                        for (NodoGrafo * nodo : grafo->getNodos()) {
+                            Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                            std::cout << contador << ". " << registro->getNickname() << endl;
+                            contador++;
+                        }
+                        std::cout << contador << ". Todos" << endl;
+                        int idChain; // se pide la elección del usuario
+                        std::cout << "Opción: ";
+                        cin >> idChain;
                         if (opcion3 == 1){
-                            vector<NodoGrafo*> *cadenaMin = menorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            vector<NodoGrafo*> *cadenaMin;
+                            if (idChain == contador){
+                                cadenaMin = menorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            } else {
+                                NodoGrafo * nodeChain = grados->getNodo(idChain); // obtiene el nodo con base en el Id ingresado 
+                                cadenaMin = menorCadena(grados, concurrencia, nodeChain); // se obtiene la menor cadena
+                            }
+
                             Grafo newGrafo = new Grafo(true);
                             cout << "Cadena de valor más larga con menor concurrencia: " << endl;
                             cout << "Concurrencia: " << concurrencia << endl;
@@ -627,7 +673,7 @@ int main(){
                                 newGrafo.addNode(nodo->getInfo()); // se añade el nodo al grafo nuevo
                                 if (anterior){ // Si no es el primer nodo,
                                 // se añade el arco desde el anterior al actual
-                                    newGrafo.addArc(anterior->getInfo()->getId(),nodo->getInfo()->getId(), (anterior->getNodosEntrada()->size() + anterior->getArcs()->size()));
+                                    newGrafo.addArc(nodo->getInfo()->getId(), anterior->getInfo()->getId(), (nodo->getNodosEntrada()->size() + nodo->getArcs()->size()));
                                 }
                                 anterior = nodo; // se cambia el anterior al actual
                                 Registered* nickname = (Registered*)(void*)(nodo->getInfo()); // se imprime el nickname
@@ -636,9 +682,15 @@ int main(){
                             newGrafo.saveToFile();
                             cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                         } else if (opcion3 == 2){
+                            vector<NodoGrafo*> *cadenaMax;
+                            if (idChain == contador){
+                                cadenaMax = mayorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            } else {
+                                NodoGrafo * nodeChain = grados->getNodo(idChain); // obtiene el nodo con base en el Id ingresado 
+                                cadenaMax = mayorCadena(grados, concurrencia, nodeChain); // se obtiene la menor cadena
+                            }
                             cout << "Cadena de valor más larga con mayor concurrencia:" << endl;
                             Grafo newGrafo = new Grafo(true);
-                            vector<NodoGrafo*> *cadenaMax = mayorCadena(grados, concurrencia); // se obtiene la cadena más larga
                             cout << "Concurrencia: " << concurrencia << endl;
                             // se imprimen los nodos
                             NodoGrafo * anterior = nullptr;
@@ -646,7 +698,7 @@ int main(){
                                 newGrafo.addNode(nodo->getInfo()); // se añade el nodo al grafo nuevo
                                 if (anterior){ // Si no es el primer nodo,
                                 // se añade el arco desde el anterior al actual
-                                    newGrafo.addArc(anterior->getInfo()->getId(),nodo->getInfo()->getId(), (anterior->getNodosEntrada()->size() + anterior->getArcs()->size()));
+                                    newGrafo.addArc(nodo->getInfo()->getId(), anterior->getInfo()->getId(), (nodo->getNodosEntrada()->size() + nodo->getArcs()->size()));
                                 }
                                 anterior = nodo; // se cambia el anterior al actual
                                 Registered* nickname = (Registered*)(void*)(nodo->getInfo()); // se imprime el nickname
@@ -658,6 +710,9 @@ int main(){
                             break;    
                         }
                     }
+                    
+                    
+                    
                 } else if (opcion2 == 4) {
                     cout << "Top 10" << endl;
                     std::cout << "1. Desplegar el Top 10 de productos hasta la fecha.\n2. Desplegar el Top 10 de productos en un rango de fechas." << endl;
