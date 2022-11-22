@@ -88,11 +88,11 @@ class Grafo {
         void saveToFile(){
             // se abren los archivos
             //ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
-            ofstream Gobiz("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\gobiz.csv", ios::out);
+            ofstream Gobiz(".\\gobiz.csv", ios::out);
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
             //ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
-            ofstream Links("C:\\Users\\Dandiego\\OneDrive - Estudiantes ITCR\\Estructuras de datos\\Caso5\\links.csv", ios::out);
+            ofstream Links(".\\links.csv", ios::out);
             Links << "Source,Target,Type\n";
             vector<int> ids;
             
@@ -131,11 +131,11 @@ class Grafo {
 
         void saveCycles(NodoGrafo * nodo){
             // se abren los archivos
-            ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
+            ofstream Gobiz(".\\gobiz.csv", ios::out);
            // Gobiz.open("gobiz.csv");
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
-            ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
+            ofstream Links(".\\links.csv", ios::out);
             Links << "Source,Target,Type\n";
             int index = 0; // se utiliza para diferenciar los nodos y los distintos ciclos que hay
 
@@ -377,7 +377,7 @@ class Grafo {
         // esta función salva todas las componentes conexas del grafo al archivo
         void saveComponentes(){
             int contador = 1; // contador de componentes
-            ofstream Componentes("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\componentes.json", ios::out);
+            ofstream Componentes(".\\componentes.json", ios::out);
             
             Componentes << "{ \n \"name\": \"Grafo\", \"children\" : [\n";
 
@@ -426,9 +426,6 @@ class Grafo {
                 return;
             }
             
-            for (auto nodoD : *distancias){
-                cout << nodoD.first->getInfo()->getId() << ": " <<  nodoD.second->getDistancia() << endl;
-            }
             // En esta versión no se borra el starting del conjunto VmenosF, ya que si así se obtiene un ciclo, si este existe
             // Se recorre el vector de arcos del punto de partida para establecer sus distancias.
             for (std::vector<Arco*>::iterator current = starting->getArcs()->begin() ; current != starting->getArcs()->end(); ++current){
