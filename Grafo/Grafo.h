@@ -54,44 +54,42 @@ class Grafo {
 
         // esta función encuentra el nodo que tenga la menor distancia desde el punto de partida 
         NodoGrafo * minimo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * starting){
-            int mx = 999999; // almacena la distancia
-            NodoGrafo * v = nullptr; // almacena el nodo con la menor distancia
+            int menorDistancia = 999999; // almacena la distancia
+            NodoGrafo * menor = nullptr; // almacena el nodo con la menor distancia
             for (auto nodo : (*VmenosF)){ // por cada nodo que no ha sido visitado
-                if (!v){ // si el nodo es el primero, establece el nodo como el primero
-                    v = nodo.first;
+                if (!menor){ // si el nodo es el primero, establece el nodo como el primero
+                    menor = nodo.first;
                 }
-                if (starting->getCaminos()->at(nodo.first)->getDistancia()<= mx){
-                    mx = starting->getCaminos()->at(nodo.first)->getDistancia();
-                    v = nodo.first;
+                if (starting->getCaminos()->at(nodo.first)->getDistancia() <= menorDistancia){
+                    menorDistancia = starting->getCaminos()->at(nodo.first)->getDistancia();
+                    menor = nodo.first;
                 } 
             }
-            return v;
+            return menor;
         }
 
-        NodoGrafo * maximo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * s){
+        NodoGrafo * maximo(unordered_map<NodoGrafo*,NodoGrafo*>  * VmenosF, NodoGrafo * starting){
             int max = 0; // es igual a la función de mínimo, nada más que al revés
-            NodoGrafo * v = nullptr;
+            NodoGrafo * mayor = nullptr;
             for (auto nodo : (*VmenosF)){
-                if (!v){
-                    v = nodo.first;
+                if (!mayor){
+                    mayor = nodo.first;
                 }
-                if (s->getCaminos()->at(nodo.first)->getDistancia() >= max){
-                    max = s->getCaminos()->at(nodo.first)->getDistancia();
-                    v = nodo.first;
+                if (starting->getCaminos()->at(nodo.first)->getDistancia() >= max){
+                    max = starting->getCaminos()->at(nodo.first)->getDistancia();
+                    mayor = nodo.first;
                 } 
             }
-            return v;
+            return mayor;
         }
 
     public:
 
         void saveToFile(){
             // se abren los archivos
-            //ofstream Gobiz("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\gobiz.csv", ios::out);
             ofstream Gobiz(".\\gobiz.csv", ios::out);
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
-            //ofstream Links("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\links.csv", ios::out);
             ofstream Links(".\\links.csv", ios::out);
             Links << "Source,Target,Type\n";
             vector<int> ids;
@@ -132,7 +130,7 @@ class Grafo {
         void saveCycles(NodoGrafo * nodo){
             // se abren los archivos
             ofstream Gobiz(".\\gobiz.csv", ios::out);
-           // Gobiz.open("gobiz.csv");
+
             Gobiz << "Id,Name,Tipo,Fecha,Descripcion\n";
 
             ofstream Links(".\\links.csv", ios::out);
@@ -165,7 +163,7 @@ class Grafo {
                     } else {
                         tipo = 2;
                     }
-                    if ((nodoE->getInfo()->getId() + index) != starting){ // si el nodo no es el primer
+                    if ((nodoE->getInfo()->getId() + index) != starting){ // si el nodo no es el primero
                     // se escribe en el archivo
                         Gobiz << (nodoE->getInfo()->getId() + index) << "," << registro->getNickname() << ","  << tipo << "," << registro->getPostdate() << "," << offer << " " << demand << "\n";
                     }

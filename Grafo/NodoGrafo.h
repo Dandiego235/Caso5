@@ -19,7 +19,7 @@ class NodoGrafo {
         bool visitado; // indicadores para procesos como recorridos, de si ya fueron visitados y procesados
         bool procesado;
         unordered_map<NodoGrafo*, DijkstraNode*> * caminos; // Va a contener la información de todos los caminos menores desde este nodo hasta los demás.
-        unordered_map<NodoGrafo*, DijkstraNode*> * caminosMayores; // Va a contener la infromación de los caminos mayores o largos desde este nodo hasta los demás.
+        unordered_map<NodoGrafo*, DijkstraNode*> * caminosMayores; // Va a contener la información de los caminos mayores o largos desde este nodo hasta los demás.
         vector<Arco*> * NodosEntrada; // vector que contiene los arcos de entrada al nodo.
         vector<vector<NodoGrafo*>> * ciclos; // vector que va a almacenar los ciclos a los que pertenece este nodo.
 
@@ -48,8 +48,8 @@ class NodoGrafo {
             return visitado;
         }
 
-        // Este método inicializa los nodos para algoritmo dijkstra con la distancia dada.
-        // para calcular los mayores caninos, se debe inicializar con 0
+        // Este método inicializa los nodos para el algoritmo dijkstra con la distancia dada.
+        // para calcular los mayores caminos, se debe inicializar con 0
         // para los menores, se inicializa con 999999, que es el valor predeterminado.
         void setDijkstraNodes(vector<NodoGrafo*> nodos, int distancia = 999999){
             for (NodoGrafo * nodo : nodos){

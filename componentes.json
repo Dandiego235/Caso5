@@ -1,47 +1,115 @@
 { 
  "name": "Grafo", "children" : [
 {
- "name" : "Componente 1", "size" : 73, 
+ "name" : "Componente 1", "size" : 2, 
  "children": [
-{"name": "Wakanda_Med", "size" : 1},
-{"name": "Hospital_Tec", "size" : 12},
-{"name": "AstraMedical222", "size" : 12},
-{"name": "Mesa_School", "size" : 12},
-{"name": "RealSolutions", "size" : 12},
-{"name": "OlcoManGold", "size" : 12},
-{"name": "metal_year_2000", "size" : 10},
-{"name": "BobTheBuilder250", "size" : 10},
-{"name": "construSoluciones2001", "size" : 10},
-{"name": "the_agustd7", "size" : 7},
-{"name": "badbunny_in_concert", "size" : 11},
-{"name": "CompuYankeeDev129", "size" : 4},
-{"name": "josearnoldowood", "size" : 4},
-{"name": "EstructurasMina", "size" : 12}
+{"name": "Geforce4090", "size" : 1}
 ]
 },{
- "name" : "Componente 2", "size" : 5, 
+ "name" : "Componente 2", "size" : 2, 
  "children": [
-{"name": "vendePollos38", "size" : 1}
+{"name": "CostaRica70", "size" : 1}
 ]
 },{
- "name" : "Componente 3", "size" : 5, 
+ "name" : "Componente 3", "size" : 2, 
  "children": [
-{"name": "elvendeTacos29", "size" : 1}
+{"name": "abdul_qatar", "size" : 1}
 ]
 },{
- "name" : "Componente 4", "size" : 5, 
+ "name" : "Componente 4", "size" : 40, 
  "children": [
-{"name": "rock_odin_gold", "size" : 1}
+{"name": "costarica_espana", "size" : 1},
+{"name": "Wakanda_Med", "size" : 2},
+{"name": "AstraMedical222", "size" : 10},
+{"name": "Hospital_Tec", "size" : 10},
+{"name": "Mesa_School", "size" : 10},
+{"name": "BobTheBuilder250", "size" : 4},
+{"name": "metal_year_2000", "size" : 4},
+{"name": "construSoluciones2001", "size" : 8},
+{"name": "RealSolutions", "size" : 8},
+{"name": "OriSolis25", "size" : 8},
+{"name": "poly_bridgers", "size" : 8},
+{"name": "CompuYankeeDev129", "size" : 6},
+{"name": "valeska_guerrera_patria", "size" : 8},
+{"name": "EstructurasMina", "size" : 4}
 ]
 },{
- "name" : "Componente 5", "size" : 5, 
+ "name" : "Componente 5", "size" : 11, 
+ "children": [
+{"name": "rather_than_luck", "size" : 1},
+{"name": "PapaNoel2512", "size" : 2},
+{"name": "qatar_fiesta_ley_seca", "size" : 2},
+{"name": "Green_Lion", "size" : 3}
+]
+},{
+ "name" : "Componente 6", "size" : 2, 
+ "children": [
+{"name": "loky_god_evil", "size" : 1}
+]
+},{
+ "name" : "Componente 7", "size" : 2, 
+ "children": [
+{"name": "bartoleto_chain_free", "size" : 1}
+]
+},{
+ "name" : "Componente 8", "size" : 2, 
+ "children": [
+{"name": "odin_rebel_420", "size" : 1}
+]
+},{
+ "name" : "Componente 9", "size" : 2, 
+ "children": [
+{"name": "SuperSmashCoders122", "size" : 1}
+]
+},{
+ "name" : "Componente 10", "size" : 2, 
+ "children": [
+{"name": "SantaClaus37", "size" : 1}
+]
+},{
+ "name" : "Componente 11", "size" : 2, 
+ "children": [
+{"name": "the_agustd7", "size" : 1}
+]
+},{
+ "name" : "Componente 12", "size" : 2, 
  "children": [
 {"name": "Kenneth483883", "size" : 1}
 ]
 },{
- "name" : "Componente 6", "size" : 5, 
+ "name" : "Componente 13", "size" : 2, 
  "children": [
 {"name": "arbolito4848", "size" : 1}
+]
+},{
+ "name" : "Componente 14", "size" : 2, 
+ "children": [
+{"name": "OlcoManGold", "size" : 1}
+]
+},{
+ "name" : "Componente 15", "size" : 2, 
+ "children": [
+{"name": "vendePollos38", "size" : 1}
+]
+},{
+ "name" : "Componente 16", "size" : 2, 
+ "children": [
+{"name": "elvendeTacos29", "size" : 1}
+]
+},{
+ "name" : "Componente 17", "size" : 2, 
+ "children": [
+{"name": "badbunny_in_concert", "size" : 1}
+]
+},{
+ "name" : "Componente 18", "size" : 2, 
+ "children": [
+{"name": "rock_odin_gold", "size" : 1}
+]
+},{
+ "name" : "Componente 19", "size" : 2, 
+ "children": [
+{"name": "josearnoldowood", "size" : 1}
 ]
 }]
 }

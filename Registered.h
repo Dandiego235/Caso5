@@ -77,15 +77,6 @@ class Registered : public INodo{
 
             nicknames->insert(pair<string, Registered*>(nickname, this));
             
-            // cout << nickname << endl;
-            // cout << "  Oferta" << endl;
-            // for (auto it = wordsOffer->begin(); it != wordsOffer->end(); it++){
-            //     cout << "    " << (*it)->toString() << endl;
-            // }
-            // cout << "  Demanda" << endl;
-            // for (auto it = wordsDemand->begin(); it != wordsDemand->end(); it++){
-            //     cout << "    " << (*it)->toString() << endl;
-            // }
             hashIDs->insert(pair<string,int>(nickname, id));
         }
 
@@ -139,11 +130,12 @@ class Registered : public INodo{
             try{
                 id = hashIDs->at(pNickname);
             } catch (...){
-                id = -1;
+                id = -1; // su no lo encuentra retorna -1
             }
             return id;
         }
         
+        // Función que reemplaza todas las apariciones de un string en un string por otro string
         void replace_all(string& s, string const& toReplace, string const& replaceWith) {
             string buf;
             size_t pos = 0;
@@ -166,6 +158,7 @@ class Registered : public INodo{
             s.swap(buf);
         }
 
+        // método que llena un conjunto con los fragmentos de palabras de la parte de oferta
         void fillSet(set<StringData*, StrCompare> * pSet, string lista, unordered_map<string, string>* fullWords){
             transform(lista.begin(), lista.end(), lista.begin(), ::tolower);
             replace_all(lista, "á", "a");
@@ -175,15 +168,14 @@ class Registered : public INodo{
             replace_all(lista, "ú", "u");
             string word = "";
             for (char c : lista){
-                if (c == ' ' || c == '.' || c == ','){
-                    if (word != "" && word.size() >= 4){
-                        int percent = (60 * word.size() + 100 - 1) / 100;
-                        //cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
-                        if (percent < 4){
+                if (c == ' ' || c == '.' || c == ','){ // si llega a una división de palabra
+                    if (word != "" && word.size() >= 4){ // si la palabra tiene una longitud mayor que 3. 
+                        int percent = (60 * word.size() + 100 - 1) / 100; 
+                        if (percent < 4){ // si recorta a menos de 4 letras, le pone 4 letras como mínimo.
                             percent = 4;
                         }
                         string full = word;
-                        word.resize(percent);
+                        word.resize(percent); // saca el 60 porciento de la palabra
                         StringData * palabra = new StringData(word, this);
                         if (!Diccionario::getInstance()->find(palabra)){
                             pSet->insert(palabra);
@@ -195,9 +187,8 @@ class Registered : public INodo{
                     word += c;
                 }
             }
-            if (word != ""){
+            if (word != ""){ // si al final quedó con una palabra, la analiza.
                 int percent = (60 * word.size() + 100 - 1) / 100;
-                //cout << word << " Tamaño " << word.size() << " Percent " << percent << endl;
                 if (percent < 4){
                     percent = 4;
                 }

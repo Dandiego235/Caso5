@@ -226,16 +226,3 @@ class Contenful {
             publishEntry(entryId);
         }
 };
-
-/*
-int main(void)
-{
-    Contenful regs;
-
-    vector<Registered*> allrecords = regs.getRecords();
-    for (int index = 0; index < allrecords.size(); index++){
-        cout << "NickName: " << allrecords.at(index)->getNickname() << "\nOffer: " << allrecords.at(index)->getOffer() << "\nDemand: " << allrecords.at(index)->getDemand() << "\nPostDate: " << allrecords.at(index)->getPostdate()  << endl;
-    }
-    return 0;
-}
-*/

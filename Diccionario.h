@@ -21,6 +21,7 @@ class Diccionario{
             conjunto->insert(new StringData("much", nullptr));
             conjunto->insert(new StringData("nuest", nullptr));
             conjunto->insert(new StringData("pued", nullptr));
+            conjunto->insert(new StringData("todo", nullptr));
         }
 
     public:

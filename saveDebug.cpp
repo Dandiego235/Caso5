@@ -71,14 +71,12 @@ void crearMatches(Grafo* grafo){
         std::cout << endl;
 
         for (Registered* vendedor : *vendedores){
-            cout << vendedor->getNickname() << endl;
             // vamos a recorrer los vendedores e ir comparando sus palabras con las palabras del árbol para hacer matches.
             if (!grafo->getNodo(vendedor->getId())){ // si el vendedor no está en el grafo, lo saltamos.
                 continue;
             }
             unordered_map<string, Match*> *matches = new unordered_map<string, Match*>();
             // hashmap que va a almacenar los matches con cada comprador
-            
             for (StringData* palabra : *vendedor->getWordsOffer()){ // se itera sobre las palabras del vendedor
                 int leafIndex = 0;
                 LeafNode* leaf = arbol->find(palabra, leafIndex); // la posición de la palabra queda en leaf y en el índice leafIndex
@@ -96,10 +94,12 @@ void crearMatches(Grafo* grafo){
                         match->incrementPeso(); // incrementa el peso del match
                         leafIndex++; // se corre a la siguiente posición
                         match->addWord(palabra); // guarda la palabra que hizo match
-
                         if (leafIndex == leaf->getSecuencia()->size()){ // si llegó al final 
                             if (leaf->getSecuencia()->size() == arbol->getSize()){ // revisa si ya llegamos al final del nodo
                                 // se pasa al hermano.
+                                if (!leaf->getBrother()){ // si ya no tiene hermano, se sale.
+                                    break;
+                                }
                                 leaf = leaf->getBrother();
                                 leafIndex = 0;
                             } else {
@@ -122,11 +122,7 @@ void crearMatches(Grafo* grafo){
     int maxCantidad = ceil(ranking.size() * RANKING_PERCENT);
     while(cantidadMatches < maxCantidad && riterator != ranking.rend()){
         if (match->getComprador() != match->getVendedor() && match->getRating() > 1){
-            // std::cout << match->getVendedor()->getNickname() << " apunta a " << match->getComprador()->getNickname() << " con rating " << match->getRating() << " con " << endl;
-            // for (StringData* str : *match->getWords()){
-            //     std::cout << str->toString() << " ";
-            // }
-            // std::cout << endl;
+            // si el match no es consigo mismo y el rating es mayor que 1, lo mete al grafo
             grafo->addArc(match->getVendedor(), match->getComprador(), match->getRating());
             match->getVendedor()->addMatchSalida(*match);
             match->getComprador()->addMatchEntrada(*match);
@@ -191,7 +187,7 @@ vector<string>* top10(Grafo* grafo){
 
 // Esta función salva el Top 10 en un archivo para desplegarlo
 void saveTop10(Grafo * pGrafo){ 
-    ofstream TopFile("C:\\Users\\dandi\\OneDrive - Estudiantes ITCR\\Documentos\\TEC\\II Semestre\\Estructura de Datos\\Caso5\\top10.csv", ios::out);
+    ofstream TopFile(".\\top10.csv", ios::out);
     TopFile << "id,value" << endl;
     vector<string>* topRanking = top10(pGrafo);
     int contador = 1;
@@ -205,23 +201,35 @@ void saveTop10(Grafo * pGrafo){
 // Esta función calcula la mayor cadena con menor concurrencia de un grafo.
 // El grafo que recibe debe ser el grafo donde los arcos son las concurrencias del nodo.
 // Deja la mayor concurrencia en la variable dada por referencia.
-vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
+vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pStarting = nullptr){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
-    for (NodoGrafo* nodo : grafo->getNodos()){
-        grafo->Dijkstra(nodo);
-        auto caminos = nodo->getCaminos();
+    if (pStarting){ // si hay un starting, calcula la cadena más larga con menor concurrencia a partir de ese nodo.
+        if (!pStarting->getArcs()->size()){ // si el nodo no tiene arcos, la cadena solo contiene al nodo.
+            vector<NodoGrafo*>* singleChain = new vector<NodoGrafo*>();
+            singleChain->push_back(pStarting);
+            return singleChain;
+        }
+        grafo->Dijkstra(pStarting);
+        auto caminos = pStarting->getCaminos();
         for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
             cadenas.insert(iterador->second);
         }
-    }
 
-    for (auto rit = cadenas.rbegin(); rit != cadenas.rend(); rit++){
-        int concurrencia = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
-        std::cout << (*rit)->getStarting()->getInfo()->getId() << " a " << (*rit)->getDestino()->getInfo()->getId() << " " << (*rit)->getDistancia() + concurrencia << " " << (*rit)->getCantidadNodos() << endl;
+    } else {
+        // si no hay un starting, calcula el dijkstra para todos para sacar la cadena mas larga con menor concurrencia
+        for (NodoGrafo* nodo : grafo->getNodos()){
+            grafo->Dijkstra(nodo); // calcula el dijstra para ese nodo.
+            auto caminos = nodo->getCaminos();
+            for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
+                cadenas.insert(iterador->second);
+            }
+        }
     }
+    
 
-    DijkstraNode* menor = *cadenas.rbegin();
+    DijkstraNode* menor = *cadenas.rbegin(); // el menor es el que tenga la mayor concurrencia y el menor valor o rating
     for (auto rit = ++cadenas.rbegin(); rit != cadenas.rend(); rit++){
+        // empieza desde el final y se devuelve hasta encontrar el menor con mayor cantidad de nodos.
         if ((*rit)->getCantidadNodos() == menor->getCantidadNodos()){
             int concurrenciaMenor = menor->getDestino()->getArcs()->size() + menor->getDestino()->getNodosEntrada()->size();
             int concurrenciaRit = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
@@ -233,7 +241,7 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
         }
     }
     pConcurrencia = menor->getDistancia() + menor->getDestino()->getArcs()->size() + menor->getDestino()->getNodosEntrada()->size();
-    std::cout << menor->getDestino()->getInfo()->getId() << ' ' << menor->getStarting()->getInfo()->getId() << endl;
+    
     vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
     NodoGrafo * starting = menor->getStarting();
     result->push_back(menor->getDestino());
@@ -248,28 +256,37 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia){
 // Esta función calcula la mayor cadena con mayor concurrencia de un grafo.
 // El grafo que recibe debe ser el grafo donde los arcos son las concurrencias del nodo.
 // Deja la mayor concurrencia en la variable dada por referencia.
-vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia){
+vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia, NodoGrafo * pStarting = nullptr){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
-    for (NodoGrafo* nodo : grafo->getNodos()){
-        grafo->dijkstraMayor(nodo);
-        auto caminos = nodo->getCaminos();
+    if (pStarting){ // si hay un starting point, calcula el dijkstra alterado para calcular la cadena mayor de ese nodo
+        if (!pStarting->getArcs()->size()){
+            vector<NodoGrafo*>* singleChain = new vector<NodoGrafo*>();
+            singleChain->push_back(pStarting);
+            return singleChain;
+        }
+        grafo->dijkstraMayor(pStarting);
+        auto caminos = pStarting->getCaminos();
         for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
             cadenas.insert(iterador->second);
         }
-    }
-
-    for (auto rit = cadenas.rbegin(); rit != cadenas.rend(); rit++){
-        int concurrencia = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
-        std::cout << (*rit)->getStarting()->getInfo()->getId() << " a " << (*rit)->getDestino()->getInfo()->getId() << " " << (*rit)->getDistancia() + concurrencia << " " << (*rit)->getCantidadNodos() << endl;
+    } else {
+        // si no hay starting point, encuentra las mayores longitudes a partir de todos los nodos.
+        for (NodoGrafo* nodo : grafo->getNodos()){
+            grafo->dijkstraMayor(nodo);
+            auto caminos = nodo->getCaminos();
+            for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
+                cadenas.insert(iterador->second);
+            }
+        }
     }
     
-    DijkstraNode* mayor = *cadenas.rbegin();
+    DijkstraNode* mayor = *cadenas.rbegin(); // el mayor esta en la última posición.
     pConcurrencia = mayor->getDistancia() + mayor->getDestino()->getArcs()->size() + mayor->getDestino()->getNodosEntrada()->size();
-    std::cout << mayor->getDestino()->getInfo()->getId() << ' ' << mayor->getStarting()->getInfo()->getId() << endl;
+
     vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
     NodoGrafo * starting = mayor->getStarting();
     result->push_back(mayor->getDestino());
-    while (mayor->getCamino()->getOrigen() != starting){
+    while (mayor->getCamino()->getOrigen() != starting){ // reconstruye el camino de la cadena
         result->push_back(mayor->getCamino()->getOrigen());
         mayor = starting->getCaminos()->at(mayor->getCamino()->getOrigen());
     }
@@ -302,11 +319,22 @@ void printGraph(Grafo* grafo){
     }
 }
 
+// Esta función valida que una fecha sea válida.
+// Tiene que venir en formato mm/dd/yyyy
 bool validateDate(const string& date){
-    int day = std::stoi(date.substr(3,2));
-    int month = std::stoi(date.substr(0,2));
-    int year = std::stoi(date.substr(6,4));
-    cout << "validate" << endl;
+    int day;
+    int month;
+    int year;
+    try{
+        day = std::stoi(date.substr(3,2));
+        month = std::stoi(date.substr(0,2));
+        year = std::stoi(date.substr(6,4));
+    }
+    catch (...){
+        cout << "Fecha invalida" << endl;
+        return false;
+    }
+    
     if (!(1 <= month && month <= 12))
         return false;
     if (!(1 <= day && day <= 31))
@@ -326,6 +354,8 @@ bool validateDate(const string& date){
     return true;
 }
 
+// Esta función determina si una fecha está en un rango específico.
+// Tiene que venir en formato mm/dd/yyyy
 bool dateInRange(const string& date, const string& start, const string& end){
     int day = std::stoi(date.substr(3,2));
     int month = std::stoi(date.substr(0,2));
@@ -385,7 +415,7 @@ int main(){
     //allrecords.push_back(new Registered("","","",""));
 
     while (true) {
-        int opcion;
+        int opcion; // menú principal
         std::cout << "Gobiz" << endl;
         std::cout << "1. Registrarse" << endl;
         std::cout << "2. Revisar matches" << endl;
@@ -396,7 +426,7 @@ int main(){
 
         if (opcion == 1){
             // Se pide la información del registro.
-            cin.clear();
+            cin.clear(); // se reestablece el cin
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             string nickname;
             while (true){
@@ -427,7 +457,7 @@ int main(){
                     std::cout << "ERROR: La contraseña no puede tener más de 20 caracteres" << endl;
                     continue;
                 }
-                string confirm;
+                string confirm; // confirmación de que las contraseñas sean iguales
                 std::cout << "Confirme su contraseña" << endl;
                 getline(cin, confirm);
                 if (password != confirm) {
@@ -467,9 +497,8 @@ int main(){
             string date = to_string(ltm->tm_mon + 1) + "/" + to_string(ltm->tm_mday);
             date += "/";
             date += to_string(ltm->tm_year + 1900);
-            std::cout << nickname << password << offer << demand << endl;
+            std::cout << "\nNickName: " << nickname << "\nContraseña: " << password << "\nOferta: " << offer << "\nDemanda: " << demand << endl;
             std::cout << "Fecha de registro: " << date << endl;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Confirmar: Sí (s) o No (n)" << endl;
             char confirmar;
             cin >> confirmar;
@@ -477,21 +506,18 @@ int main(){
                 continue;
             }
             // Subir al server
-            //regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->tm_mon + 1, ltm->tm_year + 1900);
-            //("EstructurasMina", "Somos una empresa constructora que construye edificios de oficinas modernos y espaciosos. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.", "Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.", "SteveCEO067", 16, 11, 2022);
+            allrecords.push_back(new Registered(nickname, offer, demand, date));
+
         } else if (opcion == 2){
-            //print all matches
             //imprime todo el grafo
-            //getRecords(regs, allrecords);
             Grafo *grafo = crearGrafo(allrecords);
             crearMatches(grafo);
-            cout << "Save" << endl;
             printGraph(grafo);
             grafo->saveToFile();
-            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+            cout << "Link a la página: https://observablehq.com/d/c3f7b2fb62380649" << endl;
 
         } else if (opcion == 3){
-            //obtain function to analize
+            // obtener función a analizar
             while (true) {
                 int opcion2; // se pide la elección del usuario
                 std::cout << "Analizar" << endl;
@@ -503,14 +529,13 @@ int main(){
                 std::cout << "6. Salir" << endl;
                 std::cout << "Opción: ";
                 cin >> opcion2;
-                if (opcion2 == 1){
-                    //getRecords(regs, allrecords);
+                if (opcion2 == 1){ // visualizar matches actuales
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     int contador = 1;
                     for (NodoGrafo * nodo : grafo->getNodos()) {
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
-                        std::cout << contador << ". " << registro->getId() << ". " << registro->getNickname() << endl;
+                        std::cout << contador << ". " << registro->getNickname() << endl;
                         contador++;
                     }
                     std::cout << contador << ". Todos" << endl;
@@ -521,7 +546,7 @@ int main(){
                         //imprime todo el grafo
                         printGraph(grafo);
                         grafo->saveToFile();
-                        cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                        cout << "Link a la página: https://observablehq.com/d/c3f7b2fb62380649" << endl;
                     } else {
                         NodoGrafo * nodeMatch = grafo->getNodo(idMatch);
                         std::cout << nodeMatch->getInfo()->getId() << endl;
@@ -529,6 +554,7 @@ int main(){
                         int desplegarFechas;
                         cin >> desplegarFechas;
                         if (desplegarFechas == 2){
+                            // los matches en un rango de fechas
                             bool fecha1Val = false;
                             string fechaInicio;
                             while (!fecha1Val){
@@ -548,6 +574,7 @@ int main(){
                             std::cout << "  Oferta:" << endl;
                             Grafo newGrafo = new Grafo(true);
                             newGrafo.addNode(nodeMatch->getInfo());
+                            // si imprimen los matches de oferta
                             for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
                                 Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
                                 if (!dateInRange(registro->getPostdate(), fechaInicio, fechaFinal)){
@@ -560,6 +587,7 @@ int main(){
                             }
                             std::cout << "  Demanda:" << endl;
                             contador = 1;
+                            // si imprimen los matches de demanda
                             for (Arco * arco : *nodeMatch->getEntradas()){
                                 Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
                                 if (!dateInRange(registro->getPostdate(), fechaInicio, fechaFinal)){
@@ -573,13 +601,15 @@ int main(){
                                 newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
                             }
                             newGrafo.saveToFile();
-                            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                            cout << "Link a la página: https://observablehq.com/d/71789c17e87feb18" << endl;
                         } else {
+                            // todos los matches con el nodo.
                             std::cout << "Matches" << endl;
                             contador = 1;
                             std::cout << "  Oferta:" << endl;
                             Grafo newGrafo = new Grafo(true);
                             newGrafo.addNode(nodeMatch->getInfo());
+                            // si imprimen los matches de oferta
                             for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
                                 Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
                                 std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
@@ -589,6 +619,7 @@ int main(){
                             }
                             std::cout << "  Demanda:" << endl;
                             contador = 1;
+                            // si imprimen los matches de demanda
                             for (Arco * arco : *nodeMatch->getEntradas()){
                                 Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
                                 std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
@@ -599,36 +630,36 @@ int main(){
                                 newGrafo.addArc(arco->getOrigen()->getInfo()->getId(), nodeMatch->getInfo()->getId(), arco->getPeso());
                             }
                             newGrafo.saveToFile();
-                            cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                            cout << "Link a la página: https://observablehq.com/d/71789c17e87feb18" << endl;
                         }
                     }
                     
                     
-                } else if (opcion2 == 2) {
-                    //getRecords(regs, allrecords);
+                } else if (opcion2 == 2) { // ciclos por nodo
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     for (NodoGrafo * nodo : grafo->getNodos()) { // Se imprimen los registros
                         Registered* registro = (Registered*)(void*)(nodo->getInfo());
                         std::cout << nodo->getInfo()->getId() << ". " << registro->getNickname() << endl;
                     }
-                    string opcion3; // se pide la elección del usuario
+                    int idCycle; // se pide la elección del usuario
                     std::cout << "Opción: ";
-                    cin >> opcion3;
-                    int idCycle = std::stoi(opcion3);
+                    cin >> idCycle;
                     NodoGrafo * nodeCycle = grafo->getNodo(idCycle); // obtiene el nodo con base en el Id ingresado 
                     grafo->Dijkstra(nodeCycle); // se encuentran todos los menores caminos
                     grafo->findCiclo(nodeCycle); // se encuentran todos los ciclos
                     grafo->saveCycles(nodeCycle); // se salvan los ciclos al archivo
-                    cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
+                    cout << "Link a la página: https://observablehq.com/d/3fb899b5c5c5616e" << endl;
                 
-                } else if (opcion2 == 3) { 
-                    //getRecords(regs, allrecords);
+                } else if (opcion2 == 3) { // cadenas de concurrencia
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo con todas las concurrencias
                     int concurrencia = 0; // se obtiene el total de concurrencia
                     while (true){
+                        Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo con todas las concurrencias
+                        int concurrencia = 0; // se obtiene el total de concurrencia
+                        int contador = 1;
                         cout << "Cadena de valor: " << endl;
                         cout << "1. Cadena menor" << endl;
                         cout << "2. Cadena mayor" << endl;
@@ -636,8 +667,28 @@ int main(){
                         int opcion3; // se pide la elección del usuario
                         std::cout << "Opción: ";
                         cin >> opcion3;
+                        if (opcion3 != 1 && opcion3 != 2){ // si no es 1 o 2 sale
+                            break;
+                        }
+
+                        for (NodoGrafo * nodo : grafo->getNodos()) {
+                            Registered* registro = (Registered*)(void*)(nodo->getInfo());
+                            std::cout << contador << ". " << registro->getNickname() << endl;
+                            contador++;
+                        }
+                        std::cout << contador << ". Todos" << endl;
+                        int idChain; // se pide la elección del usuario
+                        std::cout << "Opción: ";
+                        cin >> idChain;
                         if (opcion3 == 1){
-                            vector<NodoGrafo*> *cadenaMin = menorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            vector<NodoGrafo*> *cadenaMin;
+                            if (idChain == contador){
+                                cadenaMin = menorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            } else {
+                                NodoGrafo * nodeChain = grados->getNodo(idChain); // obtiene el nodo con base en el Id ingresado 
+                                cadenaMin = menorCadena(grados, concurrencia, nodeChain); // se obtiene la menor cadena
+                            }
+
                             Grafo newGrafo = new Grafo(true);
                             cout << "Cadena de valor más larga con menor concurrencia: " << endl;
                             cout << "Concurrencia: " << concurrencia << endl;
@@ -648,7 +699,7 @@ int main(){
                                 newGrafo.addNode(nodo->getInfo()); // se añade el nodo al grafo nuevo
                                 if (anterior){ // Si no es el primer nodo,
                                 // se añade el arco desde el anterior al actual
-                                    newGrafo.addArc(anterior->getInfo()->getId(),nodo->getInfo()->getId(), (anterior->getNodosEntrada()->size() + anterior->getArcs()->size()));
+                                    newGrafo.addArc(nodo->getInfo()->getId(), anterior->getInfo()->getId(), (nodo->getNodosEntrada()->size() + nodo->getArcs()->size()));
                                 }
                                 anterior = nodo; // se cambia el anterior al actual
                                 Registered* nickname = (Registered*)(void*)(nodo->getInfo()); // se imprime el nickname
@@ -657,9 +708,15 @@ int main(){
                             newGrafo.saveToFile();
                             cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
                         } else if (opcion3 == 2){
+                            vector<NodoGrafo*> *cadenaMax;
+                            if (idChain == contador){
+                                cadenaMax = mayorCadena(grados, concurrencia); // se obtiene la menor cadena
+                            } else {
+                                NodoGrafo * nodeChain = grados->getNodo(idChain); // obtiene el nodo con base en el Id ingresado 
+                                cadenaMax = mayorCadena(grados, concurrencia, nodeChain); // se obtiene la menor cadena
+                            }
                             cout << "Cadena de valor más larga con mayor concurrencia:" << endl;
                             Grafo newGrafo = new Grafo(true);
-                            vector<NodoGrafo*> *cadenaMax = mayorCadena(grados, concurrencia); // se obtiene la cadena más larga
                             cout << "Concurrencia: " << concurrencia << endl;
                             // se imprimen los nodos
                             NodoGrafo * anterior = nullptr;
@@ -667,7 +724,7 @@ int main(){
                                 newGrafo.addNode(nodo->getInfo()); // se añade el nodo al grafo nuevo
                                 if (anterior){ // Si no es el primer nodo,
                                 // se añade el arco desde el anterior al actual
-                                    newGrafo.addArc(anterior->getInfo()->getId(),nodo->getInfo()->getId(), (anterior->getNodosEntrada()->size() + anterior->getArcs()->size()));
+                                    newGrafo.addArc(nodo->getInfo()->getId(), anterior->getInfo()->getId(), (nodo->getNodosEntrada()->size() + nodo->getArcs()->size()));
                                 }
                                 anterior = nodo; // se cambia el anterior al actual
                                 Registered* nickname = (Registered*)(void*)(nodo->getInfo()); // se imprime el nickname
@@ -675,18 +732,19 @@ int main(){
                             }
                             newGrafo.saveToFile();
                             cout << "Link a la página: https://observablehq.com/d/c37c21e96a92e360" << endl;
-                        } else {
-                            break;    
                         }
                     }
-                } else if (opcion2 == 4) {
+                    
+                    
+                    
+                } else if (opcion2 == 4) { // Top 10
                     cout << "Top 10" << endl;
                     std::cout << "1. Desplegar el Top 10 de productos hasta la fecha.\n2. Desplegar el Top 10 de productos en un rango de fechas." << endl;
                     int rangoTop;
                     cin >> rangoTop;
-                    //getRecords(regs, allrecords);
                     Grafo *grafo;
                     if (rangoTop == 2){
+                        // si es el top 10 de un rango de fechas.
                         bool fecha1ValTop = false;
                         string fechaInicioTop;
                         while (!fecha1ValTop){
@@ -702,7 +760,7 @@ int main(){
                             fecha2ValTop = validateDate(fechaFinalTop);
                         }
                         vector<Registered*> rangoTop;
-                        for (Registered* registro : allrecords){
+                        for (Registered* registro : allrecords){ // se agregan al conjunto de nodos los que están dentro de esas fecha.
                             if (!dateInRange(registro->getPostdate(), fechaInicioTop, fechaFinalTop)){
                                 continue;
                             }
@@ -720,8 +778,7 @@ int main(){
 
                     saveTop10(grafo);
                     cout << "Link a la página: https://observablehq.com/d/c2adc8c189e19fe9" << endl;
-                } else if (opcion2 == 5) {
-                    //getRecords(regs, allrecords);
+                } else if (opcion2 == 5) { // Areas de mercado conexas
                     Grafo *grafo = crearGrafo(allrecords); // se crea el grafo
                     crearMatches(grafo); // Se crean los matches
                     Grafo* grados = grafo->crearGrafoGrados(); // se crea el grafo de nodos
@@ -729,7 +786,7 @@ int main(){
 
                     cout << "Recorrido en anchura" << endl;
                     for (INodo* nodo : anchura){ // se recorre el vector
-                        Registered * registro = (Registered*)(void*)(nodo); // se imprime el 
+                        Registered * registro = (Registered*)(void*)(nodo); // se imprime el recorrido
                         cout << "     " << registro->getNickname() << endl;
                     }
 

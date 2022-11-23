@@ -122,6 +122,7 @@ void crearMatches(Grafo* grafo){
     int maxCantidad = ceil(ranking.size() * RANKING_PERCENT);
     while(cantidadMatches < maxCantidad && riterator != ranking.rend()){
         if (match->getComprador() != match->getVendedor() && match->getRating() > 1){
+            // si el match no es consigo mismo y el rating es mayor que 1, lo mete al grafo
             grafo->addArc(match->getVendedor(), match->getComprador(), match->getRating());
             match->getVendedor()->addMatchSalida(*match);
             match->getComprador()->addMatchEntrada(*match);
@@ -202,8 +203,8 @@ void saveTop10(Grafo * pGrafo){
 // Deja la mayor concurrencia en la variable dada por referencia.
 vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pStarting = nullptr){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
-    if (pStarting){
-        if (!pStarting->getArcs()->size()){
+    if (pStarting){ // si hay un starting, calcula la cadena más larga con menor concurrencia a partir de ese nodo.
+        if (!pStarting->getArcs()->size()){ // si el nodo no tiene arcos, la cadena solo contiene al nodo.
             vector<NodoGrafo*>* singleChain = new vector<NodoGrafo*>();
             singleChain->push_back(pStarting);
             return singleChain;
@@ -215,8 +216,9 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pS
         }
 
     } else {
+        // si no hay un starting, calcula el dijkstra para todos para sacar la cadena mas larga con menor concurrencia
         for (NodoGrafo* nodo : grafo->getNodos()){
-            grafo->Dijkstra(nodo);
+            grafo->Dijkstra(nodo); // calcula el dijstra para ese nodo.
             auto caminos = nodo->getCaminos();
             for (auto iterador = caminos->begin(); iterador != caminos->end(); iterador++){
                 cadenas.insert(iterador->second);
@@ -225,8 +227,9 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pS
     }
     
 
-    DijkstraNode* menor = *cadenas.rbegin();
+    DijkstraNode* menor = *cadenas.rbegin(); // el menor es el que tenga la mayor concurrencia y el menor valor o rating
     for (auto rit = ++cadenas.rbegin(); rit != cadenas.rend(); rit++){
+        // empieza desde el final y se devuelve hasta encontrar el menor con mayor cantidad de nodos.
         if ((*rit)->getCantidadNodos() == menor->getCantidadNodos()){
             int concurrenciaMenor = menor->getDestino()->getArcs()->size() + menor->getDestino()->getNodosEntrada()->size();
             int concurrenciaRit = (*rit)->getDestino()->getArcs()->size() + (*rit)->getDestino()->getNodosEntrada()->size();
@@ -238,7 +241,7 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pS
         }
     }
     pConcurrencia = menor->getDistancia() + menor->getDestino()->getArcs()->size() + menor->getDestino()->getNodosEntrada()->size();
-    std::cout << menor->getDestino()->getInfo()->getId() << ' ' << menor->getStarting()->getInfo()->getId() << endl;
+    
     vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
     NodoGrafo * starting = menor->getStarting();
     result->push_back(menor->getDestino());
@@ -255,7 +258,7 @@ vector<NodoGrafo*>* menorCadena(Grafo* grafo, int &pConcurrencia, NodoGrafo * pS
 // Deja la mayor concurrencia en la variable dada por referencia.
 vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia, NodoGrafo * pStarting = nullptr){
     set<DijkstraNode*, OrdenCadenasMin> cadenas;
-    if (pStarting){
+    if (pStarting){ // si hay un starting point, calcula el dijkstra alterado para calcular la cadena mayor de ese nodo
         if (!pStarting->getArcs()->size()){
             vector<NodoGrafo*>* singleChain = new vector<NodoGrafo*>();
             singleChain->push_back(pStarting);
@@ -267,6 +270,7 @@ vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia, NodoGrafo * pS
             cadenas.insert(iterador->second);
         }
     } else {
+        // si no hay starting point, encuentra las mayores longitudes a partir de todos los nodos.
         for (NodoGrafo* nodo : grafo->getNodos()){
             grafo->dijkstraMayor(nodo);
             auto caminos = nodo->getCaminos();
@@ -276,13 +280,13 @@ vector<NodoGrafo*>* mayorCadena(Grafo *grafo, int &pConcurrencia, NodoGrafo * pS
         }
     }
     
-    DijkstraNode* mayor = *cadenas.rbegin();
+    DijkstraNode* mayor = *cadenas.rbegin(); // el mayor esta en la última posición.
     pConcurrencia = mayor->getDistancia() + mayor->getDestino()->getArcs()->size() + mayor->getDestino()->getNodosEntrada()->size();
-    std::cout << mayor->getDestino()->getInfo()->getId() << ' ' << mayor->getStarting()->getInfo()->getId() << endl;
+
     vector<NodoGrafo*> * result = new vector<NodoGrafo*>();
     NodoGrafo * starting = mayor->getStarting();
     result->push_back(mayor->getDestino());
-    while (mayor->getCamino()->getOrigen() != starting){
+    while (mayor->getCamino()->getOrigen() != starting){ // reconstruye el camino de la cadena
         result->push_back(mayor->getCamino()->getOrigen());
         mayor = starting->getCaminos()->at(mayor->getCamino()->getOrigen());
     }
@@ -316,11 +320,21 @@ void printGraph(Grafo* grafo){
 }
 
 // Esta función valida que una fecha sea válida.
+// Tiene que venir en formato mm/dd/yyyy
 bool validateDate(const string& date){
-    int day = std::stoi(date.substr(3,2));
-    int month = std::stoi(date.substr(0,2));
-    int year = std::stoi(date.substr(6,4));
-    cout << "validate" << endl;
+    int day;
+    int month;
+    int year;
+    try{
+        day = std::stoi(date.substr(3,2));
+        month = std::stoi(date.substr(0,2));
+        year = std::stoi(date.substr(6,4));
+    }
+    catch (...){
+        cout << "Fecha invalida" << endl;
+        return false;
+    }
+    
     if (!(1 <= month && month <= 12))
         return false;
     if (!(1 <= day && day <= 31))
@@ -341,6 +355,7 @@ bool validateDate(const string& date){
 }
 
 // Esta función determina si una fecha está en un rango específico.
+// Tiene que venir en formato mm/dd/yyyy
 bool dateInRange(const string& date, const string& start, const string& end){
     int day = std::stoi(date.substr(3,2));
     int month = std::stoi(date.substr(0,2));
@@ -362,9 +377,9 @@ bool dateInRange(const string& date, const string& start, const string& end){
 
 // Esta función actualiza los registros
 void getRecords(Contenful &regs, vector<Registered*> &allrecords){
-    Registered::getCompradores()->clear();
+    Registered::getCompradores()->clear(); // vacía los conjuntos de compradores y vendedores
     Registered::getVendedores()->clear();
-    Registered::resetContadorId();
+    Registered::resetContadorId(); // reestablece el contador de registros a 1
     allrecords = regs.getRecords();
 }
 
@@ -375,7 +390,7 @@ int main(){
     vector<Registered*> allrecords;
 
     while (true) {
-        int opcion;
+        int opcion; // menú principal
         std::cout << "Gobiz" << endl;
         std::cout << "1. Registrarse" << endl;
         std::cout << "2. Revisar matches" << endl;
@@ -386,7 +401,7 @@ int main(){
 
         if (opcion == 1){
             // Se pide la información del registro.
-            cin.clear();
+            cin.clear(); // se reestablece el cin
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             string nickname;
             while (true){
@@ -417,7 +432,7 @@ int main(){
                     std::cout << "ERROR: La contraseña no puede tener más de 20 caracteres" << endl;
                     continue;
                 }
-                string confirm;
+                string confirm; // confirmación de que las contraseñas sean iguales
                 std::cout << "Confirme su contraseña" << endl;
                 getline(cin, confirm);
                 if (password != confirm) {
@@ -457,7 +472,7 @@ int main(){
             string date = to_string(ltm->tm_mon + 1) + "/" + to_string(ltm->tm_mday);
             date += "/";
             date += to_string(ltm->tm_year + 1900);
-            std::cout << nickname << password << offer << demand << endl;
+            std::cout << "\nNickName: " << nickname << "\nContraseña: " << password << "\nOferta: " << offer << "\nDemanda: " << demand << endl;
             std::cout << "Fecha de registro: " << date << endl;
             cout << "Confirmar: Sí (s) o No (n)" << endl;
             char confirmar;
@@ -466,21 +481,19 @@ int main(){
                 continue;
             }
             // Subir al server
-            regs.registerUser(nickname, offer, demand, password, ltm->tm_mday + 1, ltm->tm_mon, ltm->tm_year + 1900);
+            regs.registerUser(nickname, offer, demand, password, ltm->tm_mday, ltm->tm_mon + 1, ltm->tm_year + 1900);
 
         } else if (opcion == 2){
-            //print all matches
             //imprime todo el grafo
             getRecords(regs, allrecords);
             Grafo *grafo = crearGrafo(allrecords);
             crearMatches(grafo);
-            cout << "Save" << endl;
             printGraph(grafo);
             grafo->saveToFile();
             cout << "Link a la página: https://observablehq.com/d/c3f7b2fb62380649" << endl;
 
         } else if (opcion == 3){
-            //obtain function to analize
+            // obtener función a analizar
             while (true) {
                 int opcion2; // se pide la elección del usuario
                 std::cout << "Analizar" << endl;
@@ -538,6 +551,7 @@ int main(){
                             std::cout << "  Oferta:" << endl;
                             Grafo newGrafo = new Grafo(true);
                             newGrafo.addNode(nodeMatch->getInfo());
+                            // si imprimen los matches de oferta
                             for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
                                 Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
                                 if (!dateInRange(registro->getPostdate(), fechaInicio, fechaFinal)){
@@ -550,6 +564,7 @@ int main(){
                             }
                             std::cout << "  Demanda:" << endl;
                             contador = 1;
+                            // si imprimen los matches de demanda
                             for (Arco * arco : *nodeMatch->getEntradas()){
                                 Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
                                 if (!dateInRange(registro->getPostdate(), fechaInicio, fechaFinal)){
@@ -571,6 +586,7 @@ int main(){
                             std::cout << "  Oferta:" << endl;
                             Grafo newGrafo = new Grafo(true);
                             newGrafo.addNode(nodeMatch->getInfo());
+                            // si imprimen los matches de oferta
                             for (auto it = nodeMatch->getArcs()->begin(); it != nodeMatch->getArcs()->end(); it++){
                                 Registered* registro = (Registered*)(void*)((*it)->getDestino()->getInfo());
                                 std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << (*it)->getPeso() << endl;      
@@ -580,6 +596,7 @@ int main(){
                             }
                             std::cout << "  Demanda:" << endl;
                             contador = 1;
+                            // si imprimen los matches de demanda
                             for (Arco * arco : *nodeMatch->getEntradas()){
                                 Registered* registro = (Registered*)(void*)(arco->getOrigen()->getInfo());
                                 std::cout << contador <<". " << registro->getNickname() << " con una calificación de " << arco->getPeso() << endl;      
@@ -629,7 +646,7 @@ int main(){
                         int opcion3; // se pide la elección del usuario
                         std::cout << "Opción: ";
                         cin >> opcion3;
-                        if (opcion3 != 1 && opcion3 != 2){
+                        if (opcion3 != 1 && opcion3 != 2){ // si no es 1 o 2 sale
                             break;
                         }
 
@@ -723,7 +740,7 @@ int main(){
                             fecha2ValTop = validateDate(fechaFinalTop);
                         }
                         vector<Registered*> rangoTop;
-                        for (Registered* registro : allrecords){
+                        for (Registered* registro : allrecords){ // se agregan al conjunto de nodos los que están dentro de esas fecha.
                             if (!dateInRange(registro->getPostdate(), fechaInicioTop, fechaFinalTop)){
                                 continue;
                             }
@@ -750,7 +767,7 @@ int main(){
 
                     cout << "Recorrido en anchura" << endl;
                     for (INodo* nodo : anchura){ // se recorre el vector
-                        Registered * registro = (Registered*)(void*)(nodo); // se imprime el 
+                        Registered * registro = (Registered*)(void*)(nodo); // se imprime el recorrido
                         cout << "     " << registro->getNickname() << endl;
                     }
 
@@ -780,54 +797,3 @@ int main(){
         }
     }
 }
-
-/*
-Hospital_Tec
-Somos una institución que brinda un servicio de alta calidad en el área de la salud. Nos especializamos en tratar lesiones provocadas por accidentes en el área de trabajo.
-Necesitamos dispositivos médicos de alta calidad y tecnología, hechos de metales resistentes, para sacar radiografías de fracturas, resonancias magnéticas, y quirófanos.
-salud1234
-11 16 2022
-
-EstructurasMina
-Somos una empresa constructora que construye edificios modernos y espaciosos de oficinas. Nuestros edificios pueden acomodar la última tecnología fácilmente y están diseñados para tener altas velocidades de internet.
-Un convenio con una institución de salud para atender a nuestros empleados que resulten lesionados por accidentes en el área laboral para que se recuperen rápidamente.
-SteveCEO067
-11 16 2022
-
-RealSolutions
-Somos una empresa desarrolladora de software. Contamos con un equipo de programadores con mucha experiencia y conocimientos en muchos lenguajes como Python. Nuestros ingenieros pueden trabajar en todo tipo de dispositivos.
-Necesitamos un edificio de oficinas para acomodar a nuestro equipo de cincuenta personas. Debe poder tener altas velocidades de Internet, ser moderno y tecnológico.
-RealHackers007
-11 16 2022
-
-AstraMedical222
-Somos una empresa farmacéutica que desarrolla medicamentos para combatir enfermedades respiratorias para niños de escuela con factores de riesgo.
-Dispositivos médicos de alta tecnología y calidad para ayudarnos en nuestro trabajo de investigación de medicamentos para tratar enfermedades respiratorias infantiles.
-Asthma_No8261
-11 17 2022
-
-Mesa_School
-Somos una institución educativa para niños y adolescentes talentosos que busca explotar su potencial intelectual desarrollando sus habilidades STEM para llegar a ser los futuros ingenieros en computación.
-Necesitamos medicamentos para los estudiantes de la escuela, especialmente para los niños de primaria ya que las enfermedades respiratorias tienen una alta incidencia en la población estudiantil.
-GiftInspire100
-11 17 2022
-
-CompuYankeeDev129
-Soy un ingeniero en computación con cuatro años de experiencia. He trabajado como programador en Python y Java en empresas desarrolladoras de software como RealSolutions.
-Busco entretenimiento. Me gustaría asistir a un concierto de 2 horas con el estadio lleno de gente y no me preocupa la falta de complejidad armónica en los acordes ya que me gusta el reguetón.
-DaddyYankeeFan8807
-11 17 2022
-
-OlcoManGold
-Me desempeño como programador y desarrollador de software. Tengo mucha experiencia tras trabajar once años en la industria. Soy experto en lenguajes como Python y me especializo en el desarrollo del firmware para dispositivos.
-Soy aficionado a la gastronomía mexicana, por lo que necesito poder almorzar tacos de pollo, ya sea asado, frito o al ajillo, todos los días y desde un punto de venta accesible.
-SuperGold$$
-11 17 2022
-
-BobTheBuilder250
-Vendemos materiales para la construcción de edificios, casas y proyectos de la más alta calidad. Adicionalmente, tenemos un gran equipo de ingenieros civiles con mucha experiencia en el desarrollo de infraestructura pública.
-Ocupo una institución educativa para mis hijos, quienes poseen gran talento para las áreas STEM, y quienes desean ser futuros ingenieros.
-DizzyScoop999
-11 17 2022
-
-*/

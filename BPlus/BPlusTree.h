@@ -65,11 +65,10 @@ class BPlusTree{
             }
 
             leaf = (LeafNode*)(void*)(searchPointer); // cuando llega a la hoja, convierte el BNode a LeafNode.
-            //LeafNode* testLeaf = leaf; // puntero para encontrar la hoja donde se hará la inserción.
 
             vector<IData*> *secuencia = leaf->getSecuencia();
 
-            vector<IData*>::iterator element = secuencia->begin(); // iterador para recorrer la secuencia de 
+            vector<IData*>::iterator element = secuencia->begin(); // iterador para recorrer la secuencia del nodo hoja
 
             if (element != secuencia->end()){ // si el bloque no está vacío
 
@@ -96,7 +95,7 @@ class BPlusTree{
         }
 
         // funcion para buscar un elemento en el árbol y retornar el nodo y el índice donde se ubica
-        // Retorna el nodo hoja de donde se ubica la primera aparcición en el árbol.
+        // Retorna el nodo hoja de donde se ubica la primera aparición en el árbol.
         LeafNode* find(IData* data, int &pIndex){
             searchPointer = root; // search pointer empieza en la raiz
             index = 0; // indice del padre del nodo
@@ -120,7 +119,6 @@ class BPlusTree{
             }
 
             leaf = (LeafNode*)(void*)(searchPointer); // cuando llega a la hoja, convierte el BNode a LeafNode.
-            //LeafNode* testLeaf = leaf; // puntero para encontrar la hoja donde se hará la inserción.
 
             vector<IData*> *secuencia = leaf->getSecuencia();
 
@@ -134,13 +132,14 @@ class BPlusTree{
                 while (data->compareTo(*element) > 0){
                     if (element + 1 == secuencia->end()){
                         // si llegó al final de este bloque
-                        if (leaf->getBrother()){
+                        if (leaf->getBrother()){ // si hay hermano, se pasa al hermano.
                             leaf = leaf->getBrother();
                             secuencia = leaf->getSecuencia();
                             element = secuencia->begin();
                             pIndex = 0;
                             continue;
                         }
+                        // si no hay hermano, no encontró el elemento y retorna nulo
                         return nullptr;
                     } else {
                         // si no, pasa el siguiente elemento.
