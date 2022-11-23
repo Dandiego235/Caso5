@@ -286,7 +286,6 @@ class Grafo {
 
                         if (!adyacente->getProcesado()) { // si no está procesado
                             componente.push_back(arco); // se agrega a la componente
-                            std::cout << arco->getPeso() << endl;
                             nodosProcesados.push(adyacente); // lo mete en la pila
                             adyacente->setProcesado(true); // lo marca
                         }
